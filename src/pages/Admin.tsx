@@ -6,7 +6,7 @@ import {
   Users, Target, UtensilsCrossed, Trophy, Settings, Award, MessageCircle, Bot, Pin,
   Trash2, AlertTriangle, Send, ThumbsUp, ThumbsDown, Plus, X, KeyRound, Eye, LogOut,
   LayoutDashboard, Search, TrendingUp, Activity, Flame, Clock, Filter, GripVertical,
-  ChevronRight, BarChart3,
+  ChevronRight, BarChart3, Upload, ImagePlus,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -80,6 +80,33 @@ export default function Admin() {
   // Receitas
   const [receitas, setReceitas] = useState<any[]>([]);
   const [editingReceita, setEditingReceita] = useState<any | null>(null);
+  const [uploadingReceitaImg, setUploadingReceitaImg] = useState(false);
+
+  const handleReceitaImageUpload = async (file: File) => {
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error("Formato inválido. Use JPG, PNG ou WEBP.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Imagem maior que 5MB.");
+      return;
+    }
+    setUploadingReceitaImg(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("recipes").upload(path, file, { upsert: false, contentType: file.type });
+      if (error) throw error;
+      const { data } = supabase.storage.from("recipes").getPublicUrl(path);
+      setEditingReceita((prev: any) => ({ ...prev, imagem_url: data.publicUrl }));
+      toast.success("Imagem enviada");
+    } catch (e: any) {
+      toast.error(e.message ?? "Erro ao enviar imagem");
+    } finally {
+      setUploadingReceitaImg(false);
+    }
+  };
   const [receitaFilter, setReceitaFilter] = useState<{ tipo: string; dia: string; restricao: string }>({ tipo: "", dia: "", restricao: "" });
 
   // Aluna detail
@@ -791,8 +818,14 @@ export default function Admin() {
                 {filteredReceitas.map((r) => (
                   <div key={r.id} className="group overflow-hidden rounded-xl border border-[#2A2A2A] bg-[#141414] transition hover:border-primary/40">
                     <div className="relative h-32 bg-gradient-to-br from-primary/20 via-purple-500/10 to-orange-500/20">
-                      {r.imagem_url ? <img src={r.imagem_url} alt={r.nome} className="h-full w-full object-cover" /> :
-                        <div className="grid h-full w-full place-items-center text-3xl opacity-30">🍽️</div>}
+                      {r.imagem_url ? (
+                        <>
+                          <img src={r.imagem_url} alt={r.nome} className="h-full w-full object-cover" />
+                          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
+                        </>
+                      ) : (
+                        <div className="grid h-full w-full place-items-center text-3xl opacity-30">🍽️</div>
+                      )}
                       <div className="absolute inset-0 bg-black/60 opacity-0 transition group-hover:opacity-100 grid place-items-center gap-2">
                         <Button size="sm" onClick={() => setEditingReceita(r)} className="bg-primary text-primary-foreground">Editar</Button>
                         <Button size="sm" variant="destructive" onClick={() => deleteReceita(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
@@ -1145,9 +1178,46 @@ export default function Admin() {
                   <Input type="number" value={editingReceita.dia_numero ?? ""} onChange={(e) => setEditingReceita({ ...editingReceita, dia_numero: e.target.value === "" ? null : e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 <div><label className="text-xs text-muted-foreground">Tempo (min)</label><Input type="number" value={editingReceita.tempo_preparo} onChange={(e) => setEditingReceita({ ...editingReceita, tempo_preparo: e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" /></div>
-                <div><label className="text-xs text-muted-foreground">Imagem URL</label><Input value={editingReceita.imagem_url ?? ""} onChange={(e) => setEditingReceita({ ...editingReceita, imagem_url: e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" /></div>
+                <div>
+                  <label className="text-xs text-muted-foreground">Imagem da receita</label>
+                  {editingReceita.imagem_url && (
+                    <img src={editingReceita.imagem_url} alt="" className="mt-1 h-[120px] w-full rounded-xl object-cover" />
+                  )}
+                  <label className="mt-2 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-[#2A2A2A] bg-[#1E1E1E] py-5 text-center transition hover:border-primary/50">
+                    {uploadingReceitaImg ? (
+                      <>
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                        <span className="text-xs text-muted-foreground">Enviando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-5 w-5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                          {editingReceita.imagem_url ? "Trocar imagem" : "Clique para enviar ou arraste a imagem"}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground/70">JPG, PNG ou WEBP — máx 5MB</span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      disabled={uploadingReceitaImg}
+                      onChange={(e) => e.target.files?.[0] && handleReceitaImageUpload(e.target.files[0])}
+                    />
+                  </label>
+                  <div className="mt-2">
+                    <label className="text-[10px] text-muted-foreground">Ou cole uma URL</label>
+                    <Input
+                      value={editingReceita.imagem_url ?? ""}
+                      onChange={(e) => setEditingReceita({ ...editingReceita, imagem_url: e.target.value })}
+                      placeholder="https://..."
+                      className="mt-1 h-8 bg-[#0D0D0D] border-[#2A2A2A] text-xs"
+                    />
+                  </div>
+                </div>
               </div>
               <div>
                 <p className="mb-2 text-xs text-muted-foreground">Restrições compatíveis</p>
