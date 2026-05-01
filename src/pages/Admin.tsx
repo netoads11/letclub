@@ -80,6 +80,33 @@ export default function Admin() {
   // Receitas
   const [receitas, setReceitas] = useState<any[]>([]);
   const [editingReceita, setEditingReceita] = useState<any | null>(null);
+  const [uploadingReceitaImg, setUploadingReceitaImg] = useState(false);
+
+  const handleReceitaImageUpload = async (file: File) => {
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error("Formato inválido. Use JPG, PNG ou WEBP.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Imagem maior que 5MB.");
+      return;
+    }
+    setUploadingReceitaImg(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("recipes").upload(path, file, { upsert: false, contentType: file.type });
+      if (error) throw error;
+      const { data } = supabase.storage.from("recipes").getPublicUrl(path);
+      setEditingReceita((prev: any) => ({ ...prev, imagem_url: data.publicUrl }));
+      toast.success("Imagem enviada");
+    } catch (e: any) {
+      toast.error(e.message ?? "Erro ao enviar imagem");
+    } finally {
+      setUploadingReceitaImg(false);
+    }
+  };
   const [receitaFilter, setReceitaFilter] = useState<{ tipo: string; dia: string; restricao: string }>({ tipo: "", dia: "", restricao: "" });
 
   // Aluna detail
