@@ -435,7 +435,191 @@ export default function Admin() {
         )}
 
         {tab === "receitas" && (
-          <p className="py-10 text-center text-sm text-muted-foreground">Gestão de receitas: 10 receitas semeadas.</p>
+          <div className="space-y-3">
+            <Button onClick={newReceita} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+              <Plus className="mr-1 h-4 w-4" /> Nova receita
+            </Button>
+
+            {editingReceita && (
+              <div className="space-y-3 rounded-xl border border-primary/30 bg-card p-3">
+                <div>
+                  <label className="text-[10px] text-muted-foreground">Nome</label>
+                  <Input value={editingReceita.nome} onChange={(e) => setEditingReceita({ ...editingReceita, nome: e.target.value })} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-muted-foreground">Tipo</label>
+                    <select
+                      className="mt-1 h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                      value={editingReceita.tipo_refeicao}
+                      onChange={(e) => setEditingReceita({ ...editingReceita, tipo_refeicao: e.target.value })}
+                    >
+                      <option value="cafe">Café</option>
+                      <option value="almoco">Almoço</option>
+                      <option value="lanche">Lanche</option>
+                      <option value="jantar">Jantar</option>
+                      <option value="cha">Chá</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground">Dia (opcional)</label>
+                    <Input
+                      type="number"
+                      value={editingReceita.dia_numero ?? ""}
+                      onChange={(e) => setEditingReceita({ ...editingReceita, dia_numero: e.target.value === "" ? null : e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] text-muted-foreground">Tempo de preparo (min)</label>
+                  <Input
+                    type="number"
+                    value={editingReceita.tempo_preparo}
+                    onChange={(e) => setEditingReceita({ ...editingReceita, tempo_preparo: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] text-muted-foreground">Imagem URL</label>
+                  <Input value={editingReceita.imagem_url ?? ""} onChange={(e) => setEditingReceita({ ...editingReceita, imagem_url: e.target.value })} />
+                </div>
+
+                <div>
+                  <p className="mb-1 text-[10px] text-muted-foreground">Restrições compatíveis</p>
+                  <div className="flex flex-wrap gap-3">
+                    {["vegetariana", "lactose", "gluten", "gestante"].map((r) => {
+                      const checked = (editingReceita.restricoes_compativeis ?? []).includes(r);
+                      return (
+                        <label key={r} className="flex items-center gap-1.5 text-xs">
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={(v) => {
+                              const cur = editingReceita.restricoes_compativeis ?? [];
+                              setEditingReceita({
+                                ...editingReceita,
+                                restricoes_compativeis: v ? [...cur, r] : cur.filter((x: string) => x !== r),
+                              });
+                            }}
+                          />{r}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-1 flex items-center justify-between">
+                    <p className="text-[10px] text-muted-foreground">Ingredientes</p>
+                    <Button size="sm" variant="ghost" onClick={() => setEditingReceita({ ...editingReceita, ingredientes: [...(editingReceita.ingredientes ?? []), { nome: "", quantidade: "" }] })}>
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <div className="space-y-1.5">
+                    {(editingReceita.ingredientes ?? []).map((ing: any, i: number) => (
+                      <div key={i} className="flex gap-1.5">
+                        <Input
+                          placeholder="Nome"
+                          value={ing.nome ?? ""}
+                          onChange={(e) => {
+                            const arr = [...editingReceita.ingredientes];
+                            arr[i] = { ...arr[i], nome: e.target.value };
+                            setEditingReceita({ ...editingReceita, ingredientes: arr });
+                          }}
+                        />
+                        <Input
+                          placeholder="Quantidade"
+                          value={ing.quantidade ?? ""}
+                          onChange={(e) => {
+                            const arr = [...editingReceita.ingredientes];
+                            arr[i] = { ...arr[i], quantidade: e.target.value };
+                            setEditingReceita({ ...editingReceita, ingredientes: arr });
+                          }}
+                        />
+                        <Button size="icon" variant="ghost" onClick={() => {
+                          const arr = editingReceita.ingredientes.filter((_: any, idx: number) => idx !== i);
+                          setEditingReceita({ ...editingReceita, ingredientes: arr });
+                        }}><X className="h-3 w-3" /></Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-1 flex items-center justify-between">
+                    <p className="text-[10px] text-muted-foreground">Modo de preparo (passos)</p>
+                    <Button size="sm" variant="ghost" onClick={() => setEditingReceita({ ...editingReceita, modo_preparo: [...(editingReceita.modo_preparo ?? []), ""] })}>
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <div className="space-y-1.5">
+                    {(editingReceita.modo_preparo ?? []).map((step: string, i: number) => (
+                      <div key={i} className="flex gap-1.5">
+                        <span className="pt-2 text-[10px] text-muted-foreground">{i + 1}.</span>
+                        <Textarea
+                          className="min-h-[44px]"
+                          value={step}
+                          onChange={(e) => {
+                            const arr = [...editingReceita.modo_preparo];
+                            arr[i] = e.target.value;
+                            setEditingReceita({ ...editingReceita, modo_preparo: arr });
+                          }}
+                        />
+                        <Button size="icon" variant="ghost" onClick={() => {
+                          const arr = editingReceita.modo_preparo.filter((_: any, idx: number) => idx !== i);
+                          setEditingReceita({ ...editingReceita, modo_preparo: arr });
+                        }}><X className="h-3 w-3" /></Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Switch checked={editingReceita.ativo} onCheckedChange={(v) => setEditingReceita({ ...editingReceita, ativo: v })} />
+                  <span className="text-xs">Ativa</span>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => saveReceita(editingReceita)}>Salvar</Button>
+                  <Button size="sm" variant="ghost" onClick={() => setEditingReceita(null)}>Cancelar</Button>
+                </div>
+              </div>
+            )}
+
+            <div className="overflow-x-auto rounded-xl bg-card">
+              <table className="w-full text-xs">
+                <thead className="border-b border-border text-[10px] uppercase text-muted-foreground">
+                  <tr>
+                    <th className="p-2 text-left">Nome</th>
+                    <th className="p-2 text-left">Tipo</th>
+                    <th className="p-2 text-left">Dia</th>
+                    <th className="p-2 text-left">Tempo</th>
+                    <th className="p-2 text-left">Ativa</th>
+                    <th className="p-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {receitas.map((r) => (
+                    <tr key={r.id} className="border-b border-border last:border-0">
+                      <td className="p-2 font-medium">{r.nome}</td>
+                      <td className="p-2">{r.tipo_refeicao}</td>
+                      <td className="p-2">{r.dia_numero ?? "—"}</td>
+                      <td className="p-2">{r.tempo_preparo}min</td>
+                      <td className="p-2">{r.ativo ? "✓" : "—"}</td>
+                      <td className="p-2 text-right">
+                        <Button size="sm" variant="ghost" onClick={() => setEditingReceita(r)}>Editar</Button>
+                        <Button size="sm" variant="ghost" onClick={() => deleteReceita(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {receitas.length === 0 && (
+                    <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">Nenhuma receita.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         )}
 
         {tab === "badges" && (
