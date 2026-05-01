@@ -218,6 +218,13 @@ export default function Missoes() {
                   </button>
                 )}
               </div>
+            );
+          })}
+
+          {missions.length === 0 && (
+            <p className="py-10 text-center text-sm text-[#888]">Nenhuma missão para hoje.</p>
+          )}
+        </div>
 
         {/* Future missions */}
         {futureMissions.length > 0 && (
