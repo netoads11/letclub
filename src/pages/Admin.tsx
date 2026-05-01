@@ -818,8 +818,14 @@ export default function Admin() {
                 {filteredReceitas.map((r) => (
                   <div key={r.id} className="group overflow-hidden rounded-xl border border-[#2A2A2A] bg-[#141414] transition hover:border-primary/40">
                     <div className="relative h-32 bg-gradient-to-br from-primary/20 via-purple-500/10 to-orange-500/20">
-                      {r.imagem_url ? <img src={r.imagem_url} alt={r.nome} className="h-full w-full object-cover" /> :
-                        <div className="grid h-full w-full place-items-center text-3xl opacity-30">🍽️</div>}
+                      {r.imagem_url ? (
+                        <>
+                          <img src={r.imagem_url} alt={r.nome} className="h-full w-full object-cover" />
+                          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
+                        </>
+                      ) : (
+                        <div className="grid h-full w-full place-items-center text-3xl opacity-30">🍽️</div>
+                      )}
                       <div className="absolute inset-0 bg-black/60 opacity-0 transition group-hover:opacity-100 grid place-items-center gap-2">
                         <Button size="sm" onClick={() => setEditingReceita(r)} className="bg-primary text-primary-foreground">Editar</Button>
                         <Button size="sm" variant="destructive" onClick={() => deleteReceita(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
