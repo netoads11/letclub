@@ -6,7 +6,7 @@ import {
   Users, Target, UtensilsCrossed, Trophy, Settings, Award, MessageCircle, Bot, Pin,
   Trash2, AlertTriangle, Send, ThumbsUp, ThumbsDown, Plus, X, KeyRound, Eye, LogOut,
   LayoutDashboard, Search, TrendingUp, Activity, Flame, Clock, Filter, GripVertical,
-  ChevronRight, BarChart3,
+  ChevronRight, BarChart3, Upload, ImagePlus,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
