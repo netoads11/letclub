@@ -12,27 +12,32 @@ const tabs = [
 
 export const BottomNav = () => {
   const loc = useLocation();
-  // Hide on detail/sub pages? Keep visible on main routes only
   const hide = /^\/(missao|receita|perfil|notificacoes|admin|onboarding|auth)/.test(loc.pathname);
   if (hide) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-lg pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex max-w-md items-stretch justify-around px-2 py-2">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#1E1E1E] bg-[#0A0A0A] pb-[env(safe-area-inset-bottom)]"
+      style={{ height: "calc(64px + env(safe-area-inset-bottom))" }}
+    >
+      <div className="mx-auto flex h-16 max-w-md items-stretch justify-around px-2">
         {tabs.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
               cn(
-                "flex flex-1 flex-col items-center gap-1 rounded-xl py-2 text-[10px] font-medium transition-colors",
-                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
+                "flex flex-1 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors",
+                isActive ? "text-primary" : "text-[#444] hover:text-foreground",
               )
             }
           >
             {({ isActive }) => (
               <>
-                <Icon className={cn("h-5 w-5", isActive && "drop-shadow-[0_0_8px_hsl(var(--primary))]")} strokeWidth={isActive ? 2.5 : 2} />
+                <Icon
+                  className={cn("h-6 w-6", isActive && "drop-shadow-[0_0_8px_hsl(var(--primary))]")}
+                  strokeWidth={isActive ? 2.5 : 2}
+                />
                 <span>{label}</span>
               </>
             )}
