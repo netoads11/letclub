@@ -386,17 +386,36 @@ export default function Admin() {
 
         {tab === "alunas" && (
           <div className="space-y-2">
-            {alunas.map((a) => (
-              <div key={a.id} className="flex items-center justify-between rounded-xl bg-card p-3">
-                <div>
-                  <p className="text-sm font-semibold">{a.full_name || "—"}</p>
-                  <p className="text-[10px] text-muted-foreground">{a.email} • {a.xp_total} XP • streak {a.streak_atual}</p>
+            {alunas.map((a) => {
+              const st = alunaStatus(a);
+              return (
+                <div key={a.id} className="rounded-xl bg-card p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-semibold">{a.full_name || "—"}</p>
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${st.cls}`}>{st.label}</span>
+                      </div>
+                      <p className="truncate text-[11px] text-muted-foreground">{a.email}</p>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        Dia {alunaDia(a)}/15 • {a.xp_total ?? 0} XP • streak {a.streak_atual ?? 0}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <Button size="sm" variant="ghost" onClick={() => openAlunaDetail(a)}>
+                        <Eye className="mr-1 h-3.5 w-3.5" />Ver
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => resetSenha(a.email)}>
+                        <KeyRound className="mr-1 h-3.5 w-3.5" />Reset senha
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => toggleBlock(a.id, a.bloqueado)}>
+                        {a.bloqueado ? "Desbloquear" : "Bloquear"}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <Button size="sm" variant="ghost" onClick={() => toggleBlock(a.id, a.bloqueado)}>
-                  {a.bloqueado ? "Desbloquear" : "Bloquear"}
-                </Button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
