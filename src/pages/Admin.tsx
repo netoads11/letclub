@@ -975,31 +975,70 @@ export default function Admin() {
 
           {/* ============== CONFIG ============== */}
           {tab === "config" && (
-            <div className="max-w-3xl space-y-4">
-              {Object.entries(config).length === 0 && !loading && (
-                <div className="rounded-xl border border-dashed border-[#2A2A2A] p-8 text-center text-sm text-muted-foreground">
-                  Nenhuma configuração ainda.
-                </div>
-              )}
-              {Object.entries(config).map(([k, v]) => {
-                const isLong = k.startsWith("sistema_prompt") || k === "let_system_prompt" || k.startsWith("mensagem");
-                return (
-                  <div key={k} className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-5">
-                    <div className="mb-3 flex items-start justify-between">
-                      <div>
-                        <p className="font-medium text-sm">{k}</p>
-                        <p className="text-[11px] text-muted-foreground">Configuração interna do sistema</p>
-                      </div>
-                      <Button size="sm" onClick={() => saveConfig(k)} className="bg-primary text-primary-foreground">Salvar</Button>
+            <div className="max-w-3xl space-y-8">
+              {/* ====== Conteúdo ====== */}
+              <section>
+                <h2 className="mb-1 font-display text-sm font-bold uppercase tracking-wide text-muted-foreground">Conteúdo</h2>
+                <p className="mb-4 text-xs text-muted-foreground">Textos e mensagens exibidos para as alunas no app.</p>
+                <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-5">
+                  <div className="mb-3 flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-medium text-sm">Mensagem motivacional da Let</p>
+                      <p className="text-[11px] text-muted-foreground">Texto exibido na tela inicial (Home) abaixo do nome da aluna. Use para inspirar e dar boas-vindas.</p>
                     </div>
-                    {isLong ? (
-                      <Textarea value={v} onChange={(e) => setConfig((p) => ({ ...p, [k]: e.target.value }))} className="min-h-[100px] bg-[#0D0D0D] border-[#2A2A2A] font-mono text-xs" />
-                    ) : (
-                      <Input value={v} onChange={(e) => setConfig((p) => ({ ...p, [k]: e.target.value }))} className="bg-[#0D0D0D] border-[#2A2A2A]" />
-                    )}
+                    <Button size="sm" onClick={() => saveConfig("mensagem_let_home")} className="bg-primary text-primary-foreground">Salvar</Button>
                   </div>
-                );
-              })}
+                  <Textarea
+                    value={config.mensagem_let_home ?? ""}
+                    onChange={(e) => setConfig((p) => ({ ...p, mensagem_let_home: e.target.value }))}
+                    placeholder="Ex: Bom dia, guerreira! Hoje é mais um dia para brilhar 💚"
+                    className="min-h-[90px] bg-[#0D0D0D] border-[#2A2A2A]"
+                  />
+                </div>
+              </section>
+
+              {/* ====== Notificações ====== */}
+              <section>
+                <h2 className="mb-1 font-display text-sm font-bold uppercase tracking-wide text-muted-foreground">Notificações</h2>
+                <p className="mb-4 text-xs text-muted-foreground">Horários em que os lembretes automáticos são disparados para as alunas.</p>
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-5">
+                    <div className="mb-3 flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-sm">Horário do lembrete diário</p>
+                        <p className="text-[11px] text-muted-foreground">Hora em que cada aluna recebe a notificação diária para abrir o app e cumprir as missões do dia.</p>
+                      </div>
+                      <Button size="sm" onClick={() => saveConfig("horario_lembrete_diario", config.horario_lembrete_diario ?? "07:00")} className="bg-primary text-primary-foreground">Salvar</Button>
+                    </div>
+                    <Input
+                      type="time"
+                      value={config.horario_lembrete_diario ?? "07:00"}
+                      onChange={(e) => setConfig((p) => ({ ...p, horario_lembrete_diario: e.target.value }))}
+                      className="w-40 bg-[#0D0D0D] border-[#2A2A2A]"
+                    />
+                  </div>
+
+                  <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-5">
+                    <div className="mb-3 flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-sm">Horário do alerta "streak em risco"</p>
+                        <p className="text-[11px] text-muted-foreground">No fim do dia, alunas que ainda não fizeram check-in recebem um aviso para não perder a sequência.</p>
+                      </div>
+                      <Button size="sm" onClick={() => saveConfig("horario_streak_risco", config.horario_streak_risco ?? "20:00")} className="bg-primary text-primary-foreground">Salvar</Button>
+                    </div>
+                    <Input
+                      type="time"
+                      value={config.horario_streak_risco ?? "20:00"}
+                      onChange={(e) => setConfig((p) => ({ ...p, horario_streak_risco: e.target.value }))}
+                      className="w-40 bg-[#0D0D0D] border-[#2A2A2A]"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <p className="text-[11px] text-muted-foreground">
+                💡 As configurações da assistente IA (prompt + sugestões) ficam na aba <span className="text-primary">Chat IA</span>.
+              </p>
             </div>
           )}
         </div>
