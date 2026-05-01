@@ -416,11 +416,11 @@ export default function Admin() {
             <div className="rounded-xl bg-card p-4">
               <label className="text-xs text-muted-foreground">System prompt da Let</label>
               <Textarea
-                value={config.let_system_prompt ?? config.sistema_prompt_let ?? ""}
-                onChange={(e) => setConfig((p) => ({ ...p, let_system_prompt: e.target.value }))}
+                value={config.sistema_prompt_let ?? ""}
+                onChange={(e) => setConfig((p) => ({ ...p, sistema_prompt_let: e.target.value }))}
                 className="mt-1 min-h-[140px] text-xs"
               />
-              <Button size="sm" onClick={() => saveConfig("let_system_prompt", config.let_system_prompt)} className="mt-2">Salvar prompt</Button>
+              <Button size="sm" onClick={() => saveConfig("sistema_prompt_let", config.sistema_prompt_let)} className="mt-2">Salvar prompt</Button>
             </div>
 
             <div className="rounded-xl bg-card p-4">
