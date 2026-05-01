@@ -13,6 +13,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { getCurrentDay } from "@/lib/challenge";
 
@@ -284,111 +285,120 @@ export default function Perfil() {
           </div>
         </div>
 
-        {/* SETTINGS PANEL */}
-        {showSettings && (
-          <div className="mt-6 space-y-3 px-4 fade-in">
-            {/* Section: profile */}
-            <section className="rounded-2xl border border-border bg-card p-5">
-              <h3 className="mb-3 flex items-center gap-2 font-display font-bold"><User className="h-4 w-4 text-primary" /> Perfil</h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="h-14 w-14 overflow-hidden rounded-full border border-border bg-background">
-                    {avatarUrl ? <img src={avatarUrl} className="h-full w-full object-cover" /> :
-                      <div className="flex h-full w-full items-center justify-center font-display text-lg font-bold text-primary">{(name || "?").charAt(0).toUpperCase()}</div>}
-                  </div>
-                  <label className="cursor-pointer">
-                    <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-2 text-xs hover:bg-muted">
-                      <Camera className="h-3.5 w-3.5" /> {uploading ? "Enviando..." : "Trocar foto"}
-                    </span>
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadAvatar(e.target.files[0])} />
-                  </label>
-                </div>
-                <div>
-                  <Label className="text-xs">Nome</Label>
-                  <Input value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5" />
-                </div>
-                <Button onClick={saveProfile} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">Salvar perfil</Button>
-              </div>
-            </section>
-
-            {/* Section: account */}
-            <section className="rounded-2xl border border-border bg-card p-5">
-              <h3 className="mb-3 flex items-center gap-2 font-display font-bold"><Mail className="h-4 w-4 text-primary" /> E-mail e senha</h3>
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-xs">E-mail</Label>
-                  <div className="mt-1.5 flex gap-2">
-                    <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
-                    <Button onClick={updateEmail} variant="outline" size="sm">Atualizar</Button>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-xs flex items-center gap-1.5"><Lock className="h-3 w-3" /> Nova senha</Label>
-                  <div className="mt-1.5 flex gap-2">
-                    <Input type="password" placeholder="Mínimo 6 caracteres" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-                    <Button onClick={updatePassword} variant="outline" size="sm">Alterar</Button>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Section: notifications */}
-            <section className="rounded-2xl border border-border bg-card p-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Bell className="h-4 w-4 text-primary" />
-                  <div>
-                    <p className="font-display font-bold">Notificações</p>
-                    <p className="text-[11px] text-muted-foreground">Lembretes, conquistas e comunicados</p>
-                  </div>
-                </div>
-                <Switch checked={notif} onCheckedChange={(v) => { setNotif(v); supabase.from("profiles").update({ notificacoes_ativas: v }).eq("id", profile.id).then(() => refreshProfile()); }} />
-              </div>
-            </section>
-
-            {/* Section: restricoes */}
-            <section className="rounded-2xl border border-border bg-card p-5">
-              <h3 className="mb-3 flex items-center gap-2 font-display font-bold"><Utensils className="h-4 w-4 text-primary" /> Restrições alimentares</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {RESTRICOES.map((r) => (
-                  <label key={r} className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-background p-2.5 text-sm">
-                    <Checkbox checked={restricoes.includes(r)} onCheckedChange={(v) => toggleRestricao(r, !!v)} />
-                    <span className="capitalize">{r}</span>
-                  </label>
-                ))}
-              </div>
-              <Button onClick={saveProfile} className="mt-3 w-full bg-primary text-primary-foreground hover:bg-primary/90">Salvar restrições</Button>
-            </section>
-
-            {/* Section: peso */}
-            <section className="rounded-2xl border border-border bg-card p-5">
-              <h3 className="mb-3 flex items-center gap-2 font-display font-bold"><Scale className="h-4 w-4 text-primary" /> Atualizar peso</h3>
-              <div className="flex gap-2">
-                <Input type="number" step="0.1" value={newPeso} onChange={(e) => setNewPeso(e.target.value)} placeholder="Peso atual em kg" />
-                <Button onClick={logPeso} className="bg-primary text-primary-foreground hover:bg-primary/90">Registrar</Button>
-              </div>
-            </section>
-
-            {/* Section: support */}
-            <section className="rounded-2xl border border-border bg-card p-5">
-              <h3 className="mb-3 flex items-center gap-2 font-display font-bold"><LifeBuoy className="h-4 w-4 text-primary" /> Suporte</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <a href="mailto:suporte@letponto.com" className="rounded-lg border border-border bg-background p-3 text-center text-xs hover:bg-muted">
-                  ✉️ E-mail
-                </a>
-                <a href="https://wa.me/5511999999999" target="_blank" rel="noreferrer" className="rounded-lg border border-border bg-background p-3 text-center text-xs hover:bg-muted">
-                  💬 WhatsApp
-                </a>
-              </div>
-            </section>
-
-            {/* Logout */}
-            <Button variant="ghost" onClick={() => setConfirmLogout(true)} className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive">
-              <LogOut className="mr-2 h-4 w-4" /> Sair da conta
-            </Button>
-          </div>
-        )}
       </div>
+
+      {/* SETTINGS BOTTOM SHEET */}
+      <Sheet open={showSettings} onOpenChange={setShowSettings}>
+        <SheetContent
+          side="bottom"
+          className="max-h-[88vh] overflow-y-auto rounded-t-3xl border-t border-[#2A2A2A] bg-[#141414] p-0"
+        >
+          {/* Handle bar */}
+          <div className="sticky top-0 z-10 flex justify-center bg-[#141414] pb-2 pt-3">
+            <div className="h-1.5 w-12 rounded-full bg-[#2A2A2A]" />
+          </div>
+          <div className="px-4 pb-8">
+            <h2 className="mb-4 font-display text-xl font-bold text-white">Configurações</h2>
+            <div className="space-y-3">
+              {/* Section: profile */}
+              <section className="rounded-2xl border border-[#2A2A2A] bg-[#0D0D0D] p-5">
+                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-white"><User className="h-4 w-4 text-primary" /> Perfil</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-14 w-14 overflow-hidden rounded-full border border-[#2A2A2A] bg-background">
+                      {avatarUrl ? <img src={avatarUrl} className="h-full w-full object-cover" /> :
+                        <div className="flex h-full w-full items-center justify-center font-display text-lg font-bold text-primary">{(name || "?").charAt(0).toUpperCase()}</div>}
+                    </div>
+                    <label className="cursor-pointer">
+                      <span className="inline-flex items-center gap-1.5 rounded-md border border-[#2A2A2A] bg-background px-3 py-2 text-xs hover:bg-muted">
+                        <Camera className="h-3.5 w-3.5" /> {uploading ? "Enviando..." : "Trocar foto"}
+                      </span>
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadAvatar(e.target.files[0])} />
+                    </label>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Nome</Label>
+                    <Input value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5" />
+                  </div>
+                  <Button onClick={saveProfile} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">Salvar perfil</Button>
+                </div>
+              </section>
+
+              {/* Section: account */}
+              <section className="rounded-2xl border border-[#2A2A2A] bg-[#0D0D0D] p-5">
+                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-white"><Mail className="h-4 w-4 text-primary" /> E-mail e senha</h3>
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-xs">E-mail</Label>
+                    <div className="mt-1.5 flex gap-2">
+                      <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
+                      <Button onClick={updateEmail} variant="outline" size="sm">Atualizar</Button>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs flex items-center gap-1.5"><Lock className="h-3 w-3" /> Nova senha</Label>
+                    <div className="mt-1.5 flex gap-2">
+                      <Input type="password" placeholder="Mínimo 6 caracteres" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                      <Button onClick={updatePassword} variant="outline" size="sm">Alterar</Button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Section: notifications */}
+              <section className="rounded-2xl border border-[#2A2A2A] bg-[#0D0D0D] p-5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Bell className="h-4 w-4 text-primary" />
+                    <div>
+                      <p className="font-display font-bold text-white">Notificações</p>
+                      <p className="text-[11px] text-muted-foreground">Lembretes, conquistas e comunicados</p>
+                    </div>
+                  </div>
+                  <Switch checked={notif} onCheckedChange={(v) => { setNotif(v); supabase.from("profiles").update({ notificacoes_ativas: v }).eq("id", profile.id).then(() => refreshProfile()); }} />
+                </div>
+              </section>
+
+              {/* Section: restricoes */}
+              <section className="rounded-2xl border border-[#2A2A2A] bg-[#0D0D0D] p-5">
+                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-white"><Utensils className="h-4 w-4 text-primary" /> Restrições alimentares</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {RESTRICOES.map((r) => (
+                    <label key={r} className="flex cursor-pointer items-center gap-2 rounded-lg border border-[#2A2A2A] bg-background p-2.5 text-sm">
+                      <Checkbox checked={restricoes.includes(r)} onCheckedChange={(v) => toggleRestricao(r, !!v)} />
+                      <span className="capitalize">{r}</span>
+                    </label>
+                  ))}
+                </div>
+                <Button onClick={saveProfile} className="mt-3 w-full bg-primary text-primary-foreground hover:bg-primary/90">Salvar restrições</Button>
+              </section>
+
+              {/* Section: peso */}
+              <section className="rounded-2xl border border-[#2A2A2A] bg-[#0D0D0D] p-5">
+                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-white"><Scale className="h-4 w-4 text-primary" /> Atualizar peso</h3>
+                <div className="flex gap-2">
+                  <Input type="number" step="0.1" value={newPeso} onChange={(e) => setNewPeso(e.target.value)} placeholder="Peso atual em kg" />
+                  <Button onClick={logPeso} className="bg-primary text-primary-foreground hover:bg-primary/90">Registrar</Button>
+                </div>
+              </section>
+
+              {/* Section: support */}
+              <section className="rounded-2xl border border-[#2A2A2A] bg-[#0D0D0D] p-5">
+                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-white"><LifeBuoy className="h-4 w-4 text-primary" /> Suporte</h3>
+                <a href="mailto:suporte@leteponto.com.br" className="block rounded-lg border border-[#2A2A2A] bg-background p-3 text-center text-xs hover:bg-muted">
+                  ✉️ suporte@leteponto.com.br
+                </a>
+              </section>
+
+              {/* Logout */}
+              <Button variant="ghost" onClick={() => setConfirmLogout(true)} className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive">
+                <LogOut className="mr-2 h-4 w-4" /> Sair da conta
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
 
       <AlertDialog open={confirmLogout} onOpenChange={setConfirmLogout}>
         <AlertDialogContent>
