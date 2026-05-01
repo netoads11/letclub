@@ -3,13 +3,75 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { Send, ThumbsUp, ThumbsDown, RefreshCw } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 type Msg = { id?: string; role: "user" | "assistant"; content: string; feedback?: string | null };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-with-let`;
+
+// Simple markdown renderer: **bold**, numbered lists, line breaks
+function renderMarkdown(text: string) {
+  const lines = text.split("\n");
+  const elements: JSX.Element[] = [];
+  let listBuffer: string[] = [];
+  let listType: "ol" | "ul" | null = null;
+
+  const flushList = () => {
+    if (listBuffer.length === 0) return;
+    const Tag = listType === "ol" ? "ol" : "ul";
+    elements.push(
+      <Tag
+        key={`l-${elements.length}`}
+        className={`my-1.5 ${listType === "ol" ? "list-decimal" : "list-disc"} pl-5 space-y-1`}
+      >
+        {listBuffer.map((item, i) => (
+          <li key={i} dangerouslySetInnerHTML={{ __html: inlineFormat(item) }} />
+        ))}
+      </Tag>,
+    );
+    listBuffer = [];
+    listType = null;
+  };
+
+  const inlineFormat = (s: string) =>
+    s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.+?)\*/g, "<em>$1</em>")
+      .replace(/`(.+?)`/g, '<code class="bg-black/40 px-1 rounded text-xs">$1</code>');
+
+  lines.forEach((raw, i) => {
+    const line = raw.trimEnd();
+    const olMatch = line.match(/^\s*(\d+)\.\s+(.*)/);
+    const ulMatch = line.match(/^\s*[-*]\s+(.*)/);
+    if (olMatch) {
+      if (listType !== "ol") flushList();
+      listType = "ol";
+      listBuffer.push(olMatch[2]);
+    } else if (ulMatch) {
+      if (listType !== "ul") flushList();
+      listType = "ul";
+      listBuffer.push(ulMatch[1]);
+    } else {
+      flushList();
+      if (line.trim() === "") {
+        elements.push(<div key={`s-${i}`} className="h-2" />);
+      } else {
+        elements.push(
+          <p
+            key={`p-${i}`}
+            className="leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: inlineFormat(line) }}
+          />,
+        );
+      }
+    }
+  });
+  flushList();
+  return elements;
+}
 
 export default function Chat() {
   const { profile } = useAuth();
@@ -23,11 +85,21 @@ export default function Chat() {
     if (!profile) return;
     (async () => {
       const [msgs, cfg] = await Promise.all([
-        supabase.from("chat_messages").select("*").eq("user_id", profile.id).eq("session_active", true).order("created_at"),
-        supabase.from("configuracoes_app").select("chave, valor").in("chave", ["sugestoes_chat_1", "sugestoes_chat_2", "sugestoes_chat_3"]),
+        supabase
+          .from("chat_messages")
+          .select("*")
+          .eq("user_id", profile.id)
+          .eq("session_active", true)
+          .order("created_at"),
+        supabase
+          .from("configuracoes_app")
+          .select("chave, valor")
+          .in("chave", ["sugestoes_chat_1", "sugestoes_chat_2", "sugestoes_chat_3"]),
       ]);
       setMessages((msgs.data ?? []) as Msg[]);
-      setSuggestions((cfg.data ?? []).sort((a, b) => a.chave.localeCompare(b.chave)).map((c) => c.valor));
+      setSuggestions(
+        (cfg.data ?? []).sort((a, b) => a.chave.localeCompare(b.chave)).map((c) => c.valor),
+      );
     })();
   }, [profile]);
 
@@ -42,10 +114,11 @@ export default function Chat() {
     setInput("");
     setStreaming(true);
 
-    // persist user msg
-    const { data: savedUser } = await supabase.from("chat_messages")
+    const { data: savedUser } = await supabase
+      .from("chat_messages")
       .insert({ user_id: profile.id, role: "user", content: userMsg.content })
-      .select().single();
+      .select()
+      .single();
     if (savedUser) userMsg.id = savedUser.id;
 
     let assistantSoFar = "";
@@ -76,7 +149,7 @@ export default function Chat() {
         else if (resp.status === 402) toast.error("Créditos esgotados. Avise a admin.");
         else toast.error("Erro ao falar com a Let");
         setStreaming(false);
-        setMessages((p) => p.slice(0, -1)); // remove user msg from view
+        setMessages((p) => p.slice(0, -1));
         return;
       }
 
@@ -95,7 +168,10 @@ export default function Chat() {
           if (line.endsWith("\r")) line = line.slice(0, -1);
           if (!line.startsWith("data: ")) continue;
           const json = line.slice(6).trim();
-          if (json === "[DONE]") { stop = true; break; }
+          if (json === "[DONE]") {
+            stop = true;
+            break;
+          }
           try {
             const p = JSON.parse(json);
             const c = p.choices?.[0]?.delta?.content;
@@ -107,13 +183,14 @@ export default function Chat() {
         }
       }
 
-      // Persist final assistant message
       if (assistantSoFar) {
-        const { data: saved } = await supabase.from("chat_messages")
+        const { data: saved } = await supabase
+          .from("chat_messages")
           .insert({ user_id: profile.id, role: "assistant", content: assistantSoFar })
-          .select().single();
+          .select()
+          .single();
         if (saved) {
-          setMessages((p) => p.map((m, i) => i === p.length - 1 ? { ...m, id: saved.id } : m));
+          setMessages((p) => p.map((m, i) => (i === p.length - 1 ? { ...m, id: saved.id } : m)));
         }
       }
     } catch (e: any) {
@@ -127,74 +204,156 @@ export default function Chat() {
     const m = messages[idx];
     if (!m.id) return;
     await supabase.from("chat_messages").update({ feedback: fb }).eq("id", m.id);
-    setMessages((p) => p.map((x, i) => i === idx ? { ...x, feedback: fb } : x));
+    setMessages((p) => p.map((x, i) => (i === idx ? { ...x, feedback: fb } : x)));
     toast.success("Obrigada pelo feedback!");
   };
 
   const newConversation = async () => {
     if (!profile) return;
-    await supabase.from("chat_messages").update({ session_active: false }).eq("user_id", profile.id).eq("session_active", true);
+    await supabase
+      .from("chat_messages")
+      .update({ session_active: false })
+      .eq("user_id", profile.id)
+      .eq("session_active", true);
     setMessages([]);
     toast.success("Nova conversa iniciada");
   };
 
+  const fmtTime = (iso?: string) => {
+    if (!iso) return "";
+    try {
+      return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    } catch {
+      return "";
+    }
+  };
+
   return (
     <AppShell>
-      <header className="flex items-center justify-between border-b border-border px-5 py-4">
+      {/* Header */}
+      <header className="flex items-center justify-between border-b border-[#1E1E1E] bg-[#0A0A0A] px-4 py-3.5">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-display font-bold text-primary-foreground">L</div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-display text-base font-bold text-primary-foreground">
+            L
+          </div>
           <div>
-            <h1 className="font-display font-bold">Fale com a Let</h1>
-            <p className="text-[10px] text-muted-foreground">Sua mentora do desafio</p>
+            <h1 className="font-display text-[18px] font-bold leading-tight text-white">Fale com a Let</h1>
+            <p className="text-[11px] text-[#888]">Sua mentora do desafio</p>
           </div>
         </div>
-        <button onClick={newConversation} className="rounded-full bg-card p-2"><RefreshCw className="h-4 w-4" /></button>
+        <button
+          onClick={newConversation}
+          className="rounded-full border border-[#1E1E1E] bg-[#141414] p-2"
+          aria-label="Nova conversa"
+        >
+          <RefreshCw className="h-4 w-4" />
+        </button>
       </header>
 
-      <div ref={scrollRef} className="h-[calc(100vh-260px)] overflow-y-auto px-5 py-4 scrollbar-hide">
+      <div ref={scrollRef} className="h-[calc(100vh-280px)] overflow-y-auto px-4 py-4 scrollbar-hide">
         {messages.length === 0 && (
-          <div className="space-y-3 py-6 text-center">
-            <p className="text-sm text-muted-foreground">Como posso te ajudar hoje?</p>
-            <div className="space-y-2">
-              {suggestions.filter(Boolean).map((s, i) => (
-                <button key={i} onClick={() => send(s)} className="block w-full rounded-xl border border-border bg-card p-3 text-left text-sm transition-colors hover:border-primary/40">
-                  {s}
-                </button>
-              ))}
+          <div className="space-y-4 py-6 text-center">
+            <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-full bg-primary font-display text-2xl font-bold text-primary-foreground">
+              L
             </div>
+            <p className="text-sm text-[#888]">Como posso te ajudar hoje?</p>
           </div>
         )}
+
         <div className="space-y-3">
-          {messages.map((m, i) => (
-            <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-card"}`}>
-                <p className="whitespace-pre-wrap leading-relaxed">{m.content}</p>
-                {m.role === "assistant" && m.id && (
-                  <div className="mt-2 flex gap-2 border-t border-border pt-2">
-                    <button onClick={() => giveFeedback(i, "positivo")} className={`rounded-full p-1 ${m.feedback === "positivo" ? "text-primary" : "text-muted-foreground"}`}>
-                      <ThumbsUp className="h-3.5 w-3.5" />
-                    </button>
-                    <button onClick={() => giveFeedback(i, "negativo")} className={`rounded-full p-1 ${m.feedback === "negativo" ? "text-destructive" : "text-muted-foreground"}`}>
-                      <ThumbsDown className="h-3.5 w-3.5" />
-                    </button>
+          {messages.map((m, i) => {
+            const isUser = m.role === "user";
+            return (
+              <div key={i} className={`flex ${isUser ? "justify-end" : "justify-start gap-2"}`}>
+                {!isUser && (
+                  <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                    L
                   </div>
                 )}
+                <div className={isUser ? "max-w-[80%]" : "max-w-[85%]"}>
+                  <div
+                    className={`rounded-2xl px-4 py-2.5 text-sm ${
+                      isUser ? "bg-primary text-primary-foreground" : "bg-[#1E1E1E] text-white"
+                    }`}
+                  >
+                    {isUser ? (
+                      <p className="whitespace-pre-wrap leading-relaxed">{m.content}</p>
+                    ) : (
+                      <div className="space-y-1">{renderMarkdown(m.content)}</div>
+                    )}
+                  </div>
+                  <div className={`mt-1 flex items-center gap-2 text-[10px] text-[#555] ${isUser ? "justify-end" : ""}`}>
+                    {fmtTime((m as any).created_at)}
+                    {!isUser && m.id && (
+                      <>
+                        <button
+                          onClick={() => giveFeedback(i, "positivo")}
+                          className={m.feedback === "positivo" ? "text-primary" : "text-[#555] hover:text-[#888]"}
+                        >
+                          <ThumbsUp className="h-3 w-3" />
+                        </button>
+                        <button
+                          onClick={() => giveFeedback(i, "negativo")}
+                          className={m.feedback === "negativo" ? "text-destructive" : "text-[#555] hover:text-[#888]"}
+                        >
+                          <ThumbsDown className="h-3 w-3" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {streaming && messages[messages.length - 1]?.role === "user" && (
+            <div className="flex gap-2 justify-start">
+              <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                L
+              </div>
+              <div className="rounded-2xl bg-[#1E1E1E] px-4 py-2.5 text-sm">
+                <span className="animate-pulse text-[#888]">Let está digitando...</span>
               </div>
             </div>
-          ))}
-          {streaming && messages[messages.length - 1]?.role === "user" && (
-            <div className="flex"><div className="rounded-2xl bg-card px-4 py-2.5 text-sm"><span className="animate-pulse">Let está digitando...</span></div></div>
           )}
         </div>
       </div>
 
-      <div className="fixed bottom-[80px] left-0 right-0 z-30 border-t border-border bg-background/95 backdrop-blur">
-        <div className="mx-auto max-w-md px-5 py-3">
+      {/* Input */}
+      <div className="fixed bottom-[64px] left-0 right-0 z-30 border-t border-[#1E1E1E] bg-[#0D0D0D]">
+        <div className="mx-auto max-w-md px-4 pt-3 pb-2">
+          {/* Suggestion chips */}
+          {messages.length === 0 && suggestions.filter(Boolean).length > 0 && (
+            <div className="scrollbar-hide mb-3 flex gap-2 overflow-x-auto">
+              {suggestions.filter(Boolean).map((s, i) => (
+                <button
+                  key={i}
+                  onClick={() => send(s)}
+                  className="shrink-0 whitespace-nowrap rounded-full border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-xs text-[#CCC] transition-colors hover:border-primary"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
           <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="flex gap-2">
-            <Input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Pergunte algo..." className="flex-1" disabled={streaming} />
-            <Button type="submit" disabled={streaming || !input.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90"><Send className="h-4 w-4" /></Button>
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Pergunte algo..."
+              disabled={streaming}
+              className="flex-1 rounded-[20px] border border-[#2A2A2A] bg-[#141414] px-4 py-2.5 text-sm text-white placeholder:text-[#555] focus:border-primary focus:outline-none disabled:opacity-50"
+            />
+            <button
+              type="submit"
+              disabled={streaming || !input.trim()}
+              className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-opacity disabled:opacity-40"
+            >
+              <Send className="h-4 w-4" />
+            </button>
           </form>
-          <p className="mt-2 text-center text-[10px] text-muted-foreground">As respostas não substituem orientação médica.</p>
+          <p className="mt-2 text-center text-[10px] text-[#555]">
+            As respostas não substituem orientação médica.
+          </p>
         </div>
       </div>
     </AppShell>

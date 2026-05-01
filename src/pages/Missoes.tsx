@@ -5,10 +5,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { ChevronLeft, Lock, Check, Calendar } from "lucide-react";
 import { getCurrentDay, getChallengePhase } from "@/lib/challenge";
-import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 
-type Mission = { id: string; titulo: string; descricao_curta: string; icone: string; xp_reward: number; ordem: number; dia_numero: number };
+type Mission = {
+  id: string;
+  titulo: string;
+  descricao_curta: string;
+  icone: string;
+  xp_reward: number;
+  ordem: number;
+  dia_numero: number;
+};
 
 export default function Missoes() {
   const { profile } = useAuth();
@@ -16,6 +23,7 @@ export default function Missoes() {
   const [done, setDone] = useState<Set<string>>(new Set());
   const [showHistory, setShowHistory] = useState(false);
   const [historyByDay, setHistoryByDay] = useState<Record<number, number>>({});
+  const [futureMissions, setFutureMissions] = useState<Mission[]>([]);
 
   const day = getCurrentDay(profile?.challenge_start_date ?? null);
   const phase = getChallengePhase(day);
@@ -26,14 +34,19 @@ export default function Missoes() {
     load();
   }, [profile, day]);
 
-  const [futureMissions, setFutureMissions] = useState<Mission[]>([]);
-
   const load = async () => {
     if (!profile) return;
     const [m, c, fm] = await Promise.all([
       supabase.from("missions").select("*").eq("dia_numero", cappedDay).eq("ativo", true).order("ordem"),
       supabase.from("checkins").select("mission_id, dia_numero").eq("user_id", profile.id),
-      supabase.from("missions").select("*").gt("dia_numero", cappedDay).eq("ativo", true).order("dia_numero").order("ordem").limit(6),
+      supabase
+        .from("missions")
+        .select("*")
+        .gt("dia_numero", cappedDay)
+        .eq("ativo", true)
+        .order("dia_numero")
+        .order("ordem")
+        .limit(6),
     ]);
     setMissions((m.data ?? []) as Mission[]);
     setFutureMissions((fm.data ?? []) as Mission[]);
@@ -58,7 +71,6 @@ export default function Missoes() {
     setDone(new Set([...done, m.id]));
     toast.success(`+${m.xp_reward} XP! ${m.icone}`);
 
-    // Confetti when last one done
     const newDone = done.size + 1;
     if (newDone === missions.length) {
       setTimeout(() => toast.success("🎉 Dia completo! +50 XP de bônus!"), 400);
@@ -67,13 +79,14 @@ export default function Missoes() {
 
   const doneCount = missions.filter((m) => done.has(m.id)).length;
   const pct = missions.length ? Math.round((doneCount / missions.length) * 100) : 0;
+  const allDone = missions.length > 0 && doneCount === missions.length;
 
   if (phase === "expired") {
     return (
       <AppShell>
-        <div className="px-5 pt-10 text-center">
+        <div className="px-4 pt-10 text-center">
           <h1 className="font-display text-2xl font-bold">Desafio finalizado 💚</h1>
-          <p className="mt-3 text-sm text-muted-foreground">Você concluiu seus 15 dias! Que tal renovar?</p>
+          <p className="mt-3 text-sm text-[#888]">Você concluiu seus 15 dias! Que tal renovar?</p>
         </div>
       </AppShell>
     );
@@ -82,22 +95,29 @@ export default function Missoes() {
   if (showHistory) {
     return (
       <AppShell>
-        <header className="flex items-center gap-3 px-5 pt-6 pb-4">
-          <button onClick={() => setShowHistory(false)} className="rounded-full bg-card p-2"><ChevronLeft className="h-5 w-5" /></button>
+        <header className="flex items-center gap-3 px-4 pt-6 pb-4">
+          <button onClick={() => setShowHistory(false)} className="rounded-full bg-[#141414] p-2 border border-[#1E1E1E]">
+            <ChevronLeft className="h-5 w-5" />
+          </button>
           <h1 className="font-display text-xl font-bold">Dias anteriores</h1>
         </header>
-        <div className="grid grid-cols-3 gap-3 px-5">
+        <div className="grid grid-cols-3 gap-2.5 px-4">
           {Array.from({ length: 15 }).map((_, i) => {
             const d = i + 1;
             const isPast = d < cappedDay;
             const isCurrent = d === cappedDay;
             const c = historyByDay[d] ?? 0;
             return (
-              <div key={d} className={`rounded-xl border p-3 text-center ${isCurrent ? "border-primary bg-primary/10" : "border-border bg-card"}`}>
-                <p className="text-[10px] text-muted-foreground">Dia</p>
+              <div
+                key={d}
+                className={`rounded-xl border p-3 text-center ${
+                  isCurrent ? "border-primary bg-primary/10" : "border-[#1E1E1E] bg-[#141414]"
+                }`}
+              >
+                <p className="text-[10px] text-[#888]">Dia</p>
                 <p className="font-display text-xl font-bold">{d}</p>
-                <p className="mt-1 text-[10px] text-muted-foreground">{c} {c === 1 ? "missão" : "missões"}</p>
-                {!isPast && !isCurrent && <Lock className="mx-auto mt-1 h-3 w-3 text-muted-foreground" />}
+                <p className="mt-1 text-[10px] text-[#888]">{c} {c === 1 ? "missão" : "missões"}</p>
+                {!isPast && !isCurrent && <Lock className="mx-auto mt-1 h-3 w-3 text-[#444]" />}
               </div>
             );
           })}
@@ -108,17 +128,31 @@ export default function Missoes() {
 
   return (
     <AppShell>
-      <header className="flex items-center justify-between px-5 pt-6 pb-4">
+      {/* Header */}
+      <header className="flex items-start justify-between px-4 pt-6 pb-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Dia {cappedDay} de 15</p>
-          <h1 className="font-display text-2xl font-bold">Missões do dia</h1>
+          <p className="text-[11px] uppercase tracking-widest text-primary">Dia {cappedDay} de 15</p>
+          <h1 className="mt-1 font-display text-[26px] font-bold text-white">Missões do dia</h1>
         </div>
-        <button onClick={() => setShowHistory(true)} className="rounded-full bg-card p-2.5"><Calendar className="h-5 w-5" /></button>
+        <button
+          onClick={() => setShowHistory(true)}
+          className="rounded-full border border-[#1E1E1E] bg-[#141414] p-2.5"
+        >
+          <Calendar className="h-5 w-5" />
+        </button>
       </header>
 
-      <div className="px-5">
-        <Progress value={pct} className="h-2 bg-muted [&>div]:bg-primary" />
-        <p className="mt-2 text-xs text-muted-foreground">{doneCount} de {missions.length} concluídas</p>
+      <div className="px-4">
+        {/* Progress */}
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#1E1E1E]">
+          <div
+            className="h-full rounded-full bg-primary transition-all duration-700 ease-out"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <p className="mt-2 text-xs text-[#888]">
+          {doneCount} de {missions.length} concluídas
+        </p>
 
         {phase === "post" && (
           <div className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-4 text-sm">
@@ -126,47 +160,92 @@ export default function Missoes() {
           </div>
         )}
 
+        {/* Completion banner */}
+        {allDone && (
+          <div
+            className="mt-5 rounded-2xl border border-primary p-4 text-center fade-in"
+            style={{ background: "linear-gradient(135deg, #0F2200 0%, #1A3300 100%)" }}
+          >
+            <p className="font-display text-base font-bold text-primary">🎉 Dia completo! +50 XP bônus</p>
+          </div>
+        )}
+
+        {/* Mission cards */}
         <div className="mt-5 space-y-3">
           {missions.map((m) => {
             const isDone = done.has(m.id);
             return (
-              <div key={m.id} className={`rounded-2xl border p-4 transition-colors ${isDone ? "border-primary/40 bg-primary/5" : "border-border bg-card"}`}>
+              <div
+                key={m.id}
+                className={`rounded-2xl border p-4 transition-all ${
+                  isDone ? "border-primary/30" : "border-[#1E1E1E] bg-[#141414]"
+                }`}
+                style={
+                  isDone
+                    ? { background: "linear-gradient(135deg, #0A1A00 0%, #0F1A00 100%)" }
+                    : undefined
+                }
+              >
                 <Link to={`/missao/${m.id}`} className="flex items-start gap-3">
-                  <div className="text-2xl">{m.icone}</div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{m.titulo}</h3>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{m.descricao_curta}</p>
-                    <p className="mt-2 text-[10px] font-bold text-primary">+{m.xp_reward} XP</p>
+                  <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1E1E1E] text-xl">
+                    {m.icone}
+                    {isDone && (
+                      <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                        <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className={`font-display text-[15px] font-medium text-white ${isDone ? "opacity-60" : ""}`}>
+                      {m.titulo}
+                    </h3>
+                    <p className="mt-0.5 text-xs text-[#888]">{m.descricao_curta}</p>
+                    <span className="mt-2 inline-block rounded-full bg-[#0F1A00] px-2.5 py-0.5 text-[10px] font-bold text-primary">
+                      +{m.xp_reward} XP
+                    </span>
                   </div>
                 </Link>
-                <button
-                  onClick={() => checkIn(m)}
-                  disabled={isDone}
-                  className={`mt-3 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition-all ${isDone ? "bg-primary/20 text-primary" : "bg-primary text-primary-foreground hover:bg-primary/90"}`}
-                >
-                  {isDone ? <><Check className="h-4 w-4" /> Concluída</> : "Marcar como feita"}
-                </button>
+                {isDone ? (
+                  <div className="mt-3 flex items-center justify-center gap-2 py-2 text-sm font-medium text-primary">
+                    <Check className="h-4 w-4" strokeWidth={3} /> Concluída
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => checkIn(m)}
+                    className="mt-3 w-full rounded-xl bg-primary py-2.5 font-display text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98]"
+                  >
+                    Marcar como feita
+                  </button>
+                )}
               </div>
             );
           })}
 
           {missions.length === 0 && (
-            <p className="py-10 text-center text-sm text-muted-foreground">Nenhuma missão para hoje.</p>
+            <p className="py-10 text-center text-sm text-[#888]">Nenhuma missão para hoje.</p>
           )}
         </div>
 
+        {/* Future missions */}
         {futureMissions.length > 0 && (
           <div className="mt-8">
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Próximos dias</h2>
+            <p className="mb-3 text-[11px] uppercase tracking-widest text-[#444]">Próximos dias</p>
             <div className="space-y-2">
               {futureMissions.map((m) => (
-                <div key={m.id} className="flex items-center gap-3 rounded-2xl border border-dashed border-border bg-muted/30 p-3 opacity-60">
-                  <div className="text-xl grayscale">{m.icone}</div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-muted-foreground">{m.titulo}</p>
-                    <p className="text-[10px] text-muted-foreground">Dia {m.dia_numero} • +{m.xp_reward} XP</p>
+                <div
+                  key={m.id}
+                  className="flex items-center gap-3 rounded-2xl border border-[#1E1E1E] bg-[#141414] p-3 opacity-40"
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1E1E1E] text-lg grayscale">
+                    {m.icone}
                   </div>
-                  <Lock className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-[#888]">{m.titulo}</p>
+                    <span className="mt-0.5 inline-block rounded-md bg-[#1E1E1E] px-1.5 py-0.5 text-[9px] text-[#888]">
+                      Dia {m.dia_numero}
+                    </span>
+                  </div>
+                  <Lock className="h-4 w-4 text-[#444]" />
                 </div>
               ))}
             </div>

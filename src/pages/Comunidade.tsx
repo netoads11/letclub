@@ -8,11 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 type ReactionType = "coracao" | "forca" | "fogo";
-const reactions: { type: ReactionType; icon: any }[] = [
-  { type: "coracao", icon: Heart },
-  { type: "forca", icon: Zap },
-  { type: "fogo", icon: Flame },
+const reactions: { type: ReactionType; icon: any; activeBg: string; activeText: string }[] = [
+  { type: "coracao", icon: Heart, activeBg: "bg-red-500/10", activeText: "text-red-400" },
+  { type: "forca", icon: Zap, activeBg: "bg-blue-500/10", activeText: "text-blue-400" },
+  { type: "fogo", icon: Flame, activeBg: "bg-orange-500/10", activeText: "text-orange-400" },
 ];
+
+const avatarColors = ["#FF8A65", "#FFB74D", "#F06292", "#BA68C8", "#9575CD", "#7986CB", "#4FC3F7", "#4DB6AC"];
+const colorFor = (id: string) => avatarColors[id.charCodeAt(0) % avatarColors.length];
 
 export default function Comunidade() {
   const { profile } = useAuth();
@@ -23,7 +26,8 @@ export default function Comunidade() {
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
-    const { data } = await supabase.from("posts_comunidade")
+    const { data } = await supabase
+      .from("posts_comunidade")
       .select("*, profiles(full_name, avatar_url), reacoes_posts(tipo, user_id)")
       .eq("removido", false)
       .order("fixado", { ascending: false })
@@ -65,7 +69,9 @@ export default function Comunidade() {
     if (mine?.tipo === type) {
       await supabase.from("reacoes_posts").delete().eq("post_id", postId).eq("user_id", profile.id);
     } else {
-      await supabase.from("reacoes_posts").upsert({ post_id: postId, user_id: profile.id, tipo: type }, { onConflict: "post_id,user_id" });
+      await supabase
+        .from("reacoes_posts")
+        .upsert({ post_id: postId, user_id: profile.id, tipo: type }, { onConflict: "post_id,user_id" });
     }
     load();
   };
@@ -78,42 +84,88 @@ export default function Comunidade() {
 
   return (
     <AppShell>
-      <header className="px-5 pt-6 pb-3">
-        <h1 className="font-display text-2xl font-bold">Comunidade</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Suporte de quem está com você</p>
+      <header className="px-4 pt-6 pb-4">
+        <h1 className="font-display text-[26px] font-bold leading-tight text-white">Comunidade</h1>
+        <p className="mt-1 text-sm text-[#888]">Suporte de quem está com você</p>
       </header>
 
-      <div className="mx-5 mb-4 rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs">
-        <strong className="text-primary">Regras:</strong> respeito, acolhimento e nada de receitas restritivas. Bora se apoiar!
+      {/* Rules banner */}
+      <div className="mx-4 mb-4 rounded-xl border border-primary/20 bg-[#0F1A00] p-3">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-primary">📋 Regras</p>
+        <p className="mt-1 text-[13px] leading-snug text-[#888]">
+          Respeito, acolhimento e nada de receitas restritivas. Bora se apoiar!
+        </p>
       </div>
 
-      <div className="space-y-3 px-5 pb-5">
-        {posts.length === 0 && <p className="py-10 text-center text-sm text-muted-foreground">Seja a primeira a postar!</p>}
+      <div className="space-y-3 px-4 pb-5">
+        {posts.length === 0 && (
+          <div className="py-12 text-center">
+            <div className="text-5xl">💬</div>
+            <p className="mt-4 font-display text-base font-medium text-white">
+              Seja a primeira a compartilhar!
+            </p>
+            <p className="mt-1 text-sm text-[#888]">Conta como está indo seu desafio 💚</p>
+            <Button
+              onClick={() => setShow(true)}
+              variant="outline"
+              className="mt-5 border-primary text-primary hover:bg-primary/10"
+            >
+              Criar post
+            </Button>
+          </div>
+        )}
+
         {posts.map((p) => {
           const counts: Record<string, number> = {};
-          (p.reacoes_posts ?? []).forEach((r: any) => counts[r.tipo] = (counts[r.tipo] ?? 0) + 1);
+          (p.reacoes_posts ?? []).forEach(
+            (r: any) => (counts[r.tipo] = (counts[r.tipo] ?? 0) + 1),
+          );
           const mine = p.reacoes_posts?.find((r: any) => r.user_id === profile?.id)?.tipo;
+          const initial = (p.profiles?.full_name || "?").charAt(0).toUpperCase();
           return (
-            <div key={p.id} className="rounded-2xl border border-border bg-card p-4">
+            <div key={p.id} className="rounded-2xl border border-[#1E1E1E] bg-[#141414] p-4">
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted font-display text-xs font-bold">
-                  {(p.profiles?.full_name || "?").charAt(0).toUpperCase()}
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-bold text-white"
+                  style={{ backgroundColor: colorFor(p.user_id || initial) }}
+                >
+                  {initial}
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold">{p.profiles?.full_name || "Aluna"}</p>
-                  <p className="text-[10px] text-muted-foreground">{new Date(p.created_at).toLocaleDateString("pt-BR")}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="font-display text-sm font-medium text-white">
+                    {p.profiles?.full_name || "Aluna"}
+                  </p>
+                  <p className="text-[11px] text-[#555]">
+                    {new Date(p.created_at).toLocaleDateString("pt-BR")}
+                  </p>
                 </div>
-                <button onClick={() => report(p.id)} className="text-muted-foreground"><Flag className="h-4 w-4" /></button>
+                <button onClick={() => report(p.id)} className="text-[#555] hover:text-destructive">
+                  <Flag className="h-4 w-4" />
+                </button>
               </div>
-              <p className="mt-3 text-sm leading-relaxed">{p.texto}</p>
-              {p.imagem_url && <img src={p.imagem_url} className="mt-3 max-h-80 w-full rounded-xl object-cover" />}
-              <div className="mt-3 flex gap-2 border-t border-border pt-3">
-                {reactions.map(({ type, icon: Icon }) => (
-                  <button key={type} onClick={() => react(p.id, type)}
-                    className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs transition-colors ${mine === type ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
-                    <Icon className="h-3.5 w-3.5" /> {counts[type] ?? 0}
-                  </button>
-                ))}
+              <p className="mt-3 text-sm leading-[1.6] text-[#DDD]">{p.texto}</p>
+              {p.imagem_url && (
+                <img src={p.imagem_url} className="mt-3 max-h-80 w-full rounded-xl object-cover" />
+              )}
+              <div className="mt-3 flex gap-2 border-t border-[#1E1E1E] pt-3">
+                {reactions.map(({ type, icon: Icon, activeBg, activeText }) => {
+                  const isActive = mine === type;
+                  return (
+                    <button
+                      key={type}
+                      onClick={() => react(p.id, type)}
+                      className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs transition-all ${
+                        isActive ? `${activeBg} ${activeText}` : "text-[#555] hover:text-[#888]"
+                      }`}
+                    >
+                      <Icon
+                        className="h-3.5 w-3.5"
+                        fill={isActive ? "currentColor" : "none"}
+                      />
+                      {counts[type] ?? 0}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           );
@@ -121,28 +173,55 @@ export default function Comunidade() {
       </div>
 
       {/* FAB */}
-      <button onClick={() => setShow(true)} className="fixed bottom-24 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg glow-primary">
-        <Plus className="h-6 w-6" />
+      <button
+        onClick={() => setShow(true)}
+        className="fixed bottom-20 right-4 z-30 flex h-[52px] w-[52px] items-center justify-center rounded-full bg-primary text-primary-foreground"
+        style={{ boxShadow: "0 4px 20px rgba(205, 255, 0, 0.4)" }}
+      >
+        <Plus className="h-5 w-5" strokeWidth={2.5} />
       </button>
 
       {/* Modal */}
       {show && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 px-4 pb-4 pt-20" onClick={() => setShow(false)}>
-          <div className="w-full max-w-md rounded-3xl bg-card p-5 slide-up" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 px-4 pb-4 pt-20"
+          onClick={() => setShow(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-3xl border border-[#1E1E1E] bg-[#141414] p-5 slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between">
-              <h3 className="font-display text-lg font-bold">Compartilhar</h3>
-              <button onClick={() => setShow(false)} className="rounded-full bg-muted p-1.5"><X className="h-4 w-4" /></button>
+              <h3 className="font-display text-lg font-bold text-white">Compartilhar</h3>
+              <button onClick={() => setShow(false)} className="rounded-full bg-[#1E1E1E] p-1.5">
+                <X className="h-4 w-4" />
+              </button>
             </div>
-            <Textarea value={text} onChange={(e) => setText(e.target.value.slice(0, 280))} placeholder="O que você quer dividir?" className="mt-4 min-h-[100px]" maxLength={280} />
-            <p className="mt-1 text-right text-[10px] text-muted-foreground">{text.length}/280</p>
+            <Textarea
+              value={text}
+              onChange={(e) => setText(e.target.value.slice(0, 280))}
+              placeholder="O que você quer dividir?"
+              className="mt-4 min-h-[100px] border-[#2A2A2A] bg-[#0D0D0D]"
+              maxLength={280}
+            />
+            <p className="mt-1 text-right text-[10px] text-[#555]">{text.length}/280</p>
 
-            <label className="mt-3 flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+            <label className="mt-3 flex cursor-pointer items-center gap-2 text-xs text-[#888]">
               <ImagePlus className="h-4 w-4" />
               {file ? file.name : "Adicionar foto (opcional)"}
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              />
             </label>
 
-            <Button onClick={submit} disabled={busy || !text.trim()} className="mt-4 w-full bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button
+              onClick={submit}
+              disabled={busy || !text.trim()}
+              className="mt-4 w-full bg-primary text-primary-foreground hover:bg-primary/90"
+            >
               {busy ? "Postando..." : "Compartilhar"}
             </Button>
           </div>
