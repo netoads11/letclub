@@ -101,6 +101,10 @@ export default function Admin() {
       const { data } = await supabase.from("missions").select("*").order("dia_numero").order("ordem");
       setMissions(data ?? []);
     }
+    if (tab === "receitas") {
+      const { data } = await supabase.from("receitas").select("*").order("dia_numero", { ascending: true, nullsFirst: false }).order("nome");
+      setReceitas(data ?? []);
+    }
     if (tab === "badges") {
       const { data } = await supabase.from("badges").select("*").order("xp_reward");
       setBadges(data ?? []);
