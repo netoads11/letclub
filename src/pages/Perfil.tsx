@@ -286,7 +286,7 @@ export default function Perfil() {
 
         {/* SETTINGS PANEL */}
         {showSettings && (
-          <div className="mt-6 space-y-3 fade-in">
+          <div className="mt-6 space-y-3 px-4 fade-in">
             {/* Section: profile */}
             <section className="rounded-2xl border border-border bg-card p-5">
               <h3 className="mb-3 flex items-center gap-2 font-display font-bold"><User className="h-4 w-4 text-primary" /> Perfil</h3>
