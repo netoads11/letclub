@@ -154,6 +154,24 @@ export default function Missoes() {
             <p className="py-10 text-center text-sm text-muted-foreground">Nenhuma missão para hoje.</p>
           )}
         </div>
+
+        {futureMissions.length > 0 && (
+          <div className="mt-8">
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Próximos dias</h2>
+            <div className="space-y-2">
+              {futureMissions.map((m) => (
+                <div key={m.id} className="flex items-center gap-3 rounded-2xl border border-dashed border-border bg-muted/30 p-3 opacity-60">
+                  <div className="text-xl grayscale">{m.icone}</div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-muted-foreground">{m.titulo}</p>
+                    <p className="text-[10px] text-muted-foreground">Dia {m.dia_numero} • +{m.xp_reward} XP</p>
+                  </div>
+                  <Lock className="h-4 w-4 text-muted-foreground" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </AppShell>
   );
