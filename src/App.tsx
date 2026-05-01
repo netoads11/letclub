@@ -18,6 +18,7 @@ import Comunidade from "./pages/Comunidade";
 import Perfil from "./pages/Perfil";
 import Notificacoes from "./pages/Notificacoes";
 import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
