@@ -75,7 +75,13 @@ export default function MissaoDetalhe() {
     setBusy(false);
   };
 
-  if (!m) return <div className="flex min-h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>;
+  if (loading) return <div className="flex min-h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>;
+  if (error || !m) return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-3 px-5 text-center">
+      <p className="text-sm text-muted-foreground">{error || "Missão não encontrada"}</p>
+      <Button variant="outline" onClick={() => nav("/missoes")}>Voltar para missões</Button>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background pb-10">
