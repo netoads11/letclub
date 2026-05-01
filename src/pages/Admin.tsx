@@ -133,7 +133,7 @@ export default function Admin() {
       const top = Object.entries(counts).map(([q, n]) => ({ q, n })).sort((a, b) => b.n - a.n).slice(0, 5);
       setChatStats({ up, down, top });
     }
-    if (tab === "config") {
+    if (tab === "config" || tab === "chat") {
       const { data } = await supabase.from("configuracoes_app").select("chave, valor");
       const map: Record<string, string> = {};
       (data ?? []).forEach((x: any) => (map[x.chave] = x.valor));
