@@ -793,6 +793,73 @@ export default function Admin() {
           </div>
         )}
       </div>
+
+      <Dialog open={!!alunaDetail} onOpenChange={(o) => !o && setAlunaDetail(null)}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{alunaDetail?.full_name || alunaDetail?.email}</DialogTitle>
+          </DialogHeader>
+          {alunaDetail && (
+            <div className="space-y-4 text-sm">
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div><span className="text-muted-foreground">Email:</span> {alunaDetail.email}</div>
+                <div><span className="text-muted-foreground">Dia:</span> {alunaDia(alunaDetail)}/15</div>
+                <div><span className="text-muted-foreground">XP:</span> {alunaDetail.xp_total ?? 0}</div>
+                <div><span className="text-muted-foreground">Streak:</span> {alunaDetail.streak_atual ?? 0} (rec. {alunaDetail.streak_recorde ?? 0})</div>
+                <div><span className="text-muted-foreground">Altura:</span> {alunaDetail.altura ?? "—"}</div>
+                <div><span className="text-muted-foreground">Peso atual:</span> {alunaDetail.peso_atual ?? "—"}</div>
+                <div><span className="text-muted-foreground">Meta:</span> {alunaDetail.meta_peso ?? "—"}</div>
+                <div><span className="text-muted-foreground">Último check-in:</span> {alunaDetail.ultimo_checkin ?? "—"}</div>
+                <div className="col-span-2"><span className="text-muted-foreground">Restrições:</span> {(alunaDetail.restricoes_alimentares ?? []).join(", ") || "—"}</div>
+              </div>
+
+              <div>
+                <h4 className="mb-1 text-xs font-bold uppercase text-muted-foreground">Histórico de peso</h4>
+                {alunaDetailData.pesos.length === 0 && <p className="text-xs text-muted-foreground">Sem registros.</p>}
+                <div className="space-y-0.5">
+                  {alunaDetailData.pesos.map((p: any) => (
+                    <div key={p.id} className="flex justify-between text-xs">
+                      <span>{p.registrado_em}</span>
+                      <span className="font-semibold">{p.peso} kg</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="mb-1 text-xs font-bold uppercase text-muted-foreground">Badges ({alunaDetailData.badges.length})</h4>
+                <div className="flex flex-wrap gap-2">
+                  {alunaDetailData.badges.map((b: any) => (
+                    <span key={b.id} className="rounded-full bg-muted px-2 py-1 text-xs">{b.badges?.icone} {b.badges?.nome}</span>
+                  ))}
+                  {alunaDetailData.badges.length === 0 && <p className="text-xs text-muted-foreground">Nenhuma.</p>}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="mb-1 text-xs font-bold uppercase text-muted-foreground">Check-ins ({alunaDetailData.checkins.length})</h4>
+                <div className="max-h-48 space-y-0.5 overflow-y-auto">
+                  {alunaDetailData.checkins.map((c: any) => (
+                    <div key={c.id} className="flex justify-between text-xs">
+                      <span>D{c.dia_numero} • {c.missions?.titulo}</span>
+                      <span className="text-muted-foreground">{new Date(c.completed_at).toLocaleDateString("pt-BR")}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-2 border-t border-border pt-3">
+                <Button size="sm" onClick={() => resetSenha(alunaDetail.email)}>
+                  <KeyRound className="mr-1 h-3.5 w-3.5" />Reset senha
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => { toggleBlock(alunaDetail.id, alunaDetail.bloqueado); setAlunaDetail({ ...alunaDetail, bloqueado: !alunaDetail.bloqueado }); }}>
+                  {alunaDetail.bloqueado ? "Desbloquear" : "Bloquear"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
