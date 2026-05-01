@@ -47,7 +47,11 @@ export default function ReceitaDetalhe() {
         </button>
       </header>
       <div className="mx-auto max-w-md px-5 slide-up">
-        {r.imagem_url && <img src={r.imagem_url} alt={r.nome} className="mb-4 h-48 w-full rounded-2xl object-cover" />}
+        {r.imagem_url ? (
+          <img src={r.imagem_url} alt={r.nome} className="mb-4 h-[200px] w-full rounded-2xl object-cover" />
+        ) : (
+          <div className="mb-4 grid h-[200px] w-full place-items-center rounded-2xl bg-gradient-to-br from-primary/20 via-purple-500/10 to-orange-500/20 text-5xl opacity-60">🍽️</div>
+        )}
         <h1 className="font-display text-2xl font-bold">{r.nome}</h1>
         <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
           <Clock className="h-4 w-4" /> {r.tempo_preparo} minutos
