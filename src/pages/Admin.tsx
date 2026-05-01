@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { ChevronLeft, Users, Target, UtensilsCrossed, Trophy, Settings, Award, MessageCircle, Bot, Pin, Trash2, AlertTriangle, Send, ThumbsUp, ThumbsDown } from "lucide-react";
+import { ChevronLeft, Users, Target, UtensilsCrossed, Trophy, Settings, Award, MessageCircle, Bot, Pin, Trash2, AlertTriangle, Send, ThumbsUp, ThumbsDown, Plus, X, KeyRound, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
@@ -26,6 +28,14 @@ export default function Admin() {
 
   // Missions
   const [missions, setMissions] = useState<any[]>([]);
+
+  // Receitas
+  const [receitas, setReceitas] = useState<any[]>([]);
+  const [editingReceita, setEditingReceita] = useState<any | null>(null);
+
+  // Aluna detail
+  const [alunaDetail, setAlunaDetail] = useState<any | null>(null);
+  const [alunaDetailData, setAlunaDetailData] = useState<{ checkins: any[]; pesos: any[]; badges: any[] }>({ checkins: [], pesos: [], badges: [] });
 
   // Badges
   const [badges, setBadges] = useState<any[]>([]);
@@ -90,6 +100,10 @@ export default function Admin() {
     if (tab === "missoes") {
       const { data } = await supabase.from("missions").select("*").order("dia_numero").order("ordem");
       setMissions(data ?? []);
+    }
+    if (tab === "receitas") {
+      const { data } = await supabase.from("receitas").select("*").order("dia_numero", { ascending: true, nullsFirst: false }).order("nome");
+      setReceitas(data ?? []);
     }
     if (tab === "badges") {
       const { data } = await supabase.from("badges").select("*").order("xp_reward");
@@ -185,6 +199,84 @@ export default function Admin() {
     const { error } = await supabase.from("badges").delete().eq("id", id);
     if (error) return toast.error(error.message);
     loadTab();
+  };
+
+  // Receitas CRUD
+  const newReceita = () => setEditingReceita({
+    nome: "", tipo_refeicao: "cafe", dia_numero: null,
+    ingredientes: [], modo_preparo: [], tempo_preparo: 10,
+    restricoes_compativeis: [], imagem_url: "", ativo: true,
+  });
+
+  const saveReceita = async (r: any) => {
+    const payload = {
+      nome: r.nome,
+      tipo_refeicao: r.tipo_refeicao,
+      dia_numero: r.dia_numero === "" || r.dia_numero === null || r.dia_numero === undefined ? null : Number(r.dia_numero),
+      ingredientes: r.ingredientes ?? [],
+      modo_preparo: r.modo_preparo ?? [],
+      tempo_preparo: Number(r.tempo_preparo) || 10,
+      restricoes_compativeis: r.restricoes_compativeis ?? [],
+      imagem_url: r.imagem_url || null,
+      ativo: r.ativo ?? true,
+    };
+    if (!payload.nome) return toast.error("Nome obrigatório");
+    if (r.id) {
+      const { error } = await supabase.from("receitas").update(payload).eq("id", r.id);
+      if (error) return toast.error(error.message);
+    } else {
+      const { error } = await supabase.from("receitas").insert(payload);
+      if (error) return toast.error(error.message);
+    }
+    toast.success("Receita salva");
+    setEditingReceita(null);
+    loadTab();
+  };
+
+  const deleteReceita = async (id: string) => {
+    if (!confirm("Excluir esta receita?")) return;
+    const { error } = await supabase.from("receitas").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    loadTab();
+  };
+
+  // Aluna detail
+  const openAlunaDetail = async (a: any) => {
+    setAlunaDetail(a);
+    const [ckRes, psRes, ubRes] = await Promise.all([
+      supabase.from("checkins").select("*, missions:mission_id(titulo, dia_numero)").eq("user_id", a.id).order("completed_at", { ascending: false }),
+      supabase.from("pesos_historico").select("*").eq("user_id", a.id).order("registrado_em", { ascending: true }),
+      supabase.from("user_badges").select("*, badges:badge_id(nome, icone)").eq("user_id", a.id),
+    ]);
+    setAlunaDetailData({
+      checkins: ckRes.data ?? [],
+      pesos: psRes.data ?? [],
+      badges: ubRes.data ?? [],
+    });
+  };
+
+  const resetSenha = async (email: string) => {
+    if (!email) return toast.error("Sem email");
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) return toast.error(error.message);
+    toast.success(`Email de reset enviado para ${email}`);
+  };
+
+  const alunaStatus = (a: any): { label: string; cls: string } => {
+    if (a.bloqueado) return { label: "Inativa", cls: "bg-muted text-muted-foreground" };
+    const start = a.challenge_start_date ? new Date(a.challenge_start_date) : null;
+    if (!start) return { label: "Inativa", cls: "bg-muted text-muted-foreground" };
+    const diff = Math.floor((Date.now() - start.getTime()) / 86400000) + 1;
+    if (diff > 15) return { label: "Concluída", cls: "bg-primary/20 text-primary" };
+    return { label: "Ativa", cls: "bg-green-500/20 text-green-500" };
+  };
+
+  const alunaDia = (a: any): number => {
+    if (!a.challenge_start_date) return 0;
+    const start = new Date(a.challenge_start_date);
+    return Math.min(15, Math.floor((Date.now() - start.getTime()) / 86400000) + 1);
   };
 
   // Comunidade actions
@@ -294,17 +386,36 @@ export default function Admin() {
 
         {tab === "alunas" && (
           <div className="space-y-2">
-            {alunas.map((a) => (
-              <div key={a.id} className="flex items-center justify-between rounded-xl bg-card p-3">
-                <div>
-                  <p className="text-sm font-semibold">{a.full_name || "—"}</p>
-                  <p className="text-[10px] text-muted-foreground">{a.email} • {a.xp_total} XP • streak {a.streak_atual}</p>
+            {alunas.map((a) => {
+              const st = alunaStatus(a);
+              return (
+                <div key={a.id} className="rounded-xl bg-card p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-semibold">{a.full_name || "—"}</p>
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${st.cls}`}>{st.label}</span>
+                      </div>
+                      <p className="truncate text-[11px] text-muted-foreground">{a.email}</p>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        Dia {alunaDia(a)}/15 • {a.xp_total ?? 0} XP • streak {a.streak_atual ?? 0}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <Button size="sm" variant="ghost" onClick={() => openAlunaDetail(a)}>
+                        <Eye className="mr-1 h-3.5 w-3.5" />Ver
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => resetSenha(a.email)}>
+                        <KeyRound className="mr-1 h-3.5 w-3.5" />Reset senha
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => toggleBlock(a.id, a.bloqueado)}>
+                        {a.bloqueado ? "Desbloquear" : "Bloquear"}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <Button size="sm" variant="ghost" onClick={() => toggleBlock(a.id, a.bloqueado)}>
-                  {a.bloqueado ? "Desbloquear" : "Bloquear"}
-                </Button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -324,7 +435,191 @@ export default function Admin() {
         )}
 
         {tab === "receitas" && (
-          <p className="py-10 text-center text-sm text-muted-foreground">Gestão de receitas: 10 receitas semeadas.</p>
+          <div className="space-y-3">
+            <Button onClick={newReceita} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+              <Plus className="mr-1 h-4 w-4" /> Nova receita
+            </Button>
+
+            {editingReceita && (
+              <div className="space-y-3 rounded-xl border border-primary/30 bg-card p-3">
+                <div>
+                  <label className="text-[10px] text-muted-foreground">Nome</label>
+                  <Input value={editingReceita.nome} onChange={(e) => setEditingReceita({ ...editingReceita, nome: e.target.value })} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-muted-foreground">Tipo</label>
+                    <select
+                      className="mt-1 h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                      value={editingReceita.tipo_refeicao}
+                      onChange={(e) => setEditingReceita({ ...editingReceita, tipo_refeicao: e.target.value })}
+                    >
+                      <option value="cafe">Café</option>
+                      <option value="almoco">Almoço</option>
+                      <option value="lanche">Lanche</option>
+                      <option value="jantar">Jantar</option>
+                      <option value="cha">Chá</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-muted-foreground">Dia (opcional)</label>
+                    <Input
+                      type="number"
+                      value={editingReceita.dia_numero ?? ""}
+                      onChange={(e) => setEditingReceita({ ...editingReceita, dia_numero: e.target.value === "" ? null : e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] text-muted-foreground">Tempo de preparo (min)</label>
+                  <Input
+                    type="number"
+                    value={editingReceita.tempo_preparo}
+                    onChange={(e) => setEditingReceita({ ...editingReceita, tempo_preparo: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] text-muted-foreground">Imagem URL</label>
+                  <Input value={editingReceita.imagem_url ?? ""} onChange={(e) => setEditingReceita({ ...editingReceita, imagem_url: e.target.value })} />
+                </div>
+
+                <div>
+                  <p className="mb-1 text-[10px] text-muted-foreground">Restrições compatíveis</p>
+                  <div className="flex flex-wrap gap-3">
+                    {["vegetariana", "lactose", "gluten", "gestante"].map((r) => {
+                      const checked = (editingReceita.restricoes_compativeis ?? []).includes(r);
+                      return (
+                        <label key={r} className="flex items-center gap-1.5 text-xs">
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={(v) => {
+                              const cur = editingReceita.restricoes_compativeis ?? [];
+                              setEditingReceita({
+                                ...editingReceita,
+                                restricoes_compativeis: v ? [...cur, r] : cur.filter((x: string) => x !== r),
+                              });
+                            }}
+                          />{r}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-1 flex items-center justify-between">
+                    <p className="text-[10px] text-muted-foreground">Ingredientes</p>
+                    <Button size="sm" variant="ghost" onClick={() => setEditingReceita({ ...editingReceita, ingredientes: [...(editingReceita.ingredientes ?? []), { nome: "", quantidade: "" }] })}>
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <div className="space-y-1.5">
+                    {(editingReceita.ingredientes ?? []).map((ing: any, i: number) => (
+                      <div key={i} className="flex gap-1.5">
+                        <Input
+                          placeholder="Nome"
+                          value={ing.nome ?? ""}
+                          onChange={(e) => {
+                            const arr = [...editingReceita.ingredientes];
+                            arr[i] = { ...arr[i], nome: e.target.value };
+                            setEditingReceita({ ...editingReceita, ingredientes: arr });
+                          }}
+                        />
+                        <Input
+                          placeholder="Quantidade"
+                          value={ing.quantidade ?? ""}
+                          onChange={(e) => {
+                            const arr = [...editingReceita.ingredientes];
+                            arr[i] = { ...arr[i], quantidade: e.target.value };
+                            setEditingReceita({ ...editingReceita, ingredientes: arr });
+                          }}
+                        />
+                        <Button size="icon" variant="ghost" onClick={() => {
+                          const arr = editingReceita.ingredientes.filter((_: any, idx: number) => idx !== i);
+                          setEditingReceita({ ...editingReceita, ingredientes: arr });
+                        }}><X className="h-3 w-3" /></Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-1 flex items-center justify-between">
+                    <p className="text-[10px] text-muted-foreground">Modo de preparo (passos)</p>
+                    <Button size="sm" variant="ghost" onClick={() => setEditingReceita({ ...editingReceita, modo_preparo: [...(editingReceita.modo_preparo ?? []), ""] })}>
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <div className="space-y-1.5">
+                    {(editingReceita.modo_preparo ?? []).map((step: string, i: number) => (
+                      <div key={i} className="flex gap-1.5">
+                        <span className="pt-2 text-[10px] text-muted-foreground">{i + 1}.</span>
+                        <Textarea
+                          className="min-h-[44px]"
+                          value={step}
+                          onChange={(e) => {
+                            const arr = [...editingReceita.modo_preparo];
+                            arr[i] = e.target.value;
+                            setEditingReceita({ ...editingReceita, modo_preparo: arr });
+                          }}
+                        />
+                        <Button size="icon" variant="ghost" onClick={() => {
+                          const arr = editingReceita.modo_preparo.filter((_: any, idx: number) => idx !== i);
+                          setEditingReceita({ ...editingReceita, modo_preparo: arr });
+                        }}><X className="h-3 w-3" /></Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Switch checked={editingReceita.ativo} onCheckedChange={(v) => setEditingReceita({ ...editingReceita, ativo: v })} />
+                  <span className="text-xs">Ativa</span>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => saveReceita(editingReceita)}>Salvar</Button>
+                  <Button size="sm" variant="ghost" onClick={() => setEditingReceita(null)}>Cancelar</Button>
+                </div>
+              </div>
+            )}
+
+            <div className="overflow-x-auto rounded-xl bg-card">
+              <table className="w-full text-xs">
+                <thead className="border-b border-border text-[10px] uppercase text-muted-foreground">
+                  <tr>
+                    <th className="p-2 text-left">Nome</th>
+                    <th className="p-2 text-left">Tipo</th>
+                    <th className="p-2 text-left">Dia</th>
+                    <th className="p-2 text-left">Tempo</th>
+                    <th className="p-2 text-left">Ativa</th>
+                    <th className="p-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {receitas.map((r) => (
+                    <tr key={r.id} className="border-b border-border last:border-0">
+                      <td className="p-2 font-medium">{r.nome}</td>
+                      <td className="p-2">{r.tipo_refeicao}</td>
+                      <td className="p-2">{r.dia_numero ?? "—"}</td>
+                      <td className="p-2">{r.tempo_preparo}min</td>
+                      <td className="p-2">{r.ativo ? "✓" : "—"}</td>
+                      <td className="p-2 text-right">
+                        <Button size="sm" variant="ghost" onClick={() => setEditingReceita(r)}>Editar</Button>
+                        <Button size="sm" variant="ghost" onClick={() => deleteReceita(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {receitas.length === 0 && (
+                    <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">Nenhuma receita.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         )}
 
         {tab === "badges" && (
@@ -498,6 +793,73 @@ export default function Admin() {
           </div>
         )}
       </div>
+
+      <Dialog open={!!alunaDetail} onOpenChange={(o) => !o && setAlunaDetail(null)}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{alunaDetail?.full_name || alunaDetail?.email}</DialogTitle>
+          </DialogHeader>
+          {alunaDetail && (
+            <div className="space-y-4 text-sm">
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div><span className="text-muted-foreground">Email:</span> {alunaDetail.email}</div>
+                <div><span className="text-muted-foreground">Dia:</span> {alunaDia(alunaDetail)}/15</div>
+                <div><span className="text-muted-foreground">XP:</span> {alunaDetail.xp_total ?? 0}</div>
+                <div><span className="text-muted-foreground">Streak:</span> {alunaDetail.streak_atual ?? 0} (rec. {alunaDetail.streak_recorde ?? 0})</div>
+                <div><span className="text-muted-foreground">Altura:</span> {alunaDetail.altura ?? "—"}</div>
+                <div><span className="text-muted-foreground">Peso atual:</span> {alunaDetail.peso_atual ?? "—"}</div>
+                <div><span className="text-muted-foreground">Meta:</span> {alunaDetail.meta_peso ?? "—"}</div>
+                <div><span className="text-muted-foreground">Último check-in:</span> {alunaDetail.ultimo_checkin ?? "—"}</div>
+                <div className="col-span-2"><span className="text-muted-foreground">Restrições:</span> {(alunaDetail.restricoes_alimentares ?? []).join(", ") || "—"}</div>
+              </div>
+
+              <div>
+                <h4 className="mb-1 text-xs font-bold uppercase text-muted-foreground">Histórico de peso</h4>
+                {alunaDetailData.pesos.length === 0 && <p className="text-xs text-muted-foreground">Sem registros.</p>}
+                <div className="space-y-0.5">
+                  {alunaDetailData.pesos.map((p: any) => (
+                    <div key={p.id} className="flex justify-between text-xs">
+                      <span>{p.registrado_em}</span>
+                      <span className="font-semibold">{p.peso} kg</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="mb-1 text-xs font-bold uppercase text-muted-foreground">Badges ({alunaDetailData.badges.length})</h4>
+                <div className="flex flex-wrap gap-2">
+                  {alunaDetailData.badges.map((b: any) => (
+                    <span key={b.id} className="rounded-full bg-muted px-2 py-1 text-xs">{b.badges?.icone} {b.badges?.nome}</span>
+                  ))}
+                  {alunaDetailData.badges.length === 0 && <p className="text-xs text-muted-foreground">Nenhuma.</p>}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="mb-1 text-xs font-bold uppercase text-muted-foreground">Check-ins ({alunaDetailData.checkins.length})</h4>
+                <div className="max-h-48 space-y-0.5 overflow-y-auto">
+                  {alunaDetailData.checkins.map((c: any) => (
+                    <div key={c.id} className="flex justify-between text-xs">
+                      <span>D{c.dia_numero} • {c.missions?.titulo}</span>
+                      <span className="text-muted-foreground">{new Date(c.completed_at).toLocaleDateString("pt-BR")}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-2 border-t border-border pt-3">
+                <Button size="sm" onClick={() => resetSenha(alunaDetail.email)}>
+                  <KeyRound className="mr-1 h-3.5 w-3.5" />Reset senha
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => { toggleBlock(alunaDetail.id, alunaDetail.bloqueado); setAlunaDetail({ ...alunaDetail, bloqueado: !alunaDetail.bloqueado }); }}>
+                  {alunaDetail.bloqueado ? "Desbloquear" : "Bloquear"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
