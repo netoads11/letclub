@@ -240,8 +240,8 @@ export default function Missoes() {
                     {m.icone}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#888]">{m.titulo}</p>
-                    <span className="mt-0.5 inline-block rounded-md bg-[#1E1E1E] px-1.5 py-0.5 text-[9px] text-[#888]">
+                    <p className="text-[14px] font-medium text-[#888]">{m.titulo}</p>
+                    <span className="mt-0.5 inline-block rounded-md bg-[#1E1E1E] px-1.5 py-0.5 text-[12px] text-[#888]">
                       Dia {m.dia_numero}
                     </span>
                   </div>
