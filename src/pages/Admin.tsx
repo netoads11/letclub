@@ -29,6 +29,14 @@ export default function Admin() {
   // Missions
   const [missions, setMissions] = useState<any[]>([]);
 
+  // Receitas
+  const [receitas, setReceitas] = useState<any[]>([]);
+  const [editingReceita, setEditingReceita] = useState<any | null>(null);
+
+  // Aluna detail
+  const [alunaDetail, setAlunaDetail] = useState<any | null>(null);
+  const [alunaDetailData, setAlunaDetailData] = useState<{ checkins: any[]; pesos: any[]; badges: any[] }>({ checkins: [], pesos: [], badges: [] });
+
   // Badges
   const [badges, setBadges] = useState<any[]>([]);
   const [badgeUnlocks, setBadgeUnlocks] = useState<Record<string, any[]>>({});
