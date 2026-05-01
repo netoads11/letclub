@@ -15,20 +15,44 @@ export default function MissaoDetalhe() {
   const [done, setDone] = useState<any>(null);
   const [nota, setNota] = useState("");
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id || !profile) return;
+    if (!id) return;
+    let cancelled = false;
     (async () => {
-      const [mr, cr] = await Promise.all([
-        supabase.from("missions").select("*").eq("id", id).maybeSingle(),
-        supabase.from("checkins").select("*").eq("user_id", profile.id).eq("mission_id", id).maybeSingle(),
-      ]);
-      setM(mr.data);
-      if (cr.data) {
-        setDone(cr.data);
-        setNota(cr.data.anotacao || "");
+      setLoading(true);
+      setError(null);
+      const mr = await supabase.from("missions").select("*").eq("id", id).maybeSingle();
+      if (cancelled) return;
+      if (mr.error) {
+        setError(mr.error.message);
+        setLoading(false);
+        return;
       }
+      if (!mr.data) {
+        setError("Missão não encontrada");
+        setLoading(false);
+        return;
+      }
+      setM(mr.data);
+      if (profile) {
+        const cr = await supabase
+          .from("checkins")
+          .select("*")
+          .eq("user_id", profile.id)
+          .eq("mission_id", id)
+          .maybeSingle();
+        if (cancelled) return;
+        if (cr.data) {
+          setDone(cr.data);
+          setNota(cr.data.anotacao || "");
+        }
+      }
+      setLoading(false);
     })();
+    return () => { cancelled = true; };
   }, [id, profile]);
 
   const submit = async () => {
