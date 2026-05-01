@@ -26,13 +26,17 @@ export default function Missoes() {
     load();
   }, [profile, day]);
 
+  const [futureMissions, setFutureMissions] = useState<Mission[]>([]);
+
   const load = async () => {
     if (!profile) return;
-    const [m, c] = await Promise.all([
+    const [m, c, fm] = await Promise.all([
       supabase.from("missions").select("*").eq("dia_numero", cappedDay).eq("ativo", true).order("ordem"),
       supabase.from("checkins").select("mission_id, dia_numero").eq("user_id", profile.id),
+      supabase.from("missions").select("*").gt("dia_numero", cappedDay).eq("ativo", true).order("dia_numero").order("ordem").limit(6),
     ]);
     setMissions((m.data ?? []) as Mission[]);
+    setFutureMissions((fm.data ?? []) as Mission[]);
     const set = new Set<string>();
     const byDay: Record<number, number> = {};
     (c.data ?? []).forEach((r: any) => {
