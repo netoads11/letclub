@@ -1172,9 +1172,46 @@ export default function Admin() {
                   <Input type="number" value={editingReceita.dia_numero ?? ""} onChange={(e) => setEditingReceita({ ...editingReceita, dia_numero: e.target.value === "" ? null : e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 <div><label className="text-xs text-muted-foreground">Tempo (min)</label><Input type="number" value={editingReceita.tempo_preparo} onChange={(e) => setEditingReceita({ ...editingReceita, tempo_preparo: e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" /></div>
-                <div><label className="text-xs text-muted-foreground">Imagem URL</label><Input value={editingReceita.imagem_url ?? ""} onChange={(e) => setEditingReceita({ ...editingReceita, imagem_url: e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" /></div>
+                <div>
+                  <label className="text-xs text-muted-foreground">Imagem da receita</label>
+                  {editingReceita.imagem_url && (
+                    <img src={editingReceita.imagem_url} alt="" className="mt-1 h-[120px] w-full rounded-xl object-cover" />
+                  )}
+                  <label className="mt-2 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-[#2A2A2A] bg-[#1E1E1E] py-5 text-center transition hover:border-primary/50">
+                    {uploadingReceitaImg ? (
+                      <>
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                        <span className="text-xs text-muted-foreground">Enviando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-5 w-5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                          {editingReceita.imagem_url ? "Trocar imagem" : "Clique para enviar ou arraste a imagem"}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground/70">JPG, PNG ou WEBP — máx 5MB</span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      disabled={uploadingReceitaImg}
+                      onChange={(e) => e.target.files?.[0] && handleReceitaImageUpload(e.target.files[0])}
+                    />
+                  </label>
+                  <div className="mt-2">
+                    <label className="text-[10px] text-muted-foreground">Ou cole uma URL</label>
+                    <Input
+                      value={editingReceita.imagem_url ?? ""}
+                      onChange={(e) => setEditingReceita({ ...editingReceita, imagem_url: e.target.value })}
+                      placeholder="https://..."
+                      className="mt-1 h-8 bg-[#0D0D0D] border-[#2A2A2A] text-xs"
+                    />
+                  </div>
+                </div>
               </div>
               <div>
                 <p className="mb-2 text-xs text-muted-foreground">Restrições compatíveis</p>
