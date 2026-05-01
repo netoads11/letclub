@@ -263,6 +263,7 @@ export type Database = {
       posts_comunidade: {
         Row: {
           created_at: string
+          fixado: boolean
           id: string
           imagem_url: string | null
           removido: boolean
@@ -272,6 +273,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          fixado?: boolean
           id?: string
           imagem_url?: string | null
           removido?: boolean
@@ -281,6 +283,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          fixado?: boolean
           id?: string
           imagem_url?: string | null
           removido?: boolean

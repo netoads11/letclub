@@ -26,13 +26,17 @@ export default function Missoes() {
     load();
   }, [profile, day]);
 
+  const [futureMissions, setFutureMissions] = useState<Mission[]>([]);
+
   const load = async () => {
     if (!profile) return;
-    const [m, c] = await Promise.all([
+    const [m, c, fm] = await Promise.all([
       supabase.from("missions").select("*").eq("dia_numero", cappedDay).eq("ativo", true).order("ordem"),
       supabase.from("checkins").select("mission_id, dia_numero").eq("user_id", profile.id),
+      supabase.from("missions").select("*").gt("dia_numero", cappedDay).eq("ativo", true).order("dia_numero").order("ordem").limit(6),
     ]);
     setMissions((m.data ?? []) as Mission[]);
+    setFutureMissions((fm.data ?? []) as Mission[]);
     const set = new Set<string>();
     const byDay: Record<number, number> = {};
     (c.data ?? []).forEach((r: any) => {
@@ -150,6 +154,24 @@ export default function Missoes() {
             <p className="py-10 text-center text-sm text-muted-foreground">Nenhuma missão para hoje.</p>
           )}
         </div>
+
+        {futureMissions.length > 0 && (
+          <div className="mt-8">
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Próximos dias</h2>
+            <div className="space-y-2">
+              {futureMissions.map((m) => (
+                <div key={m.id} className="flex items-center gap-3 rounded-2xl border border-dashed border-border bg-muted/30 p-3 opacity-60">
+                  <div className="text-xl grayscale">{m.icone}</div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-muted-foreground">{m.titulo}</p>
+                    <p className="text-[10px] text-muted-foreground">Dia {m.dia_numero} • +{m.xp_reward} XP</p>
+                  </div>
+                  <Lock className="h-4 w-4 text-muted-foreground" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </AppShell>
   );
