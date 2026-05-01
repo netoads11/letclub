@@ -177,7 +177,7 @@ export default function Missoes() {
             return (
               <div
                 key={m.id}
-                className={`rounded-2xl border p-4 transition-all ${
+                className={`rounded-2xl border p-3 transition-all ${
                   isDone ? "border-primary/30" : "border-[#1E1E1E] bg-[#141414]"
                 }`}
                 style={
@@ -187,7 +187,7 @@ export default function Missoes() {
                 }
               >
                 <Link to={`/missao/${m.id}`} className="flex items-start gap-3">
-                  <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1E1E1E] text-xl">
+                  <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1E1E1E] text-lg">
                     {m.icone}
                     {isDone && (
                       <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
@@ -196,23 +196,23 @@ export default function Missoes() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className={`font-display text-[15px] font-medium text-white ${isDone ? "opacity-60" : ""}`}>
+                    <h3 className={`font-display text-base font-semibold text-white ${isDone ? "opacity-60" : ""}`}>
                       {m.titulo}
                     </h3>
-                    <p className="mt-0.5 text-xs text-[#888]">{m.descricao_curta}</p>
-                    <span className="mt-2 inline-block rounded-full bg-[#0F1A00] px-2.5 py-0.5 text-[10px] font-bold text-primary">
+                    <p className="mt-0.5 text-[13px] text-[#AAA]">{m.descricao_curta}</p>
+                    <span className="mt-2 inline-block rounded-full bg-[#0F1A00] px-2.5 py-0.5 text-xs font-bold text-primary">
                       +{m.xp_reward} XP
                     </span>
                   </div>
                 </Link>
                 {isDone ? (
-                  <div className="mt-3 flex items-center justify-center gap-2 py-2 text-sm font-medium text-primary">
+                  <div className="mt-3 flex h-10 items-center justify-center gap-2 text-sm font-medium text-primary">
                     <Check className="h-4 w-4" strokeWidth={3} /> Concluída
                   </div>
                 ) : (
                   <button
                     onClick={() => checkIn(m)}
-                    className="mt-3 w-full rounded-xl bg-primary py-2.5 font-display text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98]"
+                    className="mt-3 h-10 w-full rounded-xl bg-primary font-display text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98]"
                   >
                     Marcar como feita
                   </button>
@@ -240,8 +240,8 @@ export default function Missoes() {
                     {m.icone}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#888]">{m.titulo}</p>
-                    <span className="mt-0.5 inline-block rounded-md bg-[#1E1E1E] px-1.5 py-0.5 text-[9px] text-[#888]">
+                    <p className="text-[14px] font-medium text-[#888]">{m.titulo}</p>
+                    <span className="mt-0.5 inline-block rounded-md bg-[#1E1E1E] px-1.5 py-0.5 text-[12px] text-[#888]">
                       Dia {m.dia_numero}
                     </span>
                   </div>
