@@ -201,6 +201,84 @@ export default function Admin() {
     loadTab();
   };
 
+  // Receitas CRUD
+  const newReceita = () => setEditingReceita({
+    nome: "", tipo_refeicao: "cafe", dia_numero: null,
+    ingredientes: [], modo_preparo: [], tempo_preparo: 10,
+    restricoes_compativeis: [], imagem_url: "", ativo: true,
+  });
+
+  const saveReceita = async (r: any) => {
+    const payload = {
+      nome: r.nome,
+      tipo_refeicao: r.tipo_refeicao,
+      dia_numero: r.dia_numero === "" || r.dia_numero === null || r.dia_numero === undefined ? null : Number(r.dia_numero),
+      ingredientes: r.ingredientes ?? [],
+      modo_preparo: r.modo_preparo ?? [],
+      tempo_preparo: Number(r.tempo_preparo) || 10,
+      restricoes_compativeis: r.restricoes_compativeis ?? [],
+      imagem_url: r.imagem_url || null,
+      ativo: r.ativo ?? true,
+    };
+    if (!payload.nome) return toast.error("Nome obrigatório");
+    if (r.id) {
+      const { error } = await supabase.from("receitas").update(payload).eq("id", r.id);
+      if (error) return toast.error(error.message);
+    } else {
+      const { error } = await supabase.from("receitas").insert(payload);
+      if (error) return toast.error(error.message);
+    }
+    toast.success("Receita salva");
+    setEditingReceita(null);
+    loadTab();
+  };
+
+  const deleteReceita = async (id: string) => {
+    if (!confirm("Excluir esta receita?")) return;
+    const { error } = await supabase.from("receitas").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    loadTab();
+  };
+
+  // Aluna detail
+  const openAlunaDetail = async (a: any) => {
+    setAlunaDetail(a);
+    const [ckRes, psRes, ubRes] = await Promise.all([
+      supabase.from("checkins").select("*, missions:mission_id(titulo, dia_numero)").eq("user_id", a.id).order("completed_at", { ascending: false }),
+      supabase.from("pesos_historico").select("*").eq("user_id", a.id).order("registrado_em", { ascending: true }),
+      supabase.from("user_badges").select("*, badges:badge_id(nome, icone)").eq("user_id", a.id),
+    ]);
+    setAlunaDetailData({
+      checkins: ckRes.data ?? [],
+      pesos: psRes.data ?? [],
+      badges: ubRes.data ?? [],
+    });
+  };
+
+  const resetSenha = async (email: string) => {
+    if (!email) return toast.error("Sem email");
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) return toast.error(error.message);
+    toast.success(`Email de reset enviado para ${email}`);
+  };
+
+  const alunaStatus = (a: any): { label: string; cls: string } => {
+    if (a.bloqueado) return { label: "Inativa", cls: "bg-muted text-muted-foreground" };
+    const start = a.challenge_start_date ? new Date(a.challenge_start_date) : null;
+    if (!start) return { label: "Inativa", cls: "bg-muted text-muted-foreground" };
+    const diff = Math.floor((Date.now() - start.getTime()) / 86400000) + 1;
+    if (diff > 15) return { label: "Concluída", cls: "bg-primary/20 text-primary" };
+    return { label: "Ativa", cls: "bg-green-500/20 text-green-500" };
+  };
+
+  const alunaDia = (a: any): number => {
+    if (!a.challenge_start_date) return 0;
+    const start = new Date(a.challenge_start_date);
+    return Math.min(15, Math.floor((Date.now() - start.getTime()) / 86400000) + 1);
+  };
+
   // Comunidade actions
   const removePost = async (id: string) => {
     await supabase.from("posts_comunidade").update({ removido: true }).eq("id", id);
