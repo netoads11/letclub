@@ -26,6 +26,7 @@ export default function Comunidade() {
     const { data } = await supabase.from("posts_comunidade")
       .select("*, profiles(full_name, avatar_url), reacoes_posts(tipo, user_id)")
       .eq("removido", false)
+      .order("fixado", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(50);
     setPosts(data ?? []);
