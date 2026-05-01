@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { ChevronLeft, Users, Target, UtensilsCrossed, Trophy, Settings, Award, MessageCircle, Bot, Pin, Trash2, AlertTriangle, Send, ThumbsUp, ThumbsDown } from "lucide-react";
+import { ChevronLeft, Users, Target, UtensilsCrossed, Trophy, Settings, Award, MessageCircle, Bot, Pin, Trash2, AlertTriangle, Send, ThumbsUp, ThumbsDown, Plus, X, KeyRound, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
