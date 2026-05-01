@@ -132,65 +132,156 @@ export default function Perfil() {
 
   return (
     <div className="min-h-screen bg-background pb-10">
-      <header className="flex items-center justify-between px-5 py-4">
-        <button onClick={() => nav(-1)} className="rounded-full bg-card p-2"><ChevronLeft className="h-5 w-5" /></button>
+      <header className="flex items-center justify-between px-4 py-4">
+        <button
+          onClick={() => nav(-1)}
+          className="rounded-full border border-[#1E1E1E] bg-[#141414] p-2"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
         <button
           onClick={() => setShowSettings((s) => !s)}
-          className={`rounded-full p-2 transition-colors ${showSettings ? "bg-primary text-primary-foreground" : "bg-card"}`}
+          className={`rounded-full p-2 transition-colors ${
+            showSettings ? "bg-primary text-primary-foreground" : "border border-[#1E1E1E] bg-[#141414]"
+          }`}
           aria-label="Configurações"
         >
           <Settings className="h-5 w-5" />
         </button>
       </header>
-      <div className="mx-auto max-w-md px-5 slide-up">
-        <div className="text-center">
-          <div className="mx-auto h-20 w-20 overflow-hidden rounded-full border-2 border-primary/40 bg-card">
-            {avatarUrl ? <img src={avatarUrl} className="h-full w-full object-cover" /> :
-              <div className="flex h-full w-full items-center justify-center font-display text-2xl font-bold text-primary">{(profile.full_name || "?").charAt(0).toUpperCase()}</div>}
+
+      <div className="mx-auto max-w-md slide-up">
+        {/* Hero header with radial gradient */}
+        <div
+          className="px-4 pb-2 pt-2 text-center"
+          style={{
+            background:
+              "radial-gradient(ellipse at center top, rgba(205,255,0,0.05) 0%, transparent 60%)",
+          }}
+        >
+          <div className="mx-auto flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full border border-[#1E1E1E] bg-[#1E1E1E]">
+            {avatarUrl ? (
+              <img src={avatarUrl} className="h-full w-full object-cover" />
+            ) : (
+              <span className="font-display text-[28px] font-bold text-primary">
+                {(profile.full_name || "?").charAt(0).toUpperCase()}
+              </span>
+            )}
           </div>
-          <h1 className="mt-3 font-display text-2xl font-bold">{profile.full_name || "Aluna"}</h1>
-          <p className="text-xs text-muted-foreground">Dia {Math.min(day, 15)} de 15 • {profile.xp_total} XP</p>
+          <h1 className="mt-3 font-display text-[22px] font-bold text-white">
+            {profile.full_name || "Aluna"}
+          </h1>
+          <p className="text-[13px] text-[#888]">
+            Dia {Math.min(day, 15)} de 15 • {profile.xp_total} XP
+          </p>
         </div>
 
-        {/* Weights */}
-        <div className="mt-6 grid grid-cols-3 gap-3 text-center">
-          <div className="rounded-xl bg-card p-3"><p className="text-[10px] text-muted-foreground">Inicial</p><p className="font-display font-bold">{profile.peso_inicial ?? "—"} kg</p></div>
-          <div className="rounded-xl bg-card p-3"><p className="text-[10px] text-muted-foreground">Atual</p><p className="font-display font-bold text-primary">{profile.peso_atual ?? "—"} kg</p></div>
-          <div className="rounded-xl bg-card p-3"><p className="text-[10px] text-muted-foreground">Meta</p><p className="font-display font-bold">{profile.meta_peso ?? "—"} kg</p></div>
-        </div>
-
-        {pesos.length > 1 && (
-          <div className="mt-5 rounded-2xl bg-card p-4">
-            <p className="mb-2 text-xs text-muted-foreground">Sua evolução</p>
-            <div className="h-40">
-              <ResponsiveContainer><LineChart data={pesos}>
-                <XAxis dataKey="data" tick={{ fontSize: 10, fill: "#888" }} />
-                <YAxis tick={{ fontSize: 10, fill: "#888" }} domain={["auto", "auto"]} />
-                <Tooltip contentStyle={{ background: "#141414", border: "1px solid #1E1E1E", borderRadius: 12 }} />
-                <Line type="monotone" dataKey="peso" stroke="#CDFF00" strokeWidth={2} dot={{ r: 3, fill: "#CDFF00" }} />
-              </LineChart></ResponsiveContainer>
+        <div className="px-4">
+          {/* Weights */}
+          <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-[#888]">Peso</p>
+          <div className="grid grid-cols-3 gap-2.5 text-center">
+            <div className="rounded-xl border border-[#1E1E1E] bg-[#141414] p-3">
+              <p className="text-[10px] text-[#888]">Inicial</p>
+              <p className="mt-1 font-display text-base font-bold text-white">
+                {profile.peso_inicial ?? "—"} <span className="text-xs text-[#888]">kg</span>
+              </p>
+            </div>
+            <div className="rounded-xl border border-primary bg-[#141414] p-3">
+              <p className="text-[10px] text-[#888]">Atual</p>
+              <p className="mt-1 font-display text-base font-bold text-primary">
+                {profile.peso_atual ?? "—"} <span className="text-xs">kg</span>
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#1E1E1E] bg-[#141414] p-3">
+              <p className="text-[10px] text-[#888]">Meta</p>
+              <p className="mt-1 font-display text-base font-bold text-white">
+                {profile.meta_peso ?? "—"} <span className="text-xs text-[#888]">kg</span>
+              </p>
             </div>
           </div>
-        )}
 
-        {/* Streak */}
-        <div className="mt-5 grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-card p-4"><Flame className="h-5 w-5 text-primary" /><p className="mt-2 text-xs text-muted-foreground">Sequência</p><p className="font-display text-xl font-bold">{profile.streak_atual} dias</p></div>
-          <div className="rounded-xl bg-card p-4"><Trophy className="h-5 w-5 text-primary" /><p className="mt-2 text-xs text-muted-foreground">Recorde</p><p className="font-display text-xl font-bold">{profile.streak_recorde} dias</p></div>
-        </div>
-
-        {/* Badges */}
-        <h2 className="mt-6 font-display text-lg font-bold">Conquistas</h2>
-        <div className="mt-3 grid grid-cols-3 gap-3">
-          {allBadges.map((b) => {
-            const u = badges.includes(b.id);
-            return (
-              <div key={b.id} className={`rounded-xl border p-3 text-center ${u ? "border-primary/40 bg-primary/5" : "border-border bg-card opacity-50"}`}>
-                <div className={`text-3xl ${!u && "grayscale"}`}>{b.icone}</div>
-                <p className="mt-1 text-[10px] font-semibold">{b.nome}</p>
+          {/* Evolution chart */}
+          {pesos.length > 1 && (
+            <>
+              <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-[#888]">
+                Evolução
+              </p>
+              <div className="rounded-2xl border border-[#1E1E1E] bg-[#141414] p-4">
+                <div className="h-40">
+                  <ResponsiveContainer>
+                    <LineChart data={pesos}>
+                      <CartesianGrid stroke="#1E1E1E" vertical={false} />
+                      <XAxis dataKey="data" tick={{ fontSize: 10, fill: "#888" }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 10, fill: "#888" }} domain={["auto", "auto"]} axisLine={false} tickLine={false} />
+                      <Tooltip
+                        contentStyle={{
+                          background: "#141414",
+                          border: "1px solid #1E1E1E",
+                          borderRadius: 12,
+                          color: "#fff",
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="peso"
+                        stroke="#CDFF00"
+                        strokeWidth={2.5}
+                        dot={{ r: 4, fill: "#CDFF00", stroke: "#CDFF00" }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
-            );
-          })}
+            </>
+          )}
+
+          {/* Streak */}
+          <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-[#888]">
+            Sequências
+          </p>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="rounded-xl border border-[#1E1E1E] bg-[#141414] p-4">
+              <Flame className="h-5 w-5 text-[#FF6B00]" fill="#FF6B00" />
+              <p className="mt-2 text-[11px] text-[#888]">Sequência</p>
+              <p className="font-display text-2xl font-bold text-white">
+                {profile.streak_atual} <span className="text-sm text-[#888]">dias</span>
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#1E1E1E] bg-[#141414] p-4">
+              <Trophy className="h-5 w-5 text-primary" />
+              <p className="mt-2 text-[11px] text-[#888]">Recorde</p>
+              <p className="font-display text-2xl font-bold text-white">
+                {profile.streak_recorde} <span className="text-sm text-[#888]">dias</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Badges */}
+          <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-[#888]">
+            Conquistas
+          </p>
+          <div className="grid grid-cols-3 gap-2.5">
+            {allBadges.map((b) => {
+              const u = badges.includes(b.id);
+              return (
+                <div
+                  key={b.id}
+                  className={`relative rounded-xl border p-3 text-center transition-all ${
+                    u
+                      ? "border-primary/30 bg-[#141414]"
+                      : "border-[#1E1E1E] bg-[#141414] opacity-30"
+                  }`}
+                >
+                  <div className={`text-[32px] leading-none ${!u && "grayscale"}`}>{b.icone}</div>
+                  <p className="mt-2 font-display text-[11px] text-[#CCC]">{b.nome}</p>
+                  {!u && (
+                    <Lock className="absolute right-1.5 top-1.5 h-3 w-3 text-[#444]" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* SETTINGS PANEL */}
