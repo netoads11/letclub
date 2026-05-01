@@ -18,6 +18,7 @@ import Comunidade from "./pages/Comunidade";
 import Perfil from "./pages/Perfil";
 import Notificacoes from "./pages/Notificacoes";
 import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/comunidade" element={<RequireAuth><Comunidade /></RequireAuth>} />
             <Route path="/perfil" element={<RequireAuth><Perfil /></RequireAuth>} />
             <Route path="/notificacoes" element={<RequireAuth><Notificacoes /></RequireAuth>} />
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<RequireAuth admin requireOnboarding={false}><Admin /></RequireAuth>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

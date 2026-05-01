@@ -13,8 +13,8 @@ export const RequireAuth = ({ children, requireOnboarding = true, admin = false 
     );
   }
 
-  if (!user) return <Navigate to="/auth" state={{ from: loc }} replace />;
-  if (admin && !isAdmin) return <Navigate to="/home" replace />;
+  if (!user) return <Navigate to={admin ? "/admin/login" : "/auth"} state={{ from: loc }} replace />;
+  if (admin && !isAdmin) return <Navigate to="/admin/login" replace />;
   if (requireOnboarding && profile && !profile.onboarding_completed) {
     return <Navigate to="/onboarding" replace />;
   }
