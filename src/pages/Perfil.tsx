@@ -35,11 +35,11 @@ function WeightBarChart({ data }: { data: { data: string; peso: number; meta: nu
             <div key={i} className="relative flex h-full flex-1 items-end justify-center">
               {/* meta (listrada/fantasma) */}
               <div
-                className="absolute right-[18%] w-[28%] rounded-full opacity-60"
+                className="absolute right-[18%] w-[28%] rounded-full opacity-90"
                 style={{
                   height: `${metaH}%`,
                   backgroundImage:
-                    "repeating-linear-gradient(0deg, hsl(var(--secondary) / 0.35) 0 3px, transparent 3px 6px)",
+                    "repeating-linear-gradient(0deg, hsl(8 65% 88%) 0 3px, transparent 3px 6px)",
                 }}
               />
               {/* peso real */}
@@ -109,7 +109,13 @@ export default function Perfil() {
     })();
   }, [profile]);
 
-  if (!profile) return null;
+  if (!profile) return (
+    <AppShell>
+      <div className="flex h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    </AppShell>
+  );
   const day = getCurrentDay(profile.challenge_start_date);
   const handle = "@" + (profile.email?.split("@")[0] || (profile.full_name || "voce").split(" ")[0].toLowerCase()).slice(0, 14);
   const metaPeso = Number(profile.meta_peso ?? 0);
@@ -206,8 +212,8 @@ export default function Perfil() {
       </header>
 
       <div className="mx-auto max-w-md slide-up px-4">
-        {/* Avatar */}
-        <div className="flex flex-col items-center pt-2">
+        {/* Avatar card */}
+        <div className="mt-2 flex flex-col items-center rounded-3xl bg-muted px-6 py-7">
           <label className="relative cursor-pointer group">
             <div className="h-[140px] w-[140px] overflow-hidden rounded-3xl border-4 border-primary bg-muted">
               {avatarUrl ? (
