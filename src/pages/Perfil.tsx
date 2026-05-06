@@ -20,6 +20,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { getCurrentDay } from "@/lib/challenge";
 import { AppShell } from "@/components/AppShell";
+import { Avatar } from "@/components/Avatar";
 
 const RESTRICOES = ["vegetariana", "lactose", "gluten", "gestante"];
 
@@ -70,6 +71,7 @@ export default function Perfil() {
   const [badges, setBadges] = useState<any[]>([]);
   const [allBadges, setAllBadges] = useState<any[]>([]);
   const [showSettings, setShowSettings] = useState(false);
+  const [loadTimedOut, setLoadTimedOut] = useState(false);
 
   // Profile fields
   const [name, setName] = useState(profile?.full_name ?? "");
@@ -103,19 +105,43 @@ export default function Perfil() {
         supabase.from("user_badges").select("badge_id").eq("user_id", profile.id),
         supabase.from("badges").select("*").eq("ativo", true),
       ]);
-      setPesos((p.data ?? []).map((x: any) => ({ data: x.registrado_em.slice(5), peso: Number(x.peso) })));
+      setPesos((p.data ?? []).map((x: any) => ({ data: x.registrado_em?.slice(5) ?? "", peso: Number(x.peso) })));
       setBadges((ub.data ?? []).map((x: any) => x.badge_id));
       setAllBadges(b.data ?? []);
     })();
   }, [profile]);
 
-  if (!profile) return (
-    <AppShell>
-      <div className="flex h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
-    </AppShell>
-  );
+  useEffect(() => {
+    if (profile) return;
+    const t = setTimeout(() => setLoadTimedOut(true), 6000);
+    return () => clearTimeout(t);
+  }, [profile]);
+
+  if (!profile) {
+    return (
+      <AppShell>
+        <div className="flex h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
+          {!loadTimedOut ? (
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground">
+                Não foi possível carregar seu perfil agora.
+              </p>
+              <div className="flex gap-2">
+                <Button onClick={() => { setLoadTimedOut(false); refreshProfile(); }} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  Tentar novamente
+                </Button>
+                <Button variant="outline" onClick={async () => { await signOut(); nav("/auth", { replace: true }); }}>
+                  Sair
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      </AppShell>
+    );
+  }
   const day = getCurrentDay(profile.challenge_start_date);
   const handle = "@" + (profile.email?.split("@")[0] || (profile.full_name || "voce").split(" ")[0].toLowerCase()).slice(0, 14);
   const metaPeso = Number(profile.meta_peso ?? 0);
@@ -141,6 +167,12 @@ export default function Perfil() {
   };
 
   const uploadAvatar = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      return toast.error("Selecione um arquivo de imagem");
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      return toast.error("Imagem muito grande (máx 5MB)");
+    }
     setUploading(true);
     try {
       const ext = file.name.split(".").pop();
@@ -215,14 +247,14 @@ export default function Perfil() {
         {/* Avatar card */}
         <div className="mt-2 flex flex-col items-center rounded-3xl bg-muted px-6 py-7">
           <label className="relative cursor-pointer group">
-            <div className="h-[140px] w-[140px] overflow-hidden rounded-3xl border-4 border-primary bg-muted">
-              {avatarUrl ? (
-                <img src={avatarUrl} className="h-full w-full object-cover" alt={profile.full_name} />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center font-display text-5xl font-bold text-primary">
-                  {(profile.full_name || "?").charAt(0).toUpperCase()}
-                </div>
-              )}
+            <div className="relative h-[140px] w-[140px] overflow-hidden rounded-3xl border-4 border-primary">
+              <Avatar
+                name={profile.full_name}
+                url={avatarUrl}
+                size={132}
+                shape="rounded-3xl"
+                className="h-full w-full"
+              />
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                 <Camera className="h-7 w-7 text-white" />
               </div>
@@ -377,10 +409,7 @@ export default function Perfil() {
                 <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-foreground"><User className="h-4 w-4 text-primary" /> Perfil</h3>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="h-14 w-14 overflow-hidden rounded-full border border-border bg-background">
-                      {avatarUrl ? <img src={avatarUrl} className="h-full w-full object-cover" /> :
-                        <div className="flex h-full w-full items-center justify-center font-display text-lg font-bold text-primary">{(name || "?").charAt(0).toUpperCase()}</div>}
-                    </div>
+                    <Avatar name={name} url={avatarUrl} size={56} shape="rounded-full" className="border border-border" />
                     <label className="cursor-pointer">
                       <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-2 text-xs hover:bg-muted">
                         <Camera className="h-3.5 w-3.5" /> {uploading ? "Enviando..." : "Trocar foto"}

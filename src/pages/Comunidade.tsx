@@ -7,6 +7,7 @@ import { Heart, Flame, Zap, Flag, X, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { Avatar } from "@/components/Avatar";
 
 type ReactionType = "coracao" | "forca" | "fogo";
 const reactions: { type: ReactionType; icon: any; activeBg: string; activeText: string }[] = [
@@ -131,16 +132,16 @@ export default function Comunidade() {
             (r: any) => (counts[r.tipo] = (counts[r.tipo] ?? 0) + 1),
           );
           const mine = p.reacoes_posts?.find((r: any) => r.user_id === profile?.id)?.tipo;
-          const initial = (p.profiles?.full_name || "?").charAt(0).toUpperCase();
           return (
             <div key={p.id} className="rounded-2xl border border-border bg-card p-4">
               <div className="flex items-start gap-3">
-                <div
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-bold text-foreground"
-                  style={{ backgroundColor: colorFor(p.user_id || initial) }}
-                >
-                  {initial}
-                </div>
+                <Avatar
+                  name={p.profiles?.full_name}
+                  url={p.profiles?.avatar_url}
+                  size={36}
+                  shape="rounded-full"
+                  className="shrink-0"
+                />
                 <div className="flex-1 min-w-0">
                   <p className="font-display text-sm font-medium text-foreground">
                     {p.profiles?.full_name || "Aluna"}

@@ -43,12 +43,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const loadProfileAndRole = async (uid: string) => {
-    const [p, r] = await Promise.all([
-      supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", uid).eq("role", "admin").maybeSingle(),
-    ]);
-    setProfile((p.data as Profile) ?? null);
-    setIsAdmin(!!r.data);
+    try {
+      const [p, r] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
+        supabase.from("user_roles").select("role").eq("user_id", uid).eq("role", "admin").maybeSingle(),
+      ]);
+      let prof = p.data as Profile | null;
+      if (!prof) {
+        // No profile row yet (trigger may not be installed). Create one client-side.
+        const { data: u } = await supabase.auth.getUser();
+        const meta = (u.user?.user_metadata ?? {}) as Record<string, any>;
+        const today = new Date().toISOString().slice(0, 10);
+        const { data: inserted } = await supabase
+          .from("profiles")
+          .upsert(
+            {
+              id: uid,
+              full_name: meta.full_name ?? meta.name ?? "",
+              email: u.user?.email ?? "",
+              challenge_start_date: today,
+            },
+            { onConflict: "id" },
+          )
+          .select("*")
+          .maybeSingle();
+        prof = (inserted as Profile) ?? null;
+      }
+      setProfile(prof);
+      setIsAdmin(!!r.data);
+    } catch (e) {
+      console.error("loadProfileAndRole failed", e);
+    }
   };
 
   const refreshProfile = async () => {
@@ -79,6 +104,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
     setProfile(null);
     setIsAdmin(false);
   };
