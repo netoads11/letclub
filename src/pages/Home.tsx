@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import {
-  Menu,
+  Bell,
   Bookmark,
   MoreHorizontal,
   Heart,
@@ -30,8 +30,10 @@ const greetingFor = (d: Date) => {
 
 export default function Home() {
   const { profile } = useAuth();
+  const nav = useNavigate();
   const [missionsToday, setMissionsToday] = useState(0);
   const [doneToday, setDoneToday] = useState(0);
+  const [unread, setUnread] = useState(0);
   const [letMsg, setLetMsg] = useState(
     "Bom diaaaa, maravilhosa! Lembre-se: pequenos passos consistentes mudam tudo. Bora pra mais um dia?",
   );
@@ -44,7 +46,7 @@ export default function Home() {
   useEffect(() => {
     if (!profile) return;
     (async () => {
-      const [m, c, cfg] = await Promise.all([
+      const [m, c, cfg, n] = await Promise.all([
         supabase
           .from("missions")
           .select("id", { count: "exact", head: true })
@@ -60,10 +62,16 @@ export default function Home() {
           .select("valor")
           .eq("chave", "mensagem_let_home")
           .maybeSingle(),
+        supabase
+          .from("notificacoes")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", profile.id)
+          .eq("lida", false),
       ]);
       setMissionsToday(m.count ?? 0);
       setDoneToday(c.count ?? 0);
       if (cfg.data?.valor) setLetMsg(cfg.data.valor);
+      setUnread(n.count ?? 0);
     })();
   }, [profile, day]);
 
@@ -100,10 +108,16 @@ export default function Home() {
         </Link>
         <button
           type="button"
-          aria-label="Menu"
-          className="flex h-11 w-11 items-center justify-center rounded-2xl bg-muted text-foreground"
+          aria-label="Notificações"
+          onClick={() => nav("/notificacoes")}
+          className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-muted text-foreground"
         >
-          <Menu className="h-5 w-5" strokeWidth={2.4} />
+          <Bell className="h-5 w-5" strokeWidth={2.2} />
+          {unread > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground ring-2 ring-card">
+              {unread > 9 ? "9+" : unread}
+            </span>
+          )}
         </button>
       </header>
 

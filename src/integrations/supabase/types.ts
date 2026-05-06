@@ -490,6 +490,39 @@ export type Database = {
           },
         ]
       }
+      refeicoes_log: {
+        Row: {
+          created_at: string
+          id: string
+          imagem_url: string | null
+          kcal: number | null
+          nome: string | null
+          registrado_em: string
+          tipo_refeicao: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          imagem_url?: string | null
+          kcal?: number | null
+          nome?: string | null
+          registrado_em?: string
+          tipo_refeicao: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          imagem_url?: string | null
+          kcal?: number | null
+          nome?: string | null
+          registrado_em?: string
+          tipo_refeicao?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           badge_id: string

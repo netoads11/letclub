@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
@@ -19,6 +19,7 @@ type Mission = {
 
 export default function Missoes() {
   const { profile } = useAuth();
+  const nav = useNavigate();
   const [missions, setMissions] = useState<Mission[]>([]);
   const [done, setDone] = useState<Set<string>>(new Set());
   const [showHistory, setShowHistory] = useState(false);
@@ -130,9 +131,18 @@ export default function Missoes() {
     <AppShell>
       {/* Header */}
       <header className="flex items-start justify-between px-4 pt-6 pb-4">
-        <div>
-          <p className="text-[11px] uppercase tracking-widest text-primary">Dia {cappedDay} de 15</p>
-          <h1 className="mt-1 font-display text-[26px] font-bold text-foreground">Missões do dia</h1>
+        <div className="flex items-start gap-2">
+          <button
+            onClick={() => nav(-1)}
+            aria-label="Voltar"
+            className="-ml-1 mt-1 p-1"
+          >
+            <ChevronLeft className="h-6 w-6 text-foreground" />
+          </button>
+          <div>
+            <p className="text-[11px] uppercase tracking-widest text-primary">Dia {cappedDay} de 15</p>
+            <h1 className="mt-1 font-display text-[26px] font-bold text-foreground">Missões do dia</h1>
+          </div>
         </div>
         <button
           onClick={() => setShowHistory(true)}

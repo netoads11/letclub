@@ -418,7 +418,7 @@ export default function Perfil() {
                     </label>
                   </div>
                   <div>
-                    <Label className="text-xs">Nome</Label>
+                    <Label className="text-xs">Nome de usuário</Label>
                     <Input value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5" />
                   </div>
                   <Button onClick={saveProfile} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">Salvar perfil</Button>

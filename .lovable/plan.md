@@ -1,68 +1,74 @@
-# Plano: Redesenho da tela Meu Perfil
+# Ajustes solicitados
 
-Reestruturar `src/pages/Perfil.tsx` para seguir fielmente o mockup enviado, mantendo toda a lógica existente (upload de avatar, edição, peso, configs, logout, badges).
+## 1. Home — botão de notificações no header
+`src/pages/Home.tsx`:
+- Substituir o botão `Menu` (ícone hambúrguer) por um botão com ícone `Bell` (lucide-react).
+- Ao clicar, navegar para `/notificacoes` via `useNavigate`.
+- Manter o mesmo estilo visual (`h-11 w-11 rounded-2xl bg-muted`).
+- (Opcional) Mostrar um pontinho vermelho se houver `notificacoes` não lidas para o usuário (consulta simples a `notificacoes` com `lida=false` count).
 
-## Mudanças no header
+## 2. BottomNav — proporção e remover badge "3" fixo
+`src/components/BottomNav.tsx`:
+- Remover o `badge: 3` hardcoded da aba **Comunidade**. O badge passa a ser dinâmico: um `useEffect` consulta `notificacoes` (count `lida=false` para o usuário logado) — só mostra quando > 0. Para começar simples e bater com o pedido, vamos apenas **remover o número fixo** (deixando o componente preparado para badges reais via prop, mas sem mostrar nada por padrão).
+- Ajustar proporções para combinar com o print:
+  - Reduzir altura para `72px` (em vez de 86px).
+  - Ícones em `h-9 w-9` (em vez de 10).
+  - Botão `+` central: `h-[60px] w-[60px] rounded-[20px]`, `-mt-7`, mantendo elevação/sombra verde.
+  - Labels em `text-[11px]`, espaçamento `gap-1`, padding-top reduzido.
+  - Atualizar `style={{ height: "calc(72px + env(safe-area-inset-bottom))" }}` e `h-[72px]` no container.
 
-- Topo com `< @username` à esquerda (handle gerado a partir do email/nome, ex: `@mari.port`), ícone `selo.svg` ao lado e texto `Seu Perfil`.
-- Botão `...` (três pontos) à direita em pill cinza claro — abre o Sheet de Configurações (substitui o ícone Settings atual).
+## 3. Tela de Cardápio (`src/pages/Dieta.tsx`)
+Hoje os dois botões do header não fazem nada. Implementar:
 
-## Bloco do avatar
+### 3a. Botão verde "+" → adicionar refeição com foto
+- Abrir um `Sheet` (bottom sheet) com formulário:
+  - Tipo de refeição (`Select`: Café da Manhã, Almoço, Lanche, Jantar, Chá)
+  - Nome (`Input`, opcional)
+  - Calorias (`Input` numérico, opcional)
+  - Foto (input file, com preview) — upload para storage bucket `refeicoes` (mesmo padrão do `avatars`).
+  - Botão "Salvar refeição".
+- Persistir em uma nova tabela `refeicoes_log`:
+  ```
+  id uuid pk default gen_random_uuid()
+  user_id uuid not null references auth.users on delete cascade
+  tipo_refeicao text not null
+  nome text
+  kcal int
+  imagem_url text
+  registrado_em timestamptz not null default now()
+  ```
+  RLS: `select/insert/update/delete using (auth.uid() = user_id)`.
+- Bucket de storage `refeicoes` público, com policy de upload restrita ao próprio user (`{user_id}/...`).
+- Após salvar, refazer a busca e atualizar a lista da data selecionada.
 
-- Avatar grande quadrado-arredondado (~140px, `rounded-3xl`) com borda lima grossa (`border-4 border-primary`).
-- Selo (`selo.svg`) sobreposto no canto inferior direito do avatar.
-- Nome completo em destaque (`font-display text-2xl font-bold`) centralizado.
-- Subtítulo "Membra Fundadora" (badge textual cinza). Por enquanto fixo; pode virar campo dinâmico depois.
+### 3b. Botão de calendário → seletor de data como filtro
+- Trocar o ícone por botão que abre um `Popover` com o componente `Calendar` (já em `src/components/ui/calendar.tsx`).
+- Estado `selectedDate` (default: hoje).
+- A listagem passa a ser:
+  - Para a data selecionada: itens de `refeicoes_log` do usuário no dia escolhido.
+  - "Hoje" / "Ontem" / "Outra data" como cabeçalho conforme a data.
+- Manter a fonte de receitas sugeridas como fallback se ainda não houver registros, ou separar como seção "Sugestões do dia".
 
-## Card de pesos + gráfico de barras
+## 4. Botão de voltar em Missões e Áudios Diários
+Atualmente `Missoes.tsx` (rota `/missoes`) não tem botão de voltar — só um de calendário/histórico.
+- Adicionar botão `ChevronLeft` no header (estilo igual ao do Perfil: `nav(-1)` em `<button>` minimalista) à esquerda do título "Missões do dia".
+- Em `MissaoDetalhe.tsx` já existe `ChevronLeft` no início; verificar e padronizar caso difira.
+- "Áudios Diários" hoje aponta para `/missoes` (mesma página). Se for confirmado o mesmo destino, basta o ajuste em `Missoes.tsx`. Caso o usuário queira uma rota separada futuramente, criamos depois.
 
-Card branco (`bg-card`) único, arredondado, com:
+## 5. Perfil — editar nome de usuário
+`src/pages/Perfil.tsx` já tem campo "Nome" no bottom-sheet de Configurações com `Input` + botão "Salvar perfil" que chama `saveProfile` (atualiza `full_name` em `profiles`).
 
-1. **Linha superior** com 3 colunas separadas por divisor vertical:
-   - Peso inicial / Peso Atual / Meta — labels pequenos cinza acima, valor em bold grande, "kg" pequeno.
-   - Na coluna Meta, ícone `alvo.svg` à esquerda do valor.
+Para deixar mais visível e atender ao pedido:
+- Renomear a label para "Nome de usuário".
+- Manter `saveProfile` como está.
+- (Confirmação visual) Adicionar `toast` já está. Sem mudanças adicionais necessárias além da label/clareza.
 
-2. **Gráfico de barras customizado** (substitui o LineChart atual nesta tela):
-   - Usar Recharts `BarChart` com 6 últimos registros de `pesos_historico`.
-   - Cada barra dupla: barra sólida lima (peso real) + barra "fantasma" tracejada/listrada atrás (representando meta/referência) — implementar com duas `<Bar>` sobrepostas, a de fundo com padrão SVG listrado em rosa claro.
-   - Labels embaixo: peso em bold + data `dd/MM` em cinza menor.
-   - Sem eixos, sem grid, sem tooltip — visual limpo conforme mockup.
+## Resumo de arquivos
+- `src/pages/Home.tsx` — botão `Bell` + navegar para `/notificacoes`.
+- `src/components/BottomNav.tsx` — remover badge fixo, ajustar tamanhos.
+- `src/pages/Dieta.tsx` — sheet de adicionar refeição, popover de calendário, listagem por data.
+- `src/pages/Missoes.tsx` — botão `ChevronLeft` no header.
+- `src/pages/Perfil.tsx` — label "Nome de usuário".
+- Migration SQL: criar tabela `refeicoes_log` + RLS, criar bucket `refeicoes` + policies.
 
-## Card "Sua Jornada" (streak)
-
-Card largo verde claro (`bg-primary/10`):
-- Esquerda: ícone `fogo-simples.svg` + "Sua Jornada" / "{streak_atual} Dias Seguidos" / "Recorde: {streak_recorde} dias".
-- Direita: ícone `selo.svg` (ou troféu) + "Meta" / "15 Dias".
-
-Substitui os dois cards atuais de Sequência/Recorde.
-
-## Card "Calorias do dia"
-
-Novo card branco abaixo:
-- Esquerda: "Calorias do dia" + ícone `fogo-simples.svg` + valor `{kcal_hoje} kcal` + timestamp "DD de Mês, HHhMM".
-- Direita: ícone `fogo-duplo.svg` grande + "Meta do dia" + "1.600 kcal".
-
-Buscar kcal do dia em `checkins`/`refeicoes` se existir, senão exibir `0 kcal` por enquanto (verificar schema antes de implementar — se não houver campo, deixar valor placeholder configurável e nota TODO).
-
-## Conquistas
-
-Manter grid de badges existente abaixo dos novos blocos (já está alinhado ao estilo).
-
-## Tema / paleta
-
-Tudo na paleta lima `--primary` + marrom/rosa apoio já definidos em `index.css`. Sem cores fora do design system. Bordas suaves, sombras sutis, fundo `bg-background` (claro).
-
-## Detalhes técnicos
-
-- Arquivo único editado: `src/pages/Perfil.tsx`.
-- Importar SVGs: `selo`, `alvo`, `fogo-simples`, `fogo-duplo` de `@/assets/icons/`.
-- Handle `@username`: derivar de `profile.email.split('@')[0]` truncado, fallback ao primeiro nome.
-- Gráfico: criar componente local `WeightBarChart` dentro do arquivo para encapsular a lógica de barras duplas com padrão listrado (definir `<defs><pattern>` SVG).
-- Manter Sheet de configurações intacto, apenas trocar o trigger (botão `...`).
-- Remover ícone `Settings` import; usar `MoreHorizontal` do lucide.
-- Todo CSS via Tailwind tokens semânticos — nada hardcoded.
-
-## Fora de escopo
-
-- Edição do "Membra Fundadora" (texto fixo nesta iteração).
-- Cálculo real de calorias do dia se não houver dados — usar 0/placeholder.
+Aprove para eu implementar.
