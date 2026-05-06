@@ -1,74 +1,49 @@
-# Ajustes solicitados
+## Ajustes de design, formatação e dados de exemplo
 
-## 1. Home — botão de notificações no header
-`src/pages/Home.tsx`:
-- Substituir o botão `Menu` (ícone hambúrguer) por um botão com ícone `Bell` (lucide-react).
-- Ao clicar, navegar para `/notificacoes` via `useNavigate`.
-- Manter o mesmo estilo visual (`h-11 w-11 rounded-2xl bg-muted`).
-- (Opcional) Mostrar um pontinho vermelho se houver `notificacoes` não lidas para o usuário (consulta simples a `notificacoes` com `lida=false` count).
+### 1. Botão secundário (verde-limão 50% + texto cinza escuro)
+Atualizar `src/components/ui/button.tsx`, variante `secondary`:
+- `bg-primary/50 text-neutral-800 hover:bg-primary/60`
+- Mantém o token `--secondary` (marrom) para outros usos (Splash, avatar fallback, badges) para não quebrar a identidade.
 
-## 2. BottomNav — proporção e remover badge "3" fixo
-`src/components/BottomNav.tsx`:
-- Remover o `badge: 3` hardcoded da aba **Comunidade**. O badge passa a ser dinâmico: um `useEffect` consulta `notificacoes` (count `lida=false` para o usuário logado) — só mostra quando > 0. Para começar simples e bater com o pedido, vamos apenas **remover o número fixo** (deixando o componente preparado para badges reais via prop, mas sem mostrar nada por padrão).
-- Ajustar proporções para combinar com o print:
-  - Reduzir altura para `72px` (em vez de 86px).
-  - Ícones em `h-9 w-9` (em vez de 10).
-  - Botão `+` central: `h-[60px] w-[60px] rounded-[20px]`, `-mt-7`, mantendo elevação/sombra verde.
-  - Labels em `text-[11px]`, espaçamento `gap-1`, padding-top reduzido.
-  - Atualizar `style={{ height: "calc(72px + env(safe-area-inset-bottom))" }}` e `h-[72px]` no container.
+### 2. Botões de fechar (X) visíveis
+Em `src/components/ui/sheet.tsx` e `src/components/ui/dialog.tsx`, o `X` está `opacity-70` sem fundo nem padding — fica praticamente invisível sobre cards claros.
 
-## 3. Tela de Cardápio (`src/pages/Dieta.tsx`)
-Hoje os dois botões do header não fazem nada. Implementar:
+Novo estilo:
+```
+absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center
+rounded-full bg-muted text-foreground hover:bg-muted/80
+focus:outline-none focus:ring-2 focus:ring-ring
+```
+E aumentar o ícone para `h-5 w-5`.
 
-### 3a. Botão verde "+" → adicionar refeição com foto
-- Abrir um `Sheet` (bottom sheet) com formulário:
-  - Tipo de refeição (`Select`: Café da Manhã, Almoço, Lanche, Jantar, Chá)
-  - Nome (`Input`, opcional)
-  - Calorias (`Input` numérico, opcional)
-  - Foto (input file, com preview) — upload para storage bucket `refeicoes` (mesmo padrão do `avatars`).
-  - Botão "Salvar refeição".
-- Persistir em uma nova tabela `refeicoes_log`:
-  ```
-  id uuid pk default gen_random_uuid()
-  user_id uuid not null references auth.users on delete cascade
-  tipo_refeicao text not null
-  nome text
-  kcal int
-  imagem_url text
-  registrado_em timestamptz not null default now()
-  ```
-  RLS: `select/insert/update/delete using (auth.uid() = user_id)`.
-- Bucket de storage `refeicoes` público, com policy de upload restrita ao próprio user (`{user_id}/...`).
-- Após salvar, refazer a busca e atualizar a lista da data selecionada.
+Aplicar o mesmo padrão em close buttons "manuais" usados em `Dieta.tsx`, `Comunidade.tsx`, `Admin.tsx` (botões com `<X />` próprios) — padronizar para `h-9 w-9 rounded-full bg-muted`.
 
-### 3b. Botão de calendário → seletor de data como filtro
-- Trocar o ícone por botão que abre um `Popover` com o componente `Calendar` (já em `src/components/ui/calendar.tsx`).
-- Estado `selectedDate` (default: hoje).
-- A listagem passa a ser:
-  - Para a data selecionada: itens de `refeicoes_log` do usuário no dia escolhido.
-  - "Hoje" / "Ontem" / "Outra data" como cabeçalho conforme a data.
-- Manter a fonte de receitas sugeridas como fallback se ainda não houver registros, ou separar como seção "Sugestões do dia".
+### 3. Verificação geral de design por tela
+Passar nas telas e padronizar:
+- **Home**: card secundário usa `bg-secondary` (marrom) — ok, é card de marca, manter.
+- **Audios**: header já tem botão voltar; ajustar contraste do badge "Episódio" (já ok).
+- **Comunidade**: garantir que os botões circulares de ação (Heart/Message/Send) tenham `border-border` e `text-foreground` (não usar `text-secondary` que ficou marrom).
+- **Dieta**: o botão "Adicionar refeição" no Sheet usa `variant="secondary"` em lugar errado — revisar para usar `default` (lima sólido) no CTA principal e `secondary` (lima 50%) só em ações auxiliares (cancelar, voltar).
+- **Missões / MissaoDetalhe / Notificações / Perfil / Chat**: revisar headers (espaçamento, tamanho do título), estados vazios e qualquer `shadow-*` remanescente.
+- **Onboarding / Auth / ResetPassword**: revisar contraste de botões secundários após a mudança.
 
-## 4. Botão de voltar em Missões e Áudios Diários
-Atualmente `Missoes.tsx` (rota `/missoes`) não tem botão de voltar — só um de calendário/histórico.
-- Adicionar botão `ChevronLeft` no header (estilo igual ao do Perfil: `nav(-1)` em `<button>` minimalista) à esquerda do título "Missões do dia".
-- Em `MissaoDetalhe.tsx` já existe `ChevronLeft` no início; verificar e padronizar caso difira.
-- "Áudios Diários" hoje aponta para `/missoes` (mesma página). Se for confirmado o mesmo destino, basta o ajuste em `Missoes.tsx`. Caso o usuário queira uma rota separada futuramente, criamos depois.
+### 4. Dados de exemplo (placeholders) via migração SQL
+Criar uma migração `seed` com inserts idempotentes (`ON CONFLICT DO NOTHING` ou `WHERE NOT EXISTS`):
 
-## 5. Perfil — editar nome de usuário
-`src/pages/Perfil.tsx` já tem campo "Nome" no bottom-sheet de Configurações com `Input` + botão "Salvar perfil" que chama `saveProfile` (atualiza `full_name` em `profiles`).
+- **audios_diarios** (3 episódios): "Bem-vinda ao desafio", "Quando bater a vontade", "Mente leve, corpo leve" — usando URLs de áudio públicos de placeholder (e.g. `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3`) e capas via `https://images.unsplash.com/...`.
+- **posts_comunidade** (4 posts) atrelados ao primeiro perfil admin existente (ou um post "fixado" da Let). Texto curto + imagem opcional.
+- **missions** (3 missões para `dia_numero = 1`, se ainda vazias): "Beber 2L de água", "Caminhar 20 min", "Áudio diário da Let".
+- **receitas** (3 receitas, café/almoço/jantar) com imagem placeholder, ingredientes e modo_preparo.
 
-Para deixar mais visível e atender ao pedido:
-- Renomear a label para "Nome de usuário".
-- Manter `saveProfile` como está.
-- (Confirmação visual) Adicionar `toast` já está. Sem mudanças adicionais necessárias além da label/clareza.
+Os posts e refeições do usuário (`refeicoes_log`) não recebem seed porque dependem do `auth.uid()` real. Em vez disso, na **UI do Cardápio** mostrar um estado vazio mais convidativo quando não há refeições registradas no dia.
 
-## Resumo de arquivos
-- `src/pages/Home.tsx` — botão `Bell` + navegar para `/notificacoes`.
-- `src/components/BottomNav.tsx` — remover badge fixo, ajustar tamanhos.
-- `src/pages/Dieta.tsx` — sheet de adicionar refeição, popover de calendário, listagem por data.
-- `src/pages/Missoes.tsx` — botão `ChevronLeft` no header.
-- `src/pages/Perfil.tsx` — label "Nome de usuário".
-- Migration SQL: criar tabela `refeicoes_log` + RLS, criar bucket `refeicoes` + policies.
+### 5. Arquivos editados
+- `src/components/ui/button.tsx`
+- `src/components/ui/sheet.tsx`
+- `src/components/ui/dialog.tsx`
+- `src/pages/Dieta.tsx` (revisão de variantes + estado vazio)
+- `src/pages/Comunidade.tsx` (cores dos botões de ação)
+- `src/pages/Audios.tsx` / `src/pages/Missoes.tsx` / `src/pages/Perfil.tsx` (revisão visual leve)
+- Nova migração `supabase/migrations/<timestamp>_seed_placeholders.sql`
 
-Aprove para eu implementar.
+Sem mudanças de schema — apenas insert de dados e ajustes de CSS/JSX.
