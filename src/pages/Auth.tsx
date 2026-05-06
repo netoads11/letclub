@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { z } from "zod";
+import { Logo } from "@/components/Logo";
 
 const signInSchema = z.object({
   email: z.string().trim().email("E-mail inválido").max(255),
@@ -81,9 +82,9 @@ export default function Auth() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-6 py-10">
       <div className="w-full max-w-md slide-up">
-        <h1 className="text-center font-display text-3xl font-bold text-primary text-glow">
-          LET<span className="text-foreground">&amp;</span>PONTO
-        </h1>
+        <div className="mx-auto w-44">
+          <Logo />
+        </div>
         <p className="mt-2 text-center text-sm text-muted-foreground">
           {resetMode ? "Recuperar senha" : "Sua jornada começa aqui"}
         </p>

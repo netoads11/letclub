@@ -85,14 +85,14 @@ export default function Comunidade() {
   return (
     <AppShell>
       <header className="px-4 pt-6 pb-4">
-        <h1 className="font-display text-[26px] font-bold leading-tight text-white">Comunidade</h1>
-        <p className="mt-1 text-sm text-[#888]">Suporte de quem está com você</p>
+        <h1 className="font-display text-[26px] font-bold leading-tight text-foreground">Comunidade</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Suporte de quem está com você</p>
       </header>
 
       {/* Rules banner */}
-      <div className="mx-4 mb-4 rounded-xl border border-primary/20 bg-[#0F1A00] p-3">
+      <div className="mx-4 mb-4 rounded-xl border border-primary/20 bg-primary/10 p-3">
         <p className="text-[11px] font-bold uppercase tracking-wide text-primary">📋 Regras</p>
-        <p className="mt-1 text-[13px] leading-snug text-[#888]">
+        <p className="mt-1 text-[13px] leading-snug text-muted-foreground">
           Respeito, acolhimento e nada de receitas restritivas. Bora se apoiar!
         </p>
       </div>
@@ -101,10 +101,10 @@ export default function Comunidade() {
         {posts.length === 0 && (
           <div className="py-12 text-center">
             <div className="text-5xl">💬</div>
-            <p className="mt-4 font-display text-base font-medium text-white">
+            <p className="mt-4 font-display text-base font-medium text-foreground">
               Seja a primeira a compartilhar!
             </p>
-            <p className="mt-1 text-sm text-[#888]">Conta como está indo seu desafio 💚</p>
+            <p className="mt-1 text-sm text-muted-foreground">Conta como está indo seu desafio 💚</p>
             <Button
               onClick={() => setShow(true)}
               variant="outline"
@@ -123,31 +123,31 @@ export default function Comunidade() {
           const mine = p.reacoes_posts?.find((r: any) => r.user_id === profile?.id)?.tipo;
           const initial = (p.profiles?.full_name || "?").charAt(0).toUpperCase();
           return (
-            <div key={p.id} className="rounded-2xl border border-[#1E1E1E] bg-[#141414] p-4">
+            <div key={p.id} className="rounded-2xl border border-border bg-card p-4">
               <div className="flex items-start gap-3">
                 <div
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-bold text-white"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-bold text-foreground"
                   style={{ backgroundColor: colorFor(p.user_id || initial) }}
                 >
                   {initial}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-display text-sm font-medium text-white">
+                  <p className="font-display text-sm font-medium text-foreground">
                     {p.profiles?.full_name || "Aluna"}
                   </p>
-                  <p className="text-[11px] text-[#555]">
+                  <p className="text-[11px] text-muted-foreground">
                     {new Date(p.created_at).toLocaleDateString("pt-BR")}
                   </p>
                 </div>
-                <button onClick={() => report(p.id)} className="text-[#555] hover:text-destructive">
+                <button onClick={() => report(p.id)} className="text-muted-foreground hover:text-destructive">
                   <Flag className="h-4 w-4" />
                 </button>
               </div>
-              <p className="mt-3 text-sm leading-[1.6] text-[#DDD]">{p.texto}</p>
+              <p className="mt-3 text-sm leading-[1.6] text-foreground">{p.texto}</p>
               {p.imagem_url && (
                 <img src={p.imagem_url} className="mt-3 max-h-80 w-full rounded-xl object-cover" />
               )}
-              <div className="mt-3 flex gap-2 border-t border-[#1E1E1E] pt-3">
+              <div className="mt-3 flex gap-2 border-t border-border pt-3">
                 {reactions.map(({ type, icon: Icon, activeBg, activeText }) => {
                   const isActive = mine === type;
                   return (
@@ -155,7 +155,7 @@ export default function Comunidade() {
                       key={type}
                       onClick={() => react(p.id, type)}
                       className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs transition-all ${
-                        isActive ? `${activeBg} ${activeText}` : "text-[#555] hover:text-[#888]"
+                        isActive ? `${activeBg} ${activeText}` : "text-muted-foreground hover:text-muted-foreground"
                       }`}
                     >
                       <Icon
@@ -188,12 +188,12 @@ export default function Comunidade() {
           onClick={() => setShow(false)}
         >
           <div
-            className="w-full max-w-md rounded-3xl border border-[#1E1E1E] bg-[#141414] p-5 slide-up"
+            className="w-full max-w-md rounded-3xl border border-border bg-card p-5 slide-up"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <h3 className="font-display text-lg font-bold text-white">Compartilhar</h3>
-              <button onClick={() => setShow(false)} className="rounded-full bg-[#1E1E1E] p-1.5">
+              <h3 className="font-display text-lg font-bold text-foreground">Compartilhar</h3>
+              <button onClick={() => setShow(false)} className="rounded-full bg-muted p-1.5">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -201,12 +201,12 @@ export default function Comunidade() {
               value={text}
               onChange={(e) => setText(e.target.value.slice(0, 280))}
               placeholder="O que você quer dividir?"
-              className="mt-4 min-h-[100px] border-[#2A2A2A] bg-[#0D0D0D]"
+              className="mt-4 min-h-[100px] border-border bg-background"
               maxLength={280}
             />
-            <p className="mt-1 text-right text-[10px] text-[#555]">{text.length}/280</p>
+            <p className="mt-1 text-right text-[10px] text-muted-foreground">{text.length}/280</p>
 
-            <label className="mt-3 flex cursor-pointer items-center gap-2 text-xs text-[#888]">
+            <label className="mt-3 flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
               <ImagePlus className="h-4 w-4" />
               {file ? file.name : "Adicionar foto (opcional)"}
               <input

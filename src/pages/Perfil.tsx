@@ -136,14 +136,14 @@ export default function Perfil() {
       <header className="flex items-center justify-between px-4 py-4">
         <button
           onClick={() => nav(-1)}
-          className="rounded-full border border-[#1E1E1E] bg-[#141414] p-2"
+          className="rounded-full border border-border bg-card p-2"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
         <button
           onClick={() => setShowSettings((s) => !s)}
           className={`rounded-full p-2 transition-colors ${
-            showSettings ? "bg-primary text-primary-foreground" : "border border-[#1E1E1E] bg-[#141414]"
+            showSettings ? "bg-primary text-primary-foreground" : "border border-border bg-card"
           }`}
           aria-label="Configurações"
         >
@@ -160,7 +160,7 @@ export default function Perfil() {
               "radial-gradient(ellipse at center top, rgba(205,255,0,0.05) 0%, transparent 60%)",
           }}
         >
-          <div className="mx-auto flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full border border-[#1E1E1E] bg-[#1E1E1E]">
+          <div className="mx-auto flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full border border-border bg-muted">
             {avatarUrl ? (
               <img src={avatarUrl} className="h-full w-full object-cover" />
             ) : (
@@ -169,34 +169,34 @@ export default function Perfil() {
               </span>
             )}
           </div>
-          <h1 className="mt-3 font-display text-[22px] font-bold text-white">
+          <h1 className="mt-3 font-display text-[22px] font-bold text-foreground">
             {profile.full_name || "Aluna"}
           </h1>
-          <p className="text-[13px] text-[#888]">
+          <p className="text-[13px] text-muted-foreground">
             Dia {Math.min(day, 15)} de 15 • {profile.xp_total} XP
           </p>
         </div>
 
         <div className="px-4">
           {/* Weights */}
-          <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-[#888]">Peso</p>
+          <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">Peso</p>
           <div className="grid grid-cols-3 gap-2.5 text-center">
-            <div className="rounded-xl border border-[#1E1E1E] bg-[#141414] p-3">
-              <p className="text-[10px] text-[#888]">Inicial</p>
-              <p className="mt-1 font-display text-base font-bold text-white">
-                {profile.peso_inicial ?? "—"} <span className="text-xs text-[#888]">kg</span>
+            <div className="rounded-xl border border-border bg-card p-3">
+              <p className="text-[10px] text-muted-foreground">Inicial</p>
+              <p className="mt-1 font-display text-base font-bold text-foreground">
+                {profile.peso_inicial ?? "—"} <span className="text-xs text-muted-foreground">kg</span>
               </p>
             </div>
-            <div className="rounded-xl border border-primary bg-[#141414] p-3">
-              <p className="text-[10px] text-[#888]">Atual</p>
+            <div className="rounded-xl border border-primary bg-card p-3">
+              <p className="text-[10px] text-muted-foreground">Atual</p>
               <p className="mt-1 font-display text-base font-bold text-primary">
                 {profile.peso_atual ?? "—"} <span className="text-xs">kg</span>
               </p>
             </div>
-            <div className="rounded-xl border border-[#1E1E1E] bg-[#141414] p-3">
-              <p className="text-[10px] text-[#888]">Meta</p>
-              <p className="mt-1 font-display text-base font-bold text-white">
-                {profile.meta_peso ?? "—"} <span className="text-xs text-[#888]">kg</span>
+            <div className="rounded-xl border border-border bg-card p-3">
+              <p className="text-[10px] text-muted-foreground">Meta</p>
+              <p className="mt-1 font-display text-base font-bold text-foreground">
+                {profile.meta_peso ?? "—"} <span className="text-xs text-muted-foreground">kg</span>
               </p>
             </div>
           </div>
@@ -204,10 +204,10 @@ export default function Perfil() {
           {/* Evolution chart */}
           {pesos.length > 1 && (
             <>
-              <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-[#888]">
+              <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">
                 Evolução
               </p>
-              <div className="rounded-2xl border border-[#1E1E1E] bg-[#141414] p-4">
+              <div className="rounded-2xl border border-border bg-card p-4">
                 <div className="h-40">
                   <ResponsiveContainer>
                     <LineChart data={pesos}>
@@ -238,28 +238,28 @@ export default function Perfil() {
           )}
 
           {/* Streak */}
-          <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-[#888]">
+          <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">
             Sequências
           </p>
           <div className="grid grid-cols-2 gap-2.5">
-            <div className="rounded-xl border border-[#1E1E1E] bg-[#141414] p-4">
+            <div className="rounded-xl border border-border bg-card p-4">
               <Flame className="h-5 w-5 text-[#FF6B00]" fill="#FF6B00" />
-              <p className="mt-2 text-[11px] text-[#888]">Sequência</p>
-              <p className="font-display text-2xl font-bold text-white">
-                {profile.streak_atual} <span className="text-sm text-[#888]">dias</span>
+              <p className="mt-2 text-[11px] text-muted-foreground">Sequência</p>
+              <p className="font-display text-2xl font-bold text-foreground">
+                {profile.streak_atual} <span className="text-sm text-muted-foreground">dias</span>
               </p>
             </div>
-            <div className="rounded-xl border border-[#1E1E1E] bg-[#141414] p-4">
+            <div className="rounded-xl border border-border bg-card p-4">
               <Trophy className="h-5 w-5 text-primary" />
-              <p className="mt-2 text-[11px] text-[#888]">Recorde</p>
-              <p className="font-display text-2xl font-bold text-white">
-                {profile.streak_recorde} <span className="text-sm text-[#888]">dias</span>
+              <p className="mt-2 text-[11px] text-muted-foreground">Recorde</p>
+              <p className="font-display text-2xl font-bold text-foreground">
+                {profile.streak_recorde} <span className="text-sm text-muted-foreground">dias</span>
               </p>
             </div>
           </div>
 
           {/* Badges */}
-          <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-[#888]">
+          <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">
             Conquistas
           </p>
           <div className="grid grid-cols-3 gap-2.5">
@@ -270,14 +270,14 @@ export default function Perfil() {
                   key={b.id}
                   className={`relative rounded-xl border p-3 text-center transition-all ${
                     u
-                      ? "border-primary/30 bg-[#141414]"
-                      : "border-[#1E1E1E] bg-[#141414] opacity-30"
+                      ? "border-primary/30 bg-card"
+                      : "border-border bg-card opacity-30"
                   }`}
                 >
                   <div className={`text-[32px] leading-none ${!u && "grayscale"}`}>{b.icone}</div>
-                  <p className="mt-2 font-display text-[11px] text-[#CCC]">{b.nome}</p>
+                  <p className="mt-2 font-display text-[11px] text-foreground">{b.nome}</p>
                   {!u && (
-                    <Lock className="absolute right-1.5 top-1.5 h-3 w-3 text-[#444]" />
+                    <Lock className="absolute right-1.5 top-1.5 h-3 w-3 text-muted-foreground" />
                   )}
                 </div>
               );
@@ -291,26 +291,26 @@ export default function Perfil() {
       <Sheet open={showSettings} onOpenChange={setShowSettings}>
         <SheetContent
           side="bottom"
-          className="max-h-[88vh] overflow-y-auto rounded-t-3xl border-t border-[#2A2A2A] bg-[#141414] p-0"
+          className="max-h-[88vh] overflow-y-auto rounded-t-3xl border-t border-border bg-card p-0"
         >
           {/* Handle bar */}
-          <div className="sticky top-0 z-10 flex justify-center bg-[#141414] pb-2 pt-3">
-            <div className="h-1.5 w-12 rounded-full bg-[#2A2A2A]" />
+          <div className="sticky top-0 z-10 flex justify-center bg-card pb-2 pt-3">
+            <div className="h-1.5 w-12 rounded-full bg-muted" />
           </div>
           <div className="px-4 pb-8">
-            <h2 className="mb-4 font-display text-xl font-bold text-white">Configurações</h2>
+            <h2 className="mb-4 font-display text-xl font-bold text-foreground">Configurações</h2>
             <div className="space-y-3">
               {/* Section: profile */}
-              <section className="rounded-2xl border border-[#2A2A2A] bg-[#0D0D0D] p-5">
-                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-white"><User className="h-4 w-4 text-primary" /> Perfil</h3>
+              <section className="rounded-2xl border border-border bg-background p-5">
+                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-foreground"><User className="h-4 w-4 text-primary" /> Perfil</h3>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="h-14 w-14 overflow-hidden rounded-full border border-[#2A2A2A] bg-background">
+                    <div className="h-14 w-14 overflow-hidden rounded-full border border-border bg-background">
                       {avatarUrl ? <img src={avatarUrl} className="h-full w-full object-cover" /> :
                         <div className="flex h-full w-full items-center justify-center font-display text-lg font-bold text-primary">{(name || "?").charAt(0).toUpperCase()}</div>}
                     </div>
                     <label className="cursor-pointer">
-                      <span className="inline-flex items-center gap-1.5 rounded-md border border-[#2A2A2A] bg-background px-3 py-2 text-xs hover:bg-muted">
+                      <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-2 text-xs hover:bg-muted">
                         <Camera className="h-3.5 w-3.5" /> {uploading ? "Enviando..." : "Trocar foto"}
                       </span>
                       <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadAvatar(e.target.files[0])} />
@@ -325,8 +325,8 @@ export default function Perfil() {
               </section>
 
               {/* Section: account */}
-              <section className="rounded-2xl border border-[#2A2A2A] bg-[#0D0D0D] p-5">
-                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-white"><Mail className="h-4 w-4 text-primary" /> E-mail e senha</h3>
+              <section className="rounded-2xl border border-border bg-background p-5">
+                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-foreground"><Mail className="h-4 w-4 text-primary" /> E-mail e senha</h3>
                 <div className="space-y-3">
                   <div>
                     <Label className="text-xs">E-mail</Label>
@@ -346,12 +346,12 @@ export default function Perfil() {
               </section>
 
               {/* Section: notifications */}
-              <section className="rounded-2xl border border-[#2A2A2A] bg-[#0D0D0D] p-5">
+              <section className="rounded-2xl border border-border bg-background p-5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Bell className="h-4 w-4 text-primary" />
                     <div>
-                      <p className="font-display font-bold text-white">Notificações</p>
+                      <p className="font-display font-bold text-foreground">Notificações</p>
                       <p className="text-[11px] text-muted-foreground">Lembretes, conquistas e comunicados</p>
                     </div>
                   </div>
@@ -360,11 +360,11 @@ export default function Perfil() {
               </section>
 
               {/* Section: restricoes */}
-              <section className="rounded-2xl border border-[#2A2A2A] bg-[#0D0D0D] p-5">
-                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-white"><Utensils className="h-4 w-4 text-primary" /> Restrições alimentares</h3>
+              <section className="rounded-2xl border border-border bg-background p-5">
+                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-foreground"><Utensils className="h-4 w-4 text-primary" /> Restrições alimentares</h3>
                 <div className="grid grid-cols-2 gap-2">
                   {RESTRICOES.map((r) => (
-                    <label key={r} className="flex cursor-pointer items-center gap-2 rounded-lg border border-[#2A2A2A] bg-background p-2.5 text-sm">
+                    <label key={r} className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-background p-2.5 text-sm">
                       <Checkbox checked={restricoes.includes(r)} onCheckedChange={(v) => toggleRestricao(r, !!v)} />
                       <span className="capitalize">{r}</span>
                     </label>
@@ -374,8 +374,8 @@ export default function Perfil() {
               </section>
 
               {/* Section: peso */}
-              <section className="rounded-2xl border border-[#2A2A2A] bg-[#0D0D0D] p-5">
-                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-white"><Scale className="h-4 w-4 text-primary" /> Atualizar peso</h3>
+              <section className="rounded-2xl border border-border bg-background p-5">
+                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-foreground"><Scale className="h-4 w-4 text-primary" /> Atualizar peso</h3>
                 <div className="flex gap-2">
                   <Input type="number" step="0.1" value={newPeso} onChange={(e) => setNewPeso(e.target.value)} placeholder="Peso atual em kg" />
                   <Button onClick={logPeso} className="bg-primary text-primary-foreground hover:bg-primary/90">Registrar</Button>
@@ -383,9 +383,9 @@ export default function Perfil() {
               </section>
 
               {/* Section: support */}
-              <section className="rounded-2xl border border-[#2A2A2A] bg-[#0D0D0D] p-5">
-                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-white"><LifeBuoy className="h-4 w-4 text-primary" /> Suporte</h3>
-                <a href="mailto:suporte@leteponto.com.br" className="block rounded-lg border border-[#2A2A2A] bg-background p-3 text-center text-xs hover:bg-muted">
+              <section className="rounded-2xl border border-border bg-background p-5">
+                <h3 className="mb-3 flex items-center gap-2 font-display font-bold text-foreground"><LifeBuoy className="h-4 w-4 text-primary" /> Suporte</h3>
+                <a href="mailto:suporte@leteponto.com.br" className="block rounded-lg border border-border bg-background p-3 text-center text-xs hover:bg-muted">
                   ✉️ suporte@leteponto.com.br
                 </a>
               </section>

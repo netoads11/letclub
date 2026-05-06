@@ -231,19 +231,19 @@ export default function Chat() {
   return (
     <AppShell>
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-[#1E1E1E] bg-[#0A0A0A] px-4 py-3.5">
+      <header className="flex items-center justify-between border-b border-border bg-background px-4 py-3.5">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-display text-base font-bold text-primary-foreground">
             L
           </div>
           <div>
-            <h1 className="font-display text-[18px] font-bold leading-tight text-white">Fale com a Let</h1>
-            <p className="text-[11px] text-[#888]">Sua mentora do desafio</p>
+            <h1 className="font-display text-[18px] font-bold leading-tight text-foreground">Fale com a Let</h1>
+            <p className="text-[11px] text-muted-foreground">Sua mentora do desafio</p>
           </div>
         </div>
         <button
           onClick={newConversation}
-          className="rounded-full border border-[#1E1E1E] bg-[#141414] p-2"
+          className="rounded-full border border-border bg-card p-2"
           aria-label="Nova conversa"
         >
           <RefreshCw className="h-4 w-4" />
@@ -256,7 +256,7 @@ export default function Chat() {
             <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-full bg-primary font-display text-2xl font-bold text-primary-foreground">
               L
             </div>
-            <p className="text-sm text-[#888]">Como posso te ajudar hoje?</p>
+            <p className="text-sm text-muted-foreground">Como posso te ajudar hoje?</p>
           </div>
         )}
 
@@ -273,7 +273,7 @@ export default function Chat() {
                 <div className={isUser ? "max-w-[80%]" : "max-w-[85%]"}>
                   <div
                     className={`rounded-2xl px-4 py-2.5 text-sm ${
-                      isUser ? "bg-primary text-primary-foreground" : "bg-[#1E1E1E] text-white"
+                      isUser ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
                     }`}
                   >
                     {isUser ? (
@@ -282,19 +282,19 @@ export default function Chat() {
                       <div className="space-y-1">{renderMarkdown(m.content)}</div>
                     )}
                   </div>
-                  <div className={`mt-1 flex items-center gap-2 text-[10px] text-[#555] ${isUser ? "justify-end" : ""}`}>
+                  <div className={`mt-1 flex items-center gap-2 text-[10px] text-muted-foreground ${isUser ? "justify-end" : ""}`}>
                     {fmtTime((m as any).created_at)}
                     {!isUser && m.id && (
                       <>
                         <button
                           onClick={() => giveFeedback(i, "positivo")}
-                          className={m.feedback === "positivo" ? "text-primary" : "text-[#555] hover:text-[#888]"}
+                          className={m.feedback === "positivo" ? "text-primary" : "text-muted-foreground hover:text-muted-foreground"}
                         >
                           <ThumbsUp className="h-3 w-3" />
                         </button>
                         <button
                           onClick={() => giveFeedback(i, "negativo")}
-                          className={m.feedback === "negativo" ? "text-destructive" : "text-[#555] hover:text-[#888]"}
+                          className={m.feedback === "negativo" ? "text-destructive" : "text-muted-foreground hover:text-muted-foreground"}
                         >
                           <ThumbsDown className="h-3 w-3" />
                         </button>
@@ -310,8 +310,8 @@ export default function Chat() {
               <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                 L
               </div>
-              <div className="rounded-2xl bg-[#1E1E1E] px-4 py-2.5 text-sm">
-                <span className="animate-pulse text-[#888]">Let está digitando...</span>
+              <div className="rounded-2xl bg-muted px-4 py-2.5 text-sm">
+                <span className="animate-pulse text-muted-foreground">Let está digitando...</span>
               </div>
             </div>
           )}
@@ -319,7 +319,7 @@ export default function Chat() {
       </div>
 
       {/* Input */}
-      <div className="fixed bottom-[64px] left-0 right-0 z-30 border-t border-[#1E1E1E] bg-[#0D0D0D]">
+      <div className="fixed bottom-[64px] left-0 right-0 z-30 border-t border-border bg-background">
         <div className="mx-auto max-w-md px-4 pt-3 pb-2">
           {/* Suggestion chips */}
           {messages.length === 0 && suggestions.filter(Boolean).length > 0 && (
@@ -328,7 +328,7 @@ export default function Chat() {
                 <button
                   key={i}
                   onClick={() => send(s)}
-                  className="shrink-0 whitespace-nowrap rounded-full border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-xs text-[#CCC] transition-colors hover:border-primary"
+                  className="shrink-0 whitespace-nowrap rounded-full border border-border bg-muted px-3 py-2 text-xs text-foreground transition-colors hover:border-primary"
                 >
                   {s}
                 </button>
@@ -341,7 +341,7 @@ export default function Chat() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Pergunte algo..."
               disabled={streaming}
-              className="flex-1 rounded-[20px] border border-[#2A2A2A] bg-[#141414] px-4 py-2.5 text-sm text-white placeholder:text-[#555] focus:border-primary focus:outline-none disabled:opacity-50"
+              className="flex-1 rounded-[20px] border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none disabled:opacity-50"
             />
             <button
               type="submit"
@@ -351,7 +351,7 @@ export default function Chat() {
               <Send className="h-4 w-4" />
             </button>
           </form>
-          <p className="mt-2 text-center text-[10px] text-[#555]">
+          <p className="mt-2 text-center text-[10px] text-muted-foreground">
             As respostas não substituem orientação médica.
           </p>
         </div>
