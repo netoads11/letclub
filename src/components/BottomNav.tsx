@@ -2,12 +2,19 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Home, Apple, MessageCircle, Users, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const tabs = [
+type Tab = {
+  to: string;
+  label: string;
+  icon: typeof Home;
+  badge?: number;
+};
+
+const tabs: Tab[] = [
   { to: "/home", label: "Início", icon: Home },
   { to: "/dieta", label: "Cardápio", icon: Apple },
   { to: "/comunidade", label: "Comunidade", icon: Users, badge: 3 },
   { to: "/chat", label: "Let", icon: MessageCircle },
-] as const;
+];
 
 export const BottomNav = () => {
   const loc = useLocation();
@@ -19,7 +26,7 @@ export const BottomNav = () => {
   const left = tabs.slice(0, 2);
   const right = tabs.slice(2);
 
-  const renderTab = ({ to, label, icon: Icon, badge }: typeof tabs[number]) => (
+  const renderTab = ({ to, label, icon: Icon, badge }: Tab) => (
     <NavLink
       key={to}
       to={to}
