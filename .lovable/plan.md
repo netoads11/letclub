@@ -1,52 +1,68 @@
-## Ajuste do menu inferior (BottomNav)
+# Plano: Redesenho da tela Meu Perfil
 
-Refatorar `src/components/BottomNav.tsx` para reproduzir exatamente o padrão da imagem de referência: cada aba é um "tile" arredondado com ícone centralizado dentro e o label abaixo do tile (não dentro). FAB central elevado em verde lima. Usar os SVGs da pasta `src/assets/icons/`.
+Reestruturar `src/pages/Perfil.tsx` para seguir fielmente o mockup enviado, mantendo toda a lógica existente (upload de avatar, edição, peso, configs, logout, badges).
 
-### Mapeamento de ícones
+## Mudanças no header
 
-- Início → `lucide-react` `Home` (não há SVG enviado para casa); ícone marrom (`text-secondary`)
-- Cardápio → `src/assets/icons/maca.svg`
-- (centro) FAB → ícone `Plus` do `lucide-react`, fundo `bg-primary` (lime)
-- Comunidade → `src/assets/icons/comunidade.svg` + badge verde "3"
-- Let → `src/assets/icons/chat-let.svg`
+- Topo com `< @username` à esquerda (handle gerado a partir do email/nome, ex: `@mari.port`), ícone `selo.svg` ao lado e texto `Seu Perfil`.
+- Botão `...` (três pontos) à direita em pill cinza claro — abre o Sheet de Configurações (substitui o ícone Settings atual).
 
-Os SVGs serão importados como `?react` (componente) para herdar `currentColor` quando possível; como os arquivos têm `fill` fixo, importaremos como `url` (`import x from '...svg'`) e renderizaremos via `<img>` dentro do tile, mantendo o tom original (marrom/verde) que já bate com a paleta.
+## Bloco do avatar
 
-### Estrutura visual do tile
+- Avatar grande quadrado-arredondado (~140px, `rounded-3xl`) com borda lima grossa (`border-4 border-primary`).
+- Selo (`selo.svg`) sobreposto no canto inferior direito do avatar.
+- Nome completo em destaque (`font-display text-2xl font-bold`) centralizado.
+- Subtítulo "Membra Fundadora" (badge textual cinza). Por enquanto fixo; pode virar campo dinâmico depois.
 
-```
-┌─ tile 56x56 rounded-2xl ─┐
-│         [icon 22]        │
-└──────────────────────────┘
-         Label (11px)
-```
+## Card de pesos + gráfico de barras
 
-- Aba ativa: `bg-secondary/15` (marrom claro), ícone marrom, label `text-secondary font-semibold`
-- Aba inativa: `bg-muted/40` (cinza muito claro como na referência), ícone marrom, label `text-secondary/80 font-medium`
-- Espaço entre tile e label: `gap-1`
-- Label sempre fora/abaixo do tile (na versão atual ele fica dentro)
+Card branco (`bg-card`) único, arredondado, com:
 
-### FAB central
+1. **Linha superior** com 3 colunas separadas por divisor vertical:
+   - Peso inicial / Peso Atual / Meta — labels pequenos cinza acima, valor em bold grande, "kg" pequeno.
+   - Na coluna Meta, ícone `alvo.svg` à esquerda do valor.
 
-- Tile 60x60 `rounded-2xl bg-primary` com `Plus` 28px preto
-- Elevado `-mt-6` com sombra `shadow-lg` (sem ring branco mais — na referência o FAB se encaixa em linha com os outros tiles, apenas mais alto)
-- Sem label abaixo (a referência não mostra label no +)
+2. **Gráfico de barras customizado** (substitui o LineChart atual nesta tela):
+   - Usar Recharts `BarChart` com 6 últimos registros de `pesos_historico`.
+   - Cada barra dupla: barra sólida lima (peso real) + barra "fantasma" tracejada/listrada atrás (representando meta/referência) — implementar com duas `<Bar>` sobrepostas, a de fundo com padrão SVG listrado em rosa claro.
+   - Labels embaixo: peso em bold + data `dd/MM` em cinza menor.
+   - Sem eixos, sem grid, sem tooltip — visual limpo conforme mockup.
 
-### Badge "Comunidade"
+## Card "Sua Jornada" (streak)
 
-- Círculo verde `bg-primary` no canto superior direito do tile (não do ícone), `-top-1 -right-1`, `h-5 w-5`, número branco/preto `text-primary-foreground text-[10px] font-bold`
+Card largo verde claro (`bg-primary/10`):
+- Esquerda: ícone `fogo-simples.svg` + "Sua Jornada" / "{streak_atual} Dias Seguidos" / "Recorde: {streak_recorde} dias".
+- Direita: ícone `selo.svg` (ou troféu) + "Meta" / "15 Dias".
 
-### Container
+Substitui os dois cards atuais de Sequência/Recorde.
 
-- Manter `fixed bottom-0`, fundo `bg-card`, borda superior, `pb-[env(safe-area-inset-bottom)]`
-- Altura ligeiramente maior (~88px) para acomodar tile + label
-- `justify-around` mantido
+## Card "Calorias do dia"
 
-### Detalhes técnicos
+Novo card branco abaixo:
+- Esquerda: "Calorias do dia" + ícone `fogo-simples.svg` + valor `{kcal_hoje} kcal` + timestamp "DD de Mês, HHhMM".
+- Direita: ícone `fogo-duplo.svg` grande + "Meta do dia" + "1.600 kcal".
 
-- Arquivo único editado: `src/components/BottomNav.tsx`
-- Importar SVGs: `import iconMaca from "@/assets/icons/maca.svg"` etc., usar `<img src={iconMaca} className="h-[22px] w-[22px]" alt="" />`
-- Manter lógica de `hide` por rota e navegação `nav("/missoes")` no FAB
-- Manter `tabs` array, mas cada item ganha `iconNode` (componente ou img) ao invés de só `icon`
+Buscar kcal do dia em `checkins`/`refeicoes` se existir, senão exibir `0 kcal` por enquanto (verificar schema antes de implementar — se não houver campo, deixar valor placeholder configurável e nota TODO).
 
-Nenhuma outra mudança em rotas, lógica ou tokens de design.
+## Conquistas
+
+Manter grid de badges existente abaixo dos novos blocos (já está alinhado ao estilo).
+
+## Tema / paleta
+
+Tudo na paleta lima `--primary` + marrom/rosa apoio já definidos em `index.css`. Sem cores fora do design system. Bordas suaves, sombras sutis, fundo `bg-background` (claro).
+
+## Detalhes técnicos
+
+- Arquivo único editado: `src/pages/Perfil.tsx`.
+- Importar SVGs: `selo`, `alvo`, `fogo-simples`, `fogo-duplo` de `@/assets/icons/`.
+- Handle `@username`: derivar de `profile.email.split('@')[0]` truncado, fallback ao primeiro nome.
+- Gráfico: criar componente local `WeightBarChart` dentro do arquivo para encapsular a lógica de barras duplas com padrão listrado (definir `<defs><pattern>` SVG).
+- Manter Sheet de configurações intacto, apenas trocar o trigger (botão `...`).
+- Remover ícone `Settings` import; usar `MoreHorizontal` do lucide.
+- Todo CSS via Tailwind tokens semânticos — nada hardcoded.
+
+## Fora de escopo
+
+- Edição do "Membra Fundadora" (texto fixo nesta iteração).
+- Cálculo real de calorias do dia se não houver dados — usar 0/placeholder.
