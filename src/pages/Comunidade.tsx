@@ -3,21 +3,34 @@ import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
-import { Heart, Flame, Zap, Flag, X, ImagePlus } from "lucide-react";
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, X, ImagePlus, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Avatar } from "@/components/Avatar";
+import iconSelo from "@/assets/icons/selo.svg";
 
-type ReactionType = "coracao" | "forca" | "fogo";
-const reactions: { type: ReactionType; icon: any; activeBg: string; activeText: string }[] = [
-  { type: "coracao", icon: Heart, activeBg: "bg-red-500/10", activeText: "text-red-400" },
-  { type: "forca", icon: Zap, activeBg: "bg-blue-500/10", activeText: "text-blue-400" },
-  { type: "fogo", icon: Flame, activeBg: "bg-orange-500/10", activeText: "text-orange-400" },
-];
+const formatRelative = (iso: string) => {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 1) return "Agora";
+  if (min < 60) return `Há ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `Há ${h} ${h === 1 ? "hora" : "horas"}`;
+  const d = Math.floor(h / 24);
+  return `Há ${d} ${d === 1 ? "dia" : "dias"}`;
+};
 
-const avatarColors = ["#FF8A65", "#FFB74D", "#F06292", "#BA68C8", "#9575CD", "#7986CB", "#4FC3F7", "#4DB6AC"];
-const colorFor = (id: string) => avatarColors[id.charCodeAt(0) % avatarColors.length];
+const formatCount = (n: number) => {
+  if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(".0", "")}K`;
+  return String(n);
+};
+
+const splitFirstSentence = (text: string) => {
+  const m = text.match(/^([^.!?]*[.!?])(\s+.*)?$/s);
+  if (!m) return { first: text, rest: "" };
+  return { first: m[1], rest: m[2] ?? "" };
+};
 
 export default function Comunidade() {
   const { profile } = useAuth();
@@ -73,24 +86,18 @@ export default function Comunidade() {
     load();
   };
 
-  const react = async (postId: string, type: ReactionType) => {
+  const toggleLike = async (postId: string) => {
     if (!profile) return;
     const post = posts.find((p) => p.id === postId);
     const mine = post?.reacoes_posts?.find((r: any) => r.user_id === profile.id);
-    if (mine?.tipo === type) {
+    if (mine?.tipo === "coracao") {
       await supabase.from("reacoes_posts").delete().eq("post_id", postId).eq("user_id", profile.id);
     } else {
       await supabase
         .from("reacoes_posts")
-        .upsert({ post_id: postId, user_id: profile.id, tipo: type }, { onConflict: "post_id,user_id" });
+        .upsert({ post_id: postId, user_id: profile.id, tipo: "coracao" }, { onConflict: "post_id,user_id" });
     }
     load();
-  };
-
-  const report = async (postId: string) => {
-    if (!confirm("Reportar este post?")) return;
-    await supabase.from("posts_comunidade").update({ reportado: true }).eq("id", postId);
-    toast.success("Reportado. Obrigada!");
   };
 
   return (
@@ -100,15 +107,7 @@ export default function Comunidade() {
         <p className="mt-1 text-sm text-muted-foreground">Suporte de quem está com você</p>
       </header>
 
-      {/* Rules banner */}
-      <div className="mx-4 mb-4 rounded-xl border border-primary/20 bg-primary/10 p-3">
-        <p className="text-[11px] font-bold uppercase tracking-wide text-primary">📋 Regras</p>
-        <p className="mt-1 text-[13px] leading-snug text-muted-foreground">
-          Respeito, acolhimento e nada de receitas restritivas. Bora se apoiar!
-        </p>
-      </div>
-
-      <div className="space-y-3 px-4 pb-5">
+      <div className="space-y-4 px-4 pb-5">
         {posts.length === 0 && (
           <div className="py-12 text-center">
             <div className="text-5xl">💬</div>
@@ -127,58 +126,120 @@ export default function Comunidade() {
         )}
 
         {posts.map((p) => {
-          const counts: Record<string, number> = {};
-          (p.reacoes_posts ?? []).forEach(
-            (r: any) => (counts[r.tipo] = (counts[r.tipo] ?? 0) + 1),
-          );
-          const mine = p.reacoes_posts?.find((r: any) => r.user_id === profile?.id)?.tipo;
+          const reacoes = p.reacoes_posts ?? [];
+          const likes = reacoes.filter((r: any) => r.tipo === "coracao").length;
+          const liked = !!reacoes.find((r: any) => r.user_id === profile?.id && r.tipo === "coracao");
+          const totalReacoes = reacoes.length;
+          const comentarios = 0; // placeholder
+          const compartilhamentos = 0; // placeholder
+          const { first, rest } = splitFirstSentence(p.texto || "");
+          const nome = p.profiles?.full_name || "Aluna";
+          const handle = "@" + (nome.split(" ")[0] || "aluna").toLowerCase();
           return (
-            <div key={p.id} className="rounded-2xl border border-border bg-card p-4">
+            <article key={p.id} className="rounded-2xl border border-border bg-card p-4">
+              {/* Header */}
               <div className="flex items-start gap-3">
                 <Avatar
-                  name={p.profiles?.full_name}
+                  name={nome}
                   url={p.profiles?.avatar_url}
-                  size={36}
-                  shape="rounded-full"
+                  size={52}
+                  shape="rounded-2xl"
                   className="shrink-0"
                 />
-                <div className="flex-1 min-w-0">
-                  <p className="font-display text-sm font-medium text-foreground">
-                    {p.profiles?.full_name || "Aluna"}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {new Date(p.created_at).toLocaleDateString("pt-BR")}
-                  </p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-display text-[15px] font-bold text-foreground truncate">{nome}</p>
+                    <img src={iconSelo} alt="" className="h-4 w-4 shrink-0" />
+                  </div>
+                  <div className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1">
+                    <Heart className="h-3 w-3 text-primary" fill="currentColor" />
+                    <span className="text-[11px] font-medium text-foreground">Mensagem do Dia</span>
+                    <span className="text-[11px] text-muted-foreground">·</span>
+                    <span className="text-[11px] text-muted-foreground">{formatRelative(p.created_at)}</span>
+                  </div>
                 </div>
-                <button onClick={() => report(p.id)} className="text-muted-foreground hover:text-destructive">
-                  <Flag className="h-4 w-4" />
-                </button>
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <button
+                    type="button"
+                    aria-label="Salvar"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground"
+                  >
+                    <Bookmark className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Mais"
+                    className="flex h-9 w-9 items-center justify-center text-muted-foreground"
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
-              <p className="mt-3 text-sm leading-[1.6] text-foreground">{p.texto}</p>
+
+              {/* Texto */}
+              <p className="mt-4 text-[15px] leading-[1.5] text-foreground">
+                <span className="font-bold">{first}</span>
+                {rest}
+              </p>
+
+              {/* Imagem */}
               {p.imagem_url && (
-                <img src={p.imagem_url} className="mt-3 max-h-80 w-full rounded-xl object-cover" />
+                <img src={p.imagem_url} alt="" className="mt-3 max-h-80 w-full rounded-xl object-cover" />
               )}
-              <div className="mt-3 flex gap-2 border-t border-border pt-3">
-                {reactions.map(({ type, icon: Icon, activeBg, activeText }) => {
-                  const isActive = mine === type;
-                  return (
-                    <button
-                      key={type}
-                      onClick={() => react(p.id, type)}
-                      className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs transition-all ${
-                        isActive ? `${activeBg} ${activeText}` : "text-muted-foreground hover:text-muted-foreground"
-                      }`}
-                    >
-                      <Icon
-                        className="h-3.5 w-3.5"
-                        fill={isActive ? "currentColor" : "none"}
-                      />
-                      {counts[type] ?? 0}
-                    </button>
-                  );
-                })}
+
+              {/* Stats */}
+              <div className="mt-4 flex items-center gap-2 text-[12px] font-bold text-foreground">
+                <span>{formatCount(comentarios)} Comentários</span>
+                <span className="text-muted-foreground">·</span>
+                <span>{formatCount(compartilhamentos)} Compartilhamentos</span>
               </div>
-            </div>
+
+              {/* Footer ações */}
+              <div className="mt-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => toggleLike(p.id)}
+                    aria-label="Curtir"
+                    className={`flex h-11 w-11 items-center justify-center rounded-full border border-border ${
+                      liked ? "text-primary" : "text-foreground"
+                    }`}
+                  >
+                    <Heart className="h-[18px] w-[18px]" fill={liked ? "currentColor" : "none"} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Comentar"
+                    className="flex h-11 w-11 items-center justify-center rounded-full border border-border text-foreground"
+                  >
+                    <MessageCircle className="h-[18px] w-[18px]" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Compartilhar"
+                    className="flex h-11 w-11 items-center justify-center rounded-full border border-border text-foreground"
+                  >
+                    <Send className="h-[18px] w-[18px]" />
+                  </button>
+                </div>
+
+                {totalReacoes > 0 && (
+                  <div className="flex items-center gap-2">
+                    <div className="flex -space-x-2">
+                      {reacoes.slice(0, 3).map((r: any, i: number) => (
+                        <div key={i} className="h-7 w-7 rounded-full ring-2 ring-card overflow-hidden">
+                          <Avatar name={r.user_id?.slice(0, 2) ?? "U"} size={28} shape="rounded-full" />
+                        </div>
+                      ))}
+                    </div>
+                    <p className="max-w-[140px] truncate text-[11px] text-muted-foreground">
+                      <span className="font-bold text-foreground">{handle}</span>
+                      {totalReacoes > 1 ? ` e outras ${formatCount(totalReacoes - 1)} pessoas` : ""}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </article>
           );
         })}
       </div>
