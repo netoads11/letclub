@@ -71,6 +71,16 @@ export default function Perfil() {
 
   if (!profile) return null;
   const day = getCurrentDay(profile.challenge_start_date);
+  const handle = "@" + (profile.email?.split("@")[0] || (profile.full_name || "voce").split(" ")[0].toLowerCase()).slice(0, 14);
+  const metaPeso = Number(profile.meta_peso ?? 0);
+  const chartData = pesos.slice(-6).map((p) => ({
+    data: p.data,
+    peso: p.peso,
+    meta: metaPeso || Math.max(p.peso, 1),
+  }));
+  const now = new Date();
+  const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  const dataAgora = `${now.getDate()} de ${meses[now.getMonth()]}, ${String(now.getHours()).padStart(2,"0")}h${String(now.getMinutes()).padStart(2,"0")}`;
 
   const saveProfile = async () => {
     const { error } = await supabase.from("profiles").update({
@@ -138,130 +148,128 @@ export default function Perfil() {
   return (
     <div className="min-h-screen bg-background pb-10">
       <header className="flex items-center justify-between px-4 py-4">
-        <button
-          onClick={() => nav(-1)}
-          className="rounded-full border border-border bg-card p-2"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => nav(-1)} aria-label="Voltar" className="-ml-1 p-1">
+            <ChevronLeft className="h-6 w-6 text-foreground" />
+          </button>
+          <span className="font-display text-base font-bold text-foreground">{handle}</span>
+          <img src={iconSelo} alt="" className="h-4 w-4" />
+          <span className="text-sm text-muted-foreground">Seu Perfil</span>
+        </div>
         <button
           onClick={() => setShowSettings((s) => !s)}
-          className={`rounded-full p-2 transition-colors ${
-            showSettings ? "bg-primary text-primary-foreground" : "border border-border bg-card"
-          }`}
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-foreground transition-colors hover:bg-muted/70"
           aria-label="Configurações"
         >
-          <Settings className="h-5 w-5" />
+          <MoreHorizontal className="h-5 w-5" />
         </button>
       </header>
 
-      <div className="mx-auto max-w-md slide-up">
-        {/* Hero header with radial gradient */}
-        <div
-          className="px-4 pb-2 pt-2 text-center"
-          style={{
-            background:
-              "radial-gradient(ellipse at center top, rgba(205,255,0,0.05) 0%, transparent 60%)",
-          }}
-        >
-          <div className="mx-auto flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full border border-border bg-muted">
-            {avatarUrl ? (
-              <img src={avatarUrl} className="h-full w-full object-cover" />
-            ) : (
-              <span className="font-display text-[28px] font-bold text-primary">
-                {(profile.full_name || "?").charAt(0).toUpperCase()}
-              </span>
-            )}
+      <div className="mx-auto max-w-md slide-up px-4">
+        {/* Avatar */}
+        <div className="flex flex-col items-center pt-2">
+          <div className="relative">
+            <div className="h-[140px] w-[140px] overflow-hidden rounded-3xl border-4 border-primary bg-muted">
+              {avatarUrl ? (
+                <img src={avatarUrl} className="h-full w-full object-cover" alt={profile.full_name} />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center font-display text-5xl font-bold text-primary">
+                  {(profile.full_name || "?").charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+            <img
+              src={iconSelo}
+              alt=""
+              className="absolute -bottom-2 -right-2 h-9 w-9 drop-shadow-md"
+            />
           </div>
-          <h1 className="mt-3 font-display text-[22px] font-bold text-foreground">
+          <h1 className="mt-4 font-display text-2xl font-bold text-foreground">
             {profile.full_name || "Aluna"}
           </h1>
-          <p className="text-[13px] text-muted-foreground">
-            Dia {Math.min(day, 15)} de 15 • {profile.xp_total} XP
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">Membra Fundadora</p>
         </div>
 
-        <div className="px-4">
-          {/* Weights */}
-          <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">Peso</p>
-          <div className="grid grid-cols-3 gap-2.5 text-center">
-            <div className="rounded-xl border border-border bg-card p-3">
-              <p className="text-[10px] text-muted-foreground">Inicial</p>
-              <p className="mt-1 font-display text-base font-bold text-foreground">
-                {profile.peso_inicial ?? "—"} <span className="text-xs text-muted-foreground">kg</span>
+        {/* Card pesos + gráfico */}
+        <div className="mt-6 rounded-3xl border border-border bg-card p-5 shadow-card">
+          <div className="grid grid-cols-3 divide-x divide-border">
+            <div className="pr-3">
+              <p className="text-xs text-muted-foreground">Peso inicial</p>
+              <p className="mt-1 font-display text-2xl font-bold text-foreground">
+                {profile.peso_inicial ?? "—"} <span className="text-sm font-medium text-muted-foreground">kg</span>
               </p>
             </div>
-            <div className="rounded-xl border border-primary bg-card p-3">
-              <p className="text-[10px] text-muted-foreground">Atual</p>
-              <p className="mt-1 font-display text-base font-bold text-primary">
-                {profile.peso_atual ?? "—"} <span className="text-xs">kg</span>
+            <div className="px-3">
+              <p className="text-xs text-muted-foreground">Peso Atual</p>
+              <p className="mt-1 font-display text-2xl font-bold text-foreground">
+                {profile.peso_atual ?? "—"} <span className="text-sm font-medium text-muted-foreground">kg</span>
               </p>
             </div>
-            <div className="rounded-xl border border-border bg-card p-3">
-              <p className="text-[10px] text-muted-foreground">Meta</p>
-              <p className="mt-1 font-display text-base font-bold text-foreground">
-                {profile.meta_peso ?? "—"} <span className="text-xs text-muted-foreground">kg</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Evolution chart */}
-          {pesos.length > 1 && (
-            <>
-              <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">
-                Evolução
-              </p>
-              <div className="rounded-2xl border border-border bg-card p-4">
-                <div className="h-40">
-                  <ResponsiveContainer>
-                    <LineChart data={pesos}>
-                      <CartesianGrid stroke="#1E1E1E" vertical={false} />
-                      <XAxis dataKey="data" tick={{ fontSize: 10, fill: "#888" }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 10, fill: "#888" }} domain={["auto", "auto"]} axisLine={false} tickLine={false} />
-                      <Tooltip
-                        contentStyle={{
-                          background: "#141414",
-                          border: "1px solid #1E1E1E",
-                          borderRadius: 12,
-                          color: "#fff",
-                        }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="peso"
-                        stroke="#CDFF00"
-                        strokeWidth={2.5}
-                        dot={{ r: 4, fill: "#CDFF00", stroke: "#CDFF00" }}
-                        activeDot={{ r: 6 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
+            <div className="pl-3">
+              <p className="text-xs text-muted-foreground">Meta</p>
+              <div className="mt-1 flex items-center gap-1.5">
+                <img src={iconAlvo} alt="" className="h-5 w-5" />
+                <p className="font-display text-2xl font-bold text-foreground">
+                  {profile.meta_peso ?? "—"} <span className="text-sm font-medium text-muted-foreground">kg</span>
+                </p>
               </div>
-            </>
-          )}
-
-          {/* Streak */}
-          <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">
-            Sequências
-          </p>
-          <div className="grid grid-cols-2 gap-2.5">
-            <div className="rounded-xl border border-border bg-card p-4">
-              <Flame className="h-5 w-5 text-[#FF6B00]" fill="#FF6B00" />
-              <p className="mt-2 text-[11px] text-muted-foreground">Sequência</p>
-              <p className="font-display text-2xl font-bold text-foreground">
-                {profile.streak_atual} <span className="text-sm text-muted-foreground">dias</span>
-              </p>
-            </div>
-            <div className="rounded-xl border border-border bg-card p-4">
-              <Trophy className="h-5 w-5 text-primary" />
-              <p className="mt-2 text-[11px] text-muted-foreground">Recorde</p>
-              <p className="font-display text-2xl font-bold text-foreground">
-                {profile.streak_recorde} <span className="text-sm text-muted-foreground">dias</span>
-              </p>
             </div>
           </div>
 
+          {chartData.length > 0 && (
+            <div className="mt-5">
+              <WeightBarChart data={chartData} />
+            </div>
+          )}
+        </div>
+
+        {/* Sua Jornada */}
+        <div className="mt-4 flex items-center justify-between rounded-3xl bg-primary/15 p-5">
+          <div>
+            <div className="flex items-center gap-2">
+              <img src={iconFogoSimples} alt="" className="h-4 w-auto" />
+              <span className="text-sm font-medium text-foreground/80">Sua Jornada</span>
+            </div>
+            <p className="mt-1 font-display text-2xl font-bold text-foreground">
+              {profile.streak_atual} Dias Seguidos
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Recorde: <span className="font-bold text-foreground">{profile.streak_recorde} dias</span>
+            </p>
+          </div>
+          <div className="flex items-center gap-2 pr-1">
+            <img src={iconSelo} alt="" className="h-7 w-7" />
+            <div>
+              <p className="text-xs text-muted-foreground">Meta</p>
+              <p className="font-display text-2xl font-bold text-foreground">15 Dias</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Calorias do dia */}
+        <div className="mt-4 flex items-center justify-between rounded-3xl border border-border bg-card p-5 shadow-card">
+          <div>
+            <p className="font-display text-base font-bold text-foreground">Calorias do dia</p>
+            <div className="mt-2 flex items-center gap-2">
+              <img src={iconFogoSimples} alt="" className="h-5 w-auto" />
+              <p className="font-display text-2xl font-bold text-foreground">
+                0 <span className="text-sm font-medium text-muted-foreground">kcal</span>
+              </p>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">{dataAgora}</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <img src={iconFogoDuplo} alt="" className="h-10 w-auto" />
+            <div>
+              <p className="text-xs text-muted-foreground">Meta do dia</p>
+              <p className="font-display text-2xl font-bold text-foreground">
+                1.600 <span className="text-sm font-medium text-muted-foreground">kcal</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div>
           {/* Badges */}
           <p className="mt-6 mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">
             Conquistas
