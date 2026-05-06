@@ -39,12 +39,13 @@ export default function Splash() {
       </svg>
 
       <div className="fade-in relative z-10 flex flex-col items-center px-10 text-center">
+        {/* Light mode: brown background → dark-text logo. Dark mode: #252525 → white-text logo. */}
         <Logo
-          variant="dark"
+          variant="light"
           className="w-[60vw] max-w-[280px] dark:hidden"
         />
         <Logo
-          variant="light"
+          variant="dark"
           className="hidden w-[60vw] max-w-[280px] dark:block"
         />
         <div className="mt-6 flex items-center gap-2">
