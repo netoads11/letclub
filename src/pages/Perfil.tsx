@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ChevronLeft, MoreHorizontal, LogOut, Lock, Mail, Bell, Utensils, Scale, LifeBuoy, User, Camera } from "lucide-react";
-import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Cell } from "recharts";
 import iconSelo from "@/assets/icons/selo.svg";
 import iconAlvo from "@/assets/icons/alvo.svg";
 import iconFogoSimples from "@/assets/icons/fogo-simples.svg";
