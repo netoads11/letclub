@@ -19,6 +19,7 @@ import {
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { getCurrentDay } from "@/lib/challenge";
+import { AppShell } from "@/components/AppShell";
 
 const RESTRICOES = ["vegetariana", "lactose", "gluten", "gestante"];
 
@@ -185,7 +186,7 @@ export default function Perfil() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <AppShell>
       <header className="flex items-center justify-between px-4 py-4">
         <div className="flex items-center gap-2">
           <button onClick={() => nav(-1)} aria-label="Voltar" className="-ml-1 p-1">
@@ -207,7 +208,7 @@ export default function Perfil() {
       <div className="mx-auto max-w-md slide-up px-4">
         {/* Avatar */}
         <div className="flex flex-col items-center pt-2">
-          <div className="relative">
+          <label className="relative cursor-pointer group">
             <div className="h-[140px] w-[140px] overflow-hidden rounded-3xl border-4 border-primary bg-muted">
               {avatarUrl ? (
                 <img src={avatarUrl} className="h-full w-full object-cover" alt={profile.full_name} />
@@ -216,13 +217,27 @@ export default function Perfil() {
                   {(profile.full_name || "?").charAt(0).toUpperCase()}
                 </div>
               )}
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                <Camera className="h-7 w-7 text-white" />
+              </div>
+              {uploading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                </div>
+              )}
             </div>
             <img
               src={iconSelo}
               alt=""
-              className="absolute -bottom-2 -right-2 h-9 w-9 drop-shadow-md"
+              className="pointer-events-none absolute -bottom-2 -right-2 h-9 w-9 drop-shadow-md"
             />
-          </div>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => e.target.files?.[0] && uploadAvatar(e.target.files[0])}
+            />
+          </label>
           <h1 className="mt-4 font-display text-2xl font-bold text-foreground">
             {profile.full_name || "Aluna"}
           </h1>
@@ -463,6 +478,6 @@ export default function Perfil() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </AppShell>
   );
 }
