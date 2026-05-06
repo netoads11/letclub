@@ -273,7 +273,7 @@ export default function Chat() {
                 <div className={isUser ? "max-w-[80%]" : "max-w-[85%]"}>
                   <div
                     className={`rounded-2xl px-4 py-2.5 text-sm ${
-                      isUser ? "bg-primary text-primary-foreground" : "bg-[#1E1E1E] text-foreground"
+                      isUser ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
                     }`}
                   >
                     {isUser ? (
@@ -282,19 +282,19 @@ export default function Chat() {
                       <div className="space-y-1">{renderMarkdown(m.content)}</div>
                     )}
                   </div>
-                  <div className={`mt-1 flex items-center gap-2 text-[10px] text-[#555] ${isUser ? "justify-end" : ""}`}>
+                  <div className={`mt-1 flex items-center gap-2 text-[10px] text-muted-foreground ${isUser ? "justify-end" : ""}`}>
                     {fmtTime((m as any).created_at)}
                     {!isUser && m.id && (
                       <>
                         <button
                           onClick={() => giveFeedback(i, "positivo")}
-                          className={m.feedback === "positivo" ? "text-primary" : "text-[#555] hover:text-muted-foreground"}
+                          className={m.feedback === "positivo" ? "text-primary" : "text-muted-foreground hover:text-muted-foreground"}
                         >
                           <ThumbsUp className="h-3 w-3" />
                         </button>
                         <button
                           onClick={() => giveFeedback(i, "negativo")}
-                          className={m.feedback === "negativo" ? "text-destructive" : "text-[#555] hover:text-muted-foreground"}
+                          className={m.feedback === "negativo" ? "text-destructive" : "text-muted-foreground hover:text-muted-foreground"}
                         >
                           <ThumbsDown className="h-3 w-3" />
                         </button>
@@ -310,7 +310,7 @@ export default function Chat() {
               <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                 L
               </div>
-              <div className="rounded-2xl bg-[#1E1E1E] px-4 py-2.5 text-sm">
+              <div className="rounded-2xl bg-muted px-4 py-2.5 text-sm">
                 <span className="animate-pulse text-muted-foreground">Let está digitando...</span>
               </div>
             </div>
@@ -328,7 +328,7 @@ export default function Chat() {
                 <button
                   key={i}
                   onClick={() => send(s)}
-                  className="shrink-0 whitespace-nowrap rounded-full border border-border bg-[#1E1E1E] px-3 py-2 text-xs text-foreground transition-colors hover:border-primary"
+                  className="shrink-0 whitespace-nowrap rounded-full border border-border bg-muted px-3 py-2 text-xs text-foreground transition-colors hover:border-primary"
                 >
                   {s}
                 </button>
@@ -341,7 +341,7 @@ export default function Chat() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Pergunte algo..."
               disabled={streaming}
-              className="flex-1 rounded-[20px] border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-[#555] focus:border-primary focus:outline-none disabled:opacity-50"
+              className="flex-1 rounded-[20px] border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none disabled:opacity-50"
             />
             <button
               type="submit"
@@ -351,7 +351,7 @@ export default function Chat() {
               <Send className="h-4 w-4" />
             </button>
           </form>
-          <p className="mt-2 text-center text-[10px] text-[#555]">
+          <p className="mt-2 text-center text-[10px] text-muted-foreground">
             As respostas não substituem orientação médica.
           </p>
         </div>

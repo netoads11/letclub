@@ -697,12 +697,12 @@ export default function Admin() {
                     </thead>
                     <tbody>
                       {loading && Array.from({ length: 5 }).map((_, i) => (
-                        <tr key={i} className="border-b border-[#1A1A1A]"><td colSpan={8} className="p-3"><Skeleton className="h-8 w-full" /></td></tr>
+                        <tr key={i} className="border-b border-border"><td colSpan={8} className="p-3"><Skeleton className="h-8 w-full" /></td></tr>
                       ))}
                       {!loading && filteredAlunas.map((a, i) => {
                         const st = alunaStatus(a);
                         return (
-                          <tr key={a.id} className={`border-b border-[#1A1A1A] hover:bg-card transition-colors ${i % 2 ? "bg-[#161616]" : ""}`}>
+                          <tr key={a.id} className={`border-b border-border hover:bg-card transition-colors ${i % 2 ? "bg-muted/50" : ""}`}>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2.5">
                                 <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
@@ -978,7 +978,7 @@ export default function Admin() {
                 <div className="rounded-xl border border-border bg-card p-5">
                   <h3 className="mb-3 font-display font-bold">Mais perguntadas</h3>
                   {chatStats.top.length === 0 ? <p className="text-xs text-muted-foreground">Sem dados ainda.</p> : chatStats.top.map((t, i) => (
-                    <div key={i} className="flex items-center justify-between border-b border-[#1A1A1A] py-2 last:border-0">
+                    <div key={i} className="flex items-center justify-between border-b border-border py-2 last:border-0">
                       <div className="flex items-center gap-2 min-w-0 flex-1">
                         <span className="text-xs text-muted-foreground">#{i + 1}</span>
                         <span className="truncate text-xs">{t.q}</span>
@@ -1185,7 +1185,7 @@ export default function Admin() {
                   {editingReceita.imagem_url && (
                     <img src={editingReceita.imagem_url} alt="" className="mt-1 h-[120px] w-full rounded-xl object-cover" />
                   )}
-                  <label className="mt-2 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-border bg-[#1E1E1E] py-5 text-center transition hover:border-primary/50">
+                  <label className="mt-2 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-border bg-muted py-5 text-center transition hover:border-primary/50">
                     {uploadingReceitaImg ? (
                       <>
                         <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />

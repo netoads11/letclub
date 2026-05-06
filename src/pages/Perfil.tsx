@@ -160,7 +160,7 @@ export default function Perfil() {
               "radial-gradient(ellipse at center top, rgba(205,255,0,0.05) 0%, transparent 60%)",
           }}
         >
-          <div className="mx-auto flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full border border-border bg-[#1E1E1E]">
+          <div className="mx-auto flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full border border-border bg-muted">
             {avatarUrl ? (
               <img src={avatarUrl} className="h-full w-full object-cover" />
             ) : (
@@ -295,7 +295,7 @@ export default function Perfil() {
         >
           {/* Handle bar */}
           <div className="sticky top-0 z-10 flex justify-center bg-card pb-2 pt-3">
-            <div className="h-1.5 w-12 rounded-full bg-[#2A2A2A]" />
+            <div className="h-1.5 w-12 rounded-full bg-muted" />
           </div>
           <div className="px-4 pb-8">
             <h2 className="mb-4 font-display text-xl font-bold text-foreground">Configurações</h2>

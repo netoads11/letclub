@@ -90,7 +90,7 @@ export default function Comunidade() {
       </header>
 
       {/* Rules banner */}
-      <div className="mx-4 mb-4 rounded-xl border border-primary/20 bg-[#0F1A00] p-3">
+      <div className="mx-4 mb-4 rounded-xl border border-primary/20 bg-primary/10 p-3">
         <p className="text-[11px] font-bold uppercase tracking-wide text-primary">📋 Regras</p>
         <p className="mt-1 text-[13px] leading-snug text-muted-foreground">
           Respeito, acolhimento e nada de receitas restritivas. Bora se apoiar!
@@ -135,11 +135,11 @@ export default function Comunidade() {
                   <p className="font-display text-sm font-medium text-foreground">
                     {p.profiles?.full_name || "Aluna"}
                   </p>
-                  <p className="text-[11px] text-[#555]">
+                  <p className="text-[11px] text-muted-foreground">
                     {new Date(p.created_at).toLocaleDateString("pt-BR")}
                   </p>
                 </div>
-                <button onClick={() => report(p.id)} className="text-[#555] hover:text-destructive">
+                <button onClick={() => report(p.id)} className="text-muted-foreground hover:text-destructive">
                   <Flag className="h-4 w-4" />
                 </button>
               </div>
@@ -155,7 +155,7 @@ export default function Comunidade() {
                       key={type}
                       onClick={() => react(p.id, type)}
                       className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs transition-all ${
-                        isActive ? `${activeBg} ${activeText}` : "text-[#555] hover:text-muted-foreground"
+                        isActive ? `${activeBg} ${activeText}` : "text-muted-foreground hover:text-muted-foreground"
                       }`}
                     >
                       <Icon
@@ -193,7 +193,7 @@ export default function Comunidade() {
           >
             <div className="flex items-center justify-between">
               <h3 className="font-display text-lg font-bold text-foreground">Compartilhar</h3>
-              <button onClick={() => setShow(false)} className="rounded-full bg-[#1E1E1E] p-1.5">
+              <button onClick={() => setShow(false)} className="rounded-full bg-muted p-1.5">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -204,7 +204,7 @@ export default function Comunidade() {
               className="mt-4 min-h-[100px] border-border bg-background"
               maxLength={280}
             />
-            <p className="mt-1 text-right text-[10px] text-[#555]">{text.length}/280</p>
+            <p className="mt-1 text-right text-[10px] text-muted-foreground">{text.length}/280</p>
 
             <label className="mt-3 flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
               <ImagePlus className="h-4 w-4" />

@@ -144,7 +144,7 @@ export default function Missoes() {
 
       <div className="px-4">
         {/* Progress */}
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#1E1E1E]">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <div
             className="h-full rounded-full bg-primary transition-all duration-700 ease-out"
             style={{ width: `${pct}%` }}
@@ -187,7 +187,7 @@ export default function Missoes() {
                 }
               >
                 <Link to={`/missao/${m.id}`} className="flex items-start gap-3">
-                  <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1E1E1E] text-lg">
+                  <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-lg">
                     {m.icone}
                     {isDone && (
                       <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
@@ -200,7 +200,7 @@ export default function Missoes() {
                       {m.titulo}
                     </h3>
                     <p className="mt-0.5 text-[13px] text-muted-foreground">{m.descricao_curta}</p>
-                    <span className="mt-2 inline-block rounded-full bg-[#0F1A00] px-2.5 py-0.5 text-xs font-bold text-primary">
+                    <span className="mt-2 inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
                       +{m.xp_reward} XP
                     </span>
                   </div>
@@ -236,12 +236,12 @@ export default function Missoes() {
                   key={m.id}
                   className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 opacity-40"
                 >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1E1E1E] text-lg grayscale">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-lg grayscale">
                     {m.icone}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[14px] font-medium text-muted-foreground">{m.titulo}</p>
-                    <span className="mt-0.5 inline-block rounded-md bg-[#1E1E1E] px-1.5 py-0.5 text-[12px] text-muted-foreground">
+                    <span className="mt-0.5 inline-block rounded-md bg-muted px-1.5 py-0.5 text-[12px] text-muted-foreground">
                       Dia {m.dia_numero}
                     </span>
                   </div>
