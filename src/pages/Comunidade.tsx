@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
@@ -19,6 +20,7 @@ const colorFor = (id: string) => avatarColors[id.charCodeAt(0) % avatarColors.le
 
 export default function Comunidade() {
   const { profile } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState<any[]>([]);
   const [show, setShow] = useState(false);
   const [text, setText] = useState("");
@@ -37,6 +39,14 @@ export default function Comunidade() {
   };
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    if (searchParams.get("novo") === "1") {
+      setShow(true);
+      searchParams.delete("novo");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const submit = async () => {
     if (!text.trim() || !profile) return;

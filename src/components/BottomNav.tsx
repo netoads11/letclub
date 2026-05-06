@@ -78,8 +78,8 @@ export const BottomNav = () => {
         <div className="flex flex-1 flex-col items-center justify-start">
           <button
             type="button"
-            onClick={() => nav("/missoes")}
-            aria-label="Ações rápidas"
+            onClick={() => nav("/comunidade?novo=1")}
+            aria-label="Criar post na comunidade"
             className="relative z-10 -mt-5 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95"
           >
             <Plus className="h-7 w-7" strokeWidth={2.5} />
