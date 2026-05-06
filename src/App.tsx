@@ -17,6 +17,7 @@ import Chat from "./pages/Chat";
 import Comunidade from "./pages/Comunidade";
 import Perfil from "./pages/Perfil";
 import Notificacoes from "./pages/Notificacoes";
+import Audios from "./pages/Audios";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound.tsx";
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/chat" element={<RequireAuth><Chat /></RequireAuth>} />
             <Route path="/comunidade" element={<RequireAuth><Comunidade /></RequireAuth>} />
             <Route path="/perfil" element={<RequireAuth><Perfil /></RequireAuth>} />
+            <Route path="/audios" element={<RequireAuth><Audios /></RequireAuth>} />
             <Route path="/notificacoes" element={<RequireAuth><Notificacoes /></RequireAuth>} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<RequireAuth admin requireOnboarding={false}><Admin /></RequireAuth>} />
