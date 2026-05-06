@@ -481,9 +481,9 @@ export default function Admin() {
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       {/* Sidebar */}
-      <aside className="hidden w-[220px] shrink-0 flex-col border-r border-[#2A2A2A] bg-[#0D0D0D] md:flex">
-        <div className="border-b border-[#2A2A2A] px-5 py-5">
-          <p className="font-display text-lg font-bold tracking-tight">LET&PONTO</p>
+      <aside className="hidden w-[220px] shrink-0 flex-col border-r border-border bg-background md:flex">
+        <div className="border-b border-border px-5 py-5">
+          <p className="font-display text-lg font-bold tracking-tight">LETClub</p>
           <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Admin Console</p>
         </div>
         <nav className="flex-1 space-y-1 p-3">
@@ -496,7 +496,7 @@ export default function Admin() {
                 className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                   active
                     ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-[#1A1A1A] hover:text-foreground"
+                    : "text-muted-foreground hover:bg-card hover:text-foreground"
                 }`}
               >
                 <n.i className="h-4 w-4" />
@@ -505,7 +505,7 @@ export default function Admin() {
             );
           })}
         </nav>
-        <div className="border-t border-[#2A2A2A] p-3">
+        <div className="border-t border-border p-3">
           <Button variant="ghost" size="sm" onClick={() => nav("/home")} className="w-full justify-start text-xs text-muted-foreground">
             ← Voltar ao app
           </Button>
@@ -513,14 +513,14 @@ export default function Admin() {
       </aside>
 
       {/* Mobile nav */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-30 border-b border-[#2A2A2A] bg-[#0D0D0D]">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 border-b border-border bg-background">
         <div className="flex items-center justify-between px-4 py-3">
-          <p className="font-display text-sm font-bold">LET&PONTO Admin</p>
+          <p className="font-display text-sm font-bold">LETClub Admin</p>
           <Button size="sm" variant="ghost" onClick={signOut}><LogOut className="h-4 w-4" /></Button>
         </div>
         <div className="scrollbar-hide flex gap-1.5 overflow-x-auto px-3 pb-3">
           {NAV.map((n) => (
-            <button key={n.v} onClick={() => setTab(n.v)} className={`flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] ${tab === n.v ? "bg-primary text-primary-foreground" : "bg-[#1A1A1A] text-muted-foreground"}`}>
+            <button key={n.v} onClick={() => setTab(n.v)} className={`flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] ${tab === n.v ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground"}`}>
               <n.i className="h-3 w-3" />{n.l}
             </button>
           ))}
@@ -530,10 +530,10 @@ export default function Admin() {
       {/* Main */}
       <main className="flex-1 min-w-0 pt-[88px] md:pt-0">
         {/* Topbar (desktop) */}
-        <header className="hidden md:flex items-center justify-between border-b border-[#2A2A2A] bg-[#0D0D0D] px-8 py-4">
+        <header className="hidden md:flex items-center justify-between border-b border-border bg-background px-8 py-4">
           <div>
             <h1 className="font-display text-xl font-bold">{NAV.find((n) => n.v === tab)?.l}</h1>
-            <p className="text-xs text-muted-foreground">Painel administrativo LET&PONTO</p>
+            <p className="text-xs text-muted-foreground">Painel administrativo LETClub</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
@@ -560,7 +560,7 @@ export default function Admin() {
                   { label: "Taxa de Conclusão", value: `${stats.pct}%`, icon: TrendingUp, trend: "" },
                   { label: "XP Médio", value: stats.xpAvg, icon: Trophy, trend: "" },
                 ].map((k, i) => (
-                  <div key={i} className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-5 shadow-sm">
+                  <div key={i} className="rounded-xl border border-border bg-card p-5 shadow-sm">
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="text-xs uppercase tracking-wide text-muted-foreground">{k.label}</p>
@@ -576,7 +576,7 @@ export default function Admin() {
               </div>
 
               {/* Chart */}
-              <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-6">
+              <div className="rounded-xl border border-border bg-card p-6">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <h3 className="font-display text-base font-bold">Abandono por dia</h3>
@@ -599,12 +599,12 @@ export default function Admin() {
 
               <div className="grid lg:grid-cols-2 gap-4">
                 {/* Top XP */}
-                <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-6">
+                <div className="rounded-xl border border-border bg-card p-6">
                   <h3 className="mb-4 font-display text-base font-bold">Top 10 por XP</h3>
                   <div className="space-y-2.5">
                     {stats.topXp.map((a: any, i: number) => (
                       <div key={a.id} className="flex items-center gap-3">
-                        <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-md text-xs font-bold ${i < 3 ? "bg-primary/20 text-primary" : "bg-[#1A1A1A] text-muted-foreground"}`}>{i + 1}</span>
+                        <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-md text-xs font-bold ${i < 3 ? "bg-primary/20 text-primary" : "bg-card text-muted-foreground"}`}>{i + 1}</span>
                         <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                           {(a.full_name || a.email || "?").charAt(0).toUpperCase()}
                         </div>
@@ -613,7 +613,7 @@ export default function Admin() {
                             <span className="truncate font-medium">{a.full_name || a.email}</span>
                             <span className="ml-2 shrink-0 text-primary font-bold">{a.xp_total} XP</span>
                           </div>
-                          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[#1A1A1A]">
+                          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-card">
                             <div className="h-full bg-primary transition-all" style={{ width: `${((a.xp_total ?? 0) / maxXp) * 100}%` }} />
                           </div>
                         </div>
@@ -631,7 +631,7 @@ export default function Admin() {
                 </div>
 
                 {/* Recent check-ins */}
-                <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-6">
+                <div className="rounded-xl border border-border bg-card p-6">
                   <h3 className="mb-4 font-display text-base font-bold">Últimos check-ins</h3>
                   <div className="space-y-3">
                     {recentCheckins.map((c) => (
@@ -663,22 +663,22 @@ export default function Admin() {
               <div className="flex flex-col gap-3 md:flex-row md:items-center">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input value={alunaSearch} onChange={(e) => setAlunaSearch(e.target.value)} placeholder="Buscar por nome ou email..." className="pl-9 bg-[#141414] border-[#2A2A2A]" />
+                  <Input value={alunaSearch} onChange={(e) => setAlunaSearch(e.target.value)} placeholder="Buscar por nome ou email..." className="pl-9 bg-card border-border" />
                 </div>
                 <div className="flex gap-2">
                   {(["all", "ativa", "concluida", "inativa"] as const).map((f) => (
                     <button key={f} onClick={() => setAlunaFilter(f)}
-                      className={`rounded-md border px-3 py-2 text-xs font-medium capitalize transition ${alunaFilter === f ? "border-primary bg-primary/10 text-primary" : "border-[#2A2A2A] bg-[#141414] text-muted-foreground hover:text-foreground"}`}>
+                      className={`rounded-md border px-3 py-2 text-xs font-medium capitalize transition ${alunaFilter === f ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}>
                       {f === "all" ? "Todas" : f}
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-xl border border-[#2A2A2A] bg-[#141414]">
+              <div className="overflow-hidden rounded-xl border border-border bg-card">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="border-b border-[#2A2A2A] bg-[#0D0D0D] text-[11px] uppercase tracking-wide text-muted-foreground">
+                    <thead className="border-b border-border bg-background text-[11px] uppercase tracking-wide text-muted-foreground">
                       <tr>
                         {[
                           { k: "full_name", l: "Nome" }, { k: "email", l: "Email" }, { k: "challenge_start_date", l: "Dia" },
@@ -702,7 +702,7 @@ export default function Admin() {
                       {!loading && filteredAlunas.map((a, i) => {
                         const st = alunaStatus(a);
                         return (
-                          <tr key={a.id} className={`border-b border-[#1A1A1A] hover:bg-[#1A1A1A] transition-colors ${i % 2 ? "bg-[#161616]" : ""}`}>
+                          <tr key={a.id} className={`border-b border-[#1A1A1A] hover:bg-card transition-colors ${i % 2 ? "bg-[#161616]" : ""}`}>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2.5">
                                 <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
@@ -752,7 +752,7 @@ export default function Admin() {
                   const d = idx + 1;
                   const list = missionsByDay[d] ?? [];
                   return (
-                    <AccordionItem key={d} value={String(d)} className="rounded-xl border border-[#2A2A2A] bg-[#141414] px-4">
+                    <AccordionItem key={d} value={String(d)} className="rounded-xl border border-border bg-card px-4">
                       <AccordionTrigger className="hover:no-underline">
                         <div className="flex items-center gap-3">
                           <span className="grid h-8 w-8 place-items-center rounded-md bg-primary/10 font-display text-sm font-bold text-primary">D{d}</span>
@@ -763,9 +763,9 @@ export default function Admin() {
                       <AccordionContent>
                         <div className="space-y-2 pb-2">
                           {list.map((m) => (
-                            <div key={m.id} className="flex items-center gap-3 rounded-lg border border-[#2A2A2A] bg-[#0D0D0D] p-3">
+                            <div key={m.id} className="flex items-center gap-3 rounded-lg border border-border bg-background p-3">
                               <GripVertical className="h-4 w-4 text-muted-foreground/50" />
-                              <span className="grid h-7 w-7 place-items-center rounded-md bg-[#1A1A1A] text-xs font-bold">{m.ordem}</span>
+                              <span className="grid h-7 w-7 place-items-center rounded-md bg-card text-xs font-bold">{m.ordem}</span>
                               <span className="text-xl">{m.icone}</span>
                               <div className="min-w-0 flex-1">
                                 <p className="truncate text-sm font-medium">{m.titulo}</p>
@@ -777,7 +777,7 @@ export default function Admin() {
                               <Button size="sm" variant="ghost" onClick={() => deleteMission(m.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                             </div>
                           ))}
-                          <Button size="sm" variant="outline" onClick={() => newMission(d)} className="w-full border-dashed border-[#2A2A2A]">
+                          <Button size="sm" variant="outline" onClick={() => newMission(d)} className="w-full border-dashed border-border">
                             <Plus className="mr-1 h-3.5 w-3.5" /> Nova missão para Dia {d}
                           </Button>
                         </div>
@@ -795,16 +795,16 @@ export default function Admin() {
               <div className="flex flex-col gap-3 md:flex-row md:items-center justify-between">
                 <div className="flex flex-wrap items-center gap-2">
                   <Filter className="h-4 w-4 text-muted-foreground" />
-                  <select className="h-9 rounded-md border border-[#2A2A2A] bg-[#141414] px-2.5 text-xs" value={receitaFilter.tipo} onChange={(e) => setReceitaFilter({ ...receitaFilter, tipo: e.target.value })}>
+                  <select className="h-9 rounded-md border border-border bg-card px-2.5 text-xs" value={receitaFilter.tipo} onChange={(e) => setReceitaFilter({ ...receitaFilter, tipo: e.target.value })}>
                     <option value="">Todos os tipos</option>
                     <option value="cafe">Café</option><option value="almoco">Almoço</option>
                     <option value="lanche">Lanche</option><option value="jantar">Jantar</option><option value="cha">Chá</option>
                   </select>
-                  <select className="h-9 rounded-md border border-[#2A2A2A] bg-[#141414] px-2.5 text-xs" value={receitaFilter.dia} onChange={(e) => setReceitaFilter({ ...receitaFilter, dia: e.target.value })}>
+                  <select className="h-9 rounded-md border border-border bg-card px-2.5 text-xs" value={receitaFilter.dia} onChange={(e) => setReceitaFilter({ ...receitaFilter, dia: e.target.value })}>
                     <option value="">Todos os dias</option>
                     {Array.from({ length: 15 }).map((_, i) => <option key={i + 1} value={String(i + 1)}>Dia {i + 1}</option>)}
                   </select>
-                  <select className="h-9 rounded-md border border-[#2A2A2A] bg-[#141414] px-2.5 text-xs" value={receitaFilter.restricao} onChange={(e) => setReceitaFilter({ ...receitaFilter, restricao: e.target.value })}>
+                  <select className="h-9 rounded-md border border-border bg-card px-2.5 text-xs" value={receitaFilter.restricao} onChange={(e) => setReceitaFilter({ ...receitaFilter, restricao: e.target.value })}>
                     <option value="">Todas restrições</option>
                     {["vegetariana", "lactose", "gluten", "gestante"].map((r) => <option key={r} value={r}>{r}</option>)}
                   </select>
@@ -816,7 +816,7 @@ export default function Admin() {
 
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredReceitas.map((r) => (
-                  <div key={r.id} className="group overflow-hidden rounded-xl border border-[#2A2A2A] bg-[#141414] transition hover:border-primary/40">
+                  <div key={r.id} className="group overflow-hidden rounded-xl border border-border bg-card transition hover:border-primary/40">
                     <div className="relative h-32 bg-gradient-to-br from-primary/20 via-purple-500/10 to-orange-500/20">
                       {r.imagem_url ? (
                         <>
@@ -841,7 +841,7 @@ export default function Admin() {
                         <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{r.tempo_preparo}min</span>
                         <div className="flex gap-1">
                           {(r.restricoes_compativeis ?? []).map((x: string) => (
-                            <span key={x} className="rounded bg-[#1A1A1A] px-1.5 py-0.5 text-[9px]">{x.slice(0, 3)}</span>
+                            <span key={x} className="rounded bg-card px-1.5 py-0.5 text-[9px]">{x.slice(0, 3)}</span>
                           ))}
                         </div>
                       </div>
@@ -850,7 +850,7 @@ export default function Admin() {
                   </div>
                 ))}
                 {filteredReceitas.length === 0 && !loading && (
-                  <div className="col-span-full rounded-xl border border-dashed border-[#2A2A2A] bg-[#141414] p-12 text-center">
+                  <div className="col-span-full rounded-xl border border-dashed border-border bg-card p-12 text-center">
                     <UtensilsCrossed className="mx-auto mb-2 h-8 w-8 text-muted-foreground/40" />
                     <p className="text-sm text-muted-foreground">Nenhuma receita encontrada</p>
                     <Button size="sm" onClick={newReceita} className="mt-3 bg-primary text-primary-foreground">+ Nova receita</Button>
@@ -870,7 +870,7 @@ export default function Admin() {
               </div>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {badges.map((b) => (
-                  <div key={b.id} className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-5 hover:border-primary/40 transition">
+                  <div key={b.id} className="rounded-xl border border-border bg-card p-5 hover:border-primary/40 transition">
                     <div className="flex items-start justify-between">
                       <div className="text-5xl">{b.icone}</div>
                       <Switch checked={b.ativo} onCheckedChange={async (v) => { await supabase.from("badges").update({ ativo: v }).eq("id", b.id); loadTab(); }} />
@@ -881,14 +881,14 @@ export default function Admin() {
                       <Badge variant="outline" className="border-primary/30 text-primary">+{b.xp_reward} XP</Badge>
                       <span className="text-muted-foreground">{(badgeUnlocks[b.id] ?? []).length} alunas</span>
                     </div>
-                    <div className="mt-3 flex gap-1.5 border-t border-[#2A2A2A] pt-3">
+                    <div className="mt-3 flex gap-1.5 border-t border-border pt-3">
                       <Button size="sm" variant="outline" onClick={() => setEditingBadge(b)} className="flex-1">Editar</Button>
                       <Button size="sm" variant="ghost" onClick={() => deleteBadge(b.id)} className="text-destructive hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
                     </div>
                   </div>
                 ))}
                 {badges.length === 0 && !loading && (
-                  <div className="col-span-full rounded-xl border border-dashed border-[#2A2A2A] bg-[#141414] p-12 text-center">
+                  <div className="col-span-full rounded-xl border border-dashed border-border bg-card p-12 text-center">
                     <Award className="mx-auto mb-2 h-8 w-8 text-muted-foreground/40" />
                     <p className="text-sm text-muted-foreground">Nenhuma badge ainda</p>
                   </div>
@@ -912,7 +912,7 @@ export default function Admin() {
                     <PostCard key={p.id} p={p} onRemove={removePost} onPin={togglePin} onReviewed={markReviewed} />
                   ))}
                   {posts.filter((p) => !p.removido).length === 0 && !loading && (
-                    <div className="rounded-xl border border-dashed border-[#2A2A2A] p-8 text-center text-sm text-muted-foreground">Sem posts.</div>
+                    <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">Sem posts.</div>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -921,7 +921,7 @@ export default function Admin() {
                     <PostCard key={p.id} p={p} onRemove={removePost} onPin={togglePin} onReviewed={markReviewed} compact />
                   ))}
                   {posts.filter((p) => p.reportado && !p.removido).length === 0 && (
-                    <div className="rounded-xl border border-dashed border-[#2A2A2A] p-6 text-center text-xs text-muted-foreground">Nenhum reporte pendente ✨</div>
+                    <div className="rounded-xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground">Nenhum reporte pendente ✨</div>
                   )}
                 </div>
               </div>
@@ -932,23 +932,23 @@ export default function Admin() {
           {tab === "chat" && (
             <div className="grid lg:grid-cols-2 gap-4">
               <div className="space-y-4">
-                <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-5">
+                <div className="rounded-xl border border-border bg-card p-5">
                   <h3 className="mb-1 font-display font-bold">System prompt da Let</h3>
                   <p className="mb-3 text-xs text-muted-foreground">Define a personalidade e diretrizes da assistente IA.</p>
                   <Textarea
                     value={config.sistema_prompt_let ?? ""}
                     onChange={(e) => setConfig((p) => ({ ...p, sistema_prompt_let: e.target.value }))}
-                    className="min-h-[200px] font-mono text-xs bg-[#0D0D0D] border-[#2A2A2A]"
+                    className="min-h-[200px] font-mono text-xs bg-background border-border"
                   />
                   <Button size="sm" onClick={() => saveConfig("sistema_prompt_let", config.sistema_prompt_let)} className="mt-3 bg-primary text-primary-foreground">Salvar prompt</Button>
                 </div>
-                <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-5">
+                <div className="rounded-xl border border-border bg-card p-5">
                   <h3 className="mb-3 font-display font-bold">Sugestões rápidas</h3>
                   {[1, 2, 3].map((n) => {
                     const k = `sugestoes_chat_${n}`;
                     return (
                       <div key={k} className="mb-3 flex gap-2">
-                        <Input value={config[k] ?? ""} onChange={(e) => setConfig((p) => ({ ...p, [k]: e.target.value }))} placeholder={`Chip ${n}`} className="bg-[#0D0D0D] border-[#2A2A2A]" />
+                        <Input value={config[k] ?? ""} onChange={(e) => setConfig((p) => ({ ...p, [k]: e.target.value }))} placeholder={`Chip ${n}`} className="bg-background border-border" />
                         <Button size="sm" variant="outline" onClick={() => saveConfig(k)}>Salvar</Button>
                       </div>
                     );
@@ -958,24 +958,24 @@ export default function Admin() {
 
               <div className="space-y-4">
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-4 text-center">
+                  <div className="rounded-xl border border-border bg-card p-4 text-center">
                     <ThumbsUp className="mx-auto h-4 w-4 text-primary" />
                     <p className="mt-2 font-display text-2xl font-bold">{chatStats.up}</p>
                     <p className="text-[10px] text-muted-foreground">Positivos</p>
                   </div>
-                  <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-4 text-center">
+                  <div className="rounded-xl border border-border bg-card p-4 text-center">
                     <ThumbsDown className="mx-auto h-4 w-4 text-destructive" />
                     <p className="mt-2 font-display text-2xl font-bold">{chatStats.down}</p>
                     <p className="text-[10px] text-muted-foreground">Negativos</p>
                   </div>
-                  <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-4 text-center">
+                  <div className="rounded-xl border border-border bg-card p-4 text-center">
                     <MessageCircle className="mx-auto h-4 w-4 text-muted-foreground" />
                     <p className="mt-2 font-display text-2xl font-bold">{chatLogs.length}</p>
                     <p className="text-[10px] text-muted-foreground">Conversas</p>
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-5">
+                <div className="rounded-xl border border-border bg-card p-5">
                   <h3 className="mb-3 font-display font-bold">Mais perguntadas</h3>
                   {chatStats.top.length === 0 ? <p className="text-xs text-muted-foreground">Sem dados ainda.</p> : chatStats.top.map((t, i) => (
                     <div key={i} className="flex items-center justify-between border-b border-[#1A1A1A] py-2 last:border-0">
@@ -988,11 +988,11 @@ export default function Admin() {
                   ))}
                 </div>
 
-                <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-5">
+                <div className="rounded-xl border border-border bg-card p-5">
                   <h3 className="mb-3 font-display font-bold">Logs recentes</h3>
                   <div className="max-h-80 space-y-2 overflow-y-auto">
                     {chatLogs.slice(0, 30).map((l) => (
-                      <div key={l.id} className="rounded-lg bg-[#0D0D0D] p-2.5 text-xs">
+                      <div key={l.id} className="rounded-lg bg-background p-2.5 text-xs">
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] text-muted-foreground">{new Date(l.created_at).toLocaleString("pt-BR")}</span>
                           <span>{l.feedback === "positivo" ? "👍" : l.feedback === "negativo" ? "👎" : ""}</span>
@@ -1013,7 +1013,7 @@ export default function Admin() {
               <section>
                 <h2 className="mb-1 font-display text-sm font-bold uppercase tracking-wide text-muted-foreground">Conteúdo</h2>
                 <p className="mb-4 text-xs text-muted-foreground">Textos e mensagens exibidos para as alunas no app.</p>
-                <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-5">
+                <div className="rounded-xl border border-border bg-card p-5">
                   <div className="mb-3 flex items-start justify-between gap-3">
                     <div>
                       <p className="font-medium text-sm">Mensagem motivacional da Let</p>
@@ -1025,7 +1025,7 @@ export default function Admin() {
                     value={config.mensagem_let_home ?? ""}
                     onChange={(e) => setConfig((p) => ({ ...p, mensagem_let_home: e.target.value }))}
                     placeholder="Ex: Bom dia, guerreira! Hoje é mais um dia para brilhar 💚"
-                    className="min-h-[90px] bg-[#0D0D0D] border-[#2A2A2A]"
+                    className="min-h-[90px] bg-background border-border"
                   />
                 </div>
               </section>
@@ -1035,7 +1035,7 @@ export default function Admin() {
                 <h2 className="mb-1 font-display text-sm font-bold uppercase tracking-wide text-muted-foreground">Notificações</h2>
                 <p className="mb-4 text-xs text-muted-foreground">Horários em que os lembretes automáticos são disparados para as alunas.</p>
                 <div className="space-y-3">
-                  <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-5">
+                  <div className="rounded-xl border border-border bg-card p-5">
                     <div className="mb-3 flex items-start justify-between gap-3">
                       <div>
                         <p className="font-medium text-sm">Horário do lembrete diário</p>
@@ -1047,11 +1047,11 @@ export default function Admin() {
                       type="time"
                       value={config.horario_lembrete_diario ?? "07:00"}
                       onChange={(e) => setConfig((p) => ({ ...p, horario_lembrete_diario: e.target.value }))}
-                      className="w-40 bg-[#0D0D0D] border-[#2A2A2A]"
+                      className="w-40 bg-background border-border"
                     />
                   </div>
 
-                  <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-5">
+                  <div className="rounded-xl border border-border bg-card p-5">
                     <div className="mb-3 flex items-start justify-between gap-3">
                       <div>
                         <p className="font-medium text-sm">Horário do alerta "streak em risco"</p>
@@ -1063,7 +1063,7 @@ export default function Admin() {
                       type="time"
                       value={config.horario_streak_risco ?? "20:00"}
                       onChange={(e) => setConfig((p) => ({ ...p, horario_streak_risco: e.target.value }))}
-                      className="w-40 bg-[#0D0D0D] border-[#2A2A2A]"
+                      className="w-40 bg-background border-border"
                     />
                   </div>
                 </div>
@@ -1079,13 +1079,13 @@ export default function Admin() {
 
       {/* ===== Aluna detail drawer ===== */}
       <Sheet open={!!alunaDetail} onOpenChange={(o) => !o && setAlunaDetail(null)}>
-        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto bg-[#0D0D0D] border-[#2A2A2A]">
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto bg-background border-border">
           <SheetHeader>
             <SheetTitle className="font-display">{alunaDetail?.full_name || alunaDetail?.email}</SheetTitle>
           </SheetHeader>
           {alunaDetail && (
             <div className="mt-5 space-y-5">
-              <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-4">
+              <div className="rounded-xl border border-border bg-card p-4">
                 <div className="grid grid-cols-2 gap-y-2.5 text-xs">
                   <div><span className="text-muted-foreground">Email:</span><br /><span className="font-medium">{alunaDetail.email}</span></div>
                   <div><span className="text-muted-foreground">Status:</span><br /><span className={`rounded-md border px-1.5 py-0.5 text-[10px] ${alunaStatus(alunaDetail).cls}`}>{alunaStatus(alunaDetail).label}</span></div>
@@ -1099,7 +1099,7 @@ export default function Admin() {
               </div>
 
               {alunaDetailData.pesos.length > 1 && (
-                <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-4">
+                <div className="rounded-xl border border-border bg-card p-4">
                   <h4 className="mb-2 text-xs font-bold uppercase text-muted-foreground">Evolução de peso</h4>
                   <div className="h-40">
                     <ResponsiveContainer>
@@ -1115,7 +1115,7 @@ export default function Admin() {
                 </div>
               )}
 
-              <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-4">
+              <div className="rounded-xl border border-border bg-card p-4">
                 <h4 className="mb-2 text-xs font-bold uppercase text-muted-foreground">Badges ({alunaDetailData.badges.length})</h4>
                 <div className="flex flex-wrap gap-2">
                   {alunaDetailData.badges.map((b: any) => (
@@ -1125,7 +1125,7 @@ export default function Admin() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] p-4">
+              <div className="rounded-xl border border-border bg-card p-4">
                 <h4 className="mb-2 text-xs font-bold uppercase text-muted-foreground">Check-ins ({alunaDetailData.checkins.length})</h4>
                 <div className="max-h-48 space-y-1 overflow-y-auto">
                   {alunaDetailData.checkins.map((c: any) => (
@@ -1137,7 +1137,7 @@ export default function Admin() {
                 </div>
               </div>
 
-              <div className="flex gap-2 border-t border-[#2A2A2A] pt-4">
+              <div className="flex gap-2 border-t border-border pt-4">
                 <Button size="sm" onClick={() => resetSenha(alunaDetail.email)} className="bg-primary text-primary-foreground">
                   <KeyRound className="mr-1 h-3.5 w-3.5" />Reset senha
                 </Button>
@@ -1156,7 +1156,7 @@ export default function Admin() {
 
       {/* ===== Receita modal ===== */}
       <Dialog open={!!editingReceita} onOpenChange={(o) => !o && setEditingReceita(null)}>
-        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto bg-[#141414] border-[#2A2A2A]">
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto bg-card border-border">
           <DialogHeader>
             <DialogTitle className="font-display">{editingReceita?.id ? "Editar receita" : "Nova receita"}</DialogTitle>
           </DialogHeader>
@@ -1164,28 +1164,28 @@ export default function Admin() {
             <div className="space-y-3">
               <div>
                 <label className="text-xs text-muted-foreground">Nome</label>
-                <Input value={editingReceita.nome} onChange={(e) => setEditingReceita({ ...editingReceita, nome: e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" />
+                <Input value={editingReceita.nome} onChange={(e) => setEditingReceita({ ...editingReceita, nome: e.target.value })} className="mt-1 bg-background border-border" />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-xs text-muted-foreground">Tipo</label>
-                  <select className="mt-1 h-10 w-full rounded-md border border-[#2A2A2A] bg-[#0D0D0D] px-2 text-sm" value={editingReceita.tipo_refeicao} onChange={(e) => setEditingReceita({ ...editingReceita, tipo_refeicao: e.target.value })}>
+                  <select className="mt-1 h-10 w-full rounded-md border border-border bg-background px-2 text-sm" value={editingReceita.tipo_refeicao} onChange={(e) => setEditingReceita({ ...editingReceita, tipo_refeicao: e.target.value })}>
                     <option value="cafe">Café</option><option value="almoco">Almoço</option><option value="lanche">Lanche</option><option value="jantar">Jantar</option><option value="cha">Chá</option>
                   </select>
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground">Dia (opcional)</label>
-                  <Input type="number" value={editingReceita.dia_numero ?? ""} onChange={(e) => setEditingReceita({ ...editingReceita, dia_numero: e.target.value === "" ? null : e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" />
+                  <Input type="number" value={editingReceita.dia_numero ?? ""} onChange={(e) => setEditingReceita({ ...editingReceita, dia_numero: e.target.value === "" ? null : e.target.value })} className="mt-1 bg-background border-border" />
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-2">
-                <div><label className="text-xs text-muted-foreground">Tempo (min)</label><Input type="number" value={editingReceita.tempo_preparo} onChange={(e) => setEditingReceita({ ...editingReceita, tempo_preparo: e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" /></div>
+                <div><label className="text-xs text-muted-foreground">Tempo (min)</label><Input type="number" value={editingReceita.tempo_preparo} onChange={(e) => setEditingReceita({ ...editingReceita, tempo_preparo: e.target.value })} className="mt-1 bg-background border-border" /></div>
                 <div>
                   <label className="text-xs text-muted-foreground">Imagem da receita</label>
                   {editingReceita.imagem_url && (
                     <img src={editingReceita.imagem_url} alt="" className="mt-1 h-[120px] w-full rounded-xl object-cover" />
                   )}
-                  <label className="mt-2 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-[#2A2A2A] bg-[#1E1E1E] py-5 text-center transition hover:border-primary/50">
+                  <label className="mt-2 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-border bg-[#1E1E1E] py-5 text-center transition hover:border-primary/50">
                     {uploadingReceitaImg ? (
                       <>
                         <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -1214,7 +1214,7 @@ export default function Admin() {
                       value={editingReceita.imagem_url ?? ""}
                       onChange={(e) => setEditingReceita({ ...editingReceita, imagem_url: e.target.value })}
                       placeholder="https://..."
-                      className="mt-1 h-8 bg-[#0D0D0D] border-[#2A2A2A] text-xs"
+                      className="mt-1 h-8 bg-background border-border text-xs"
                     />
                   </div>
                 </div>
@@ -1243,8 +1243,8 @@ export default function Admin() {
                 <div className="space-y-1.5">
                   {(editingReceita.ingredientes ?? []).map((ing: any, i: number) => (
                     <div key={i} className="flex gap-1.5">
-                      <Input placeholder="Nome" value={ing.nome ?? ""} onChange={(e) => { const arr = [...editingReceita.ingredientes]; arr[i] = { ...arr[i], nome: e.target.value }; setEditingReceita({ ...editingReceita, ingredientes: arr }); }} className="bg-[#0D0D0D] border-[#2A2A2A]" />
-                      <Input placeholder="Quantidade" value={ing.quantidade ?? ""} onChange={(e) => { const arr = [...editingReceita.ingredientes]; arr[i] = { ...arr[i], quantidade: e.target.value }; setEditingReceita({ ...editingReceita, ingredientes: arr }); }} className="bg-[#0D0D0D] border-[#2A2A2A]" />
+                      <Input placeholder="Nome" value={ing.nome ?? ""} onChange={(e) => { const arr = [...editingReceita.ingredientes]; arr[i] = { ...arr[i], nome: e.target.value }; setEditingReceita({ ...editingReceita, ingredientes: arr }); }} className="bg-background border-border" />
+                      <Input placeholder="Quantidade" value={ing.quantidade ?? ""} onChange={(e) => { const arr = [...editingReceita.ingredientes]; arr[i] = { ...arr[i], quantidade: e.target.value }; setEditingReceita({ ...editingReceita, ingredientes: arr }); }} className="bg-background border-border" />
                       <Button size="icon" variant="ghost" onClick={() => setEditingReceita({ ...editingReceita, ingredientes: editingReceita.ingredientes.filter((_: any, idx: number) => idx !== i) })}><X className="h-3 w-3" /></Button>
                     </div>
                   ))}
@@ -1259,14 +1259,14 @@ export default function Admin() {
                   {(editingReceita.modo_preparo ?? []).map((step: string, i: number) => (
                     <div key={i} className="flex gap-1.5">
                       <span className="pt-2 text-[10px] text-muted-foreground">{i + 1}.</span>
-                      <Textarea className="min-h-[44px] bg-[#0D0D0D] border-[#2A2A2A]" value={step} onChange={(e) => { const arr = [...editingReceita.modo_preparo]; arr[i] = e.target.value; setEditingReceita({ ...editingReceita, modo_preparo: arr }); }} />
+                      <Textarea className="min-h-[44px] bg-background border-border" value={step} onChange={(e) => { const arr = [...editingReceita.modo_preparo]; arr[i] = e.target.value; setEditingReceita({ ...editingReceita, modo_preparo: arr }); }} />
                       <Button size="icon" variant="ghost" onClick={() => setEditingReceita({ ...editingReceita, modo_preparo: editingReceita.modo_preparo.filter((_: any, idx: number) => idx !== i) })}><X className="h-3 w-3" /></Button>
                     </div>
                   ))}
                 </div>
               </div>
               <div className="flex items-center gap-2"><Switch checked={editingReceita.ativo} onCheckedChange={(v) => setEditingReceita({ ...editingReceita, ativo: v })} /><span className="text-sm">Ativa</span></div>
-              <div className="flex justify-end gap-2 border-t border-[#2A2A2A] pt-3">
+              <div className="flex justify-end gap-2 border-t border-border pt-3">
                 <Button variant="ghost" onClick={() => setEditingReceita(null)}>Cancelar</Button>
                 <Button onClick={() => saveReceita(editingReceita)} className="bg-primary text-primary-foreground">Salvar receita</Button>
               </div>
@@ -1277,15 +1277,15 @@ export default function Admin() {
 
       {/* ===== Badge modal ===== */}
       <Dialog open={!!editingBadge} onOpenChange={(o) => !o && setEditingBadge(null)}>
-        <DialogContent className="bg-[#141414] border-[#2A2A2A]">
+        <DialogContent className="bg-card border-border">
           <DialogHeader><DialogTitle>{editingBadge?.id ? "Editar badge" : "Nova badge"}</DialogTitle></DialogHeader>
           {editingBadge && (
             <div className="space-y-3">
-              <Input placeholder="Nome" value={editingBadge.nome} onChange={(e) => setEditingBadge({ ...editingBadge, nome: e.target.value })} className="bg-[#0D0D0D] border-[#2A2A2A]" />
-              <Textarea placeholder="Descrição" value={editingBadge.descricao} onChange={(e) => setEditingBadge({ ...editingBadge, descricao: e.target.value })} className="bg-[#0D0D0D] border-[#2A2A2A]" />
+              <Input placeholder="Nome" value={editingBadge.nome} onChange={(e) => setEditingBadge({ ...editingBadge, nome: e.target.value })} className="bg-background border-border" />
+              <Textarea placeholder="Descrição" value={editingBadge.descricao} onChange={(e) => setEditingBadge({ ...editingBadge, descricao: e.target.value })} className="bg-background border-border" />
               <div className="flex gap-2">
-                <Input className="w-20 bg-[#0D0D0D] border-[#2A2A2A]" placeholder="🏆" value={editingBadge.icone} onChange={(e) => setEditingBadge({ ...editingBadge, icone: e.target.value })} />
-                <Input type="number" placeholder="XP" value={editingBadge.xp_reward} onChange={(e) => setEditingBadge({ ...editingBadge, xp_reward: e.target.value })} className="bg-[#0D0D0D] border-[#2A2A2A]" />
+                <Input className="w-20 bg-background border-border" placeholder="🏆" value={editingBadge.icone} onChange={(e) => setEditingBadge({ ...editingBadge, icone: e.target.value })} />
+                <Input type="number" placeholder="XP" value={editingBadge.xp_reward} onChange={(e) => setEditingBadge({ ...editingBadge, xp_reward: e.target.value })} className="bg-background border-border" />
                 <div className="flex items-center gap-2 px-2"><Switch checked={editingBadge.ativo} onCheckedChange={(v) => setEditingBadge({ ...editingBadge, ativo: v })} /><span className="text-xs">Ativo</span></div>
               </div>
               <div className="flex justify-end gap-2 pt-2">
@@ -1299,24 +1299,24 @@ export default function Admin() {
 
       {/* ===== Mission modal ===== */}
       <Dialog open={!!editingMission} onOpenChange={(o) => !o && setEditingMission(null)}>
-        <DialogContent className="bg-[#141414] border-[#2A2A2A]">
+        <DialogContent className="bg-card border-border">
           <DialogHeader><DialogTitle>{editingMission?.id ? `Editar missão (D${editingMission?.dia_numero})` : `Nova missão (D${editingMission?.dia_numero})`}</DialogTitle></DialogHeader>
           {editingMission && (
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
-                <div><label className="text-xs text-muted-foreground">Dia</label><Input type="number" value={editingMission.dia_numero} onChange={(e) => setEditingMission({ ...editingMission, dia_numero: e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" /></div>
-                <div><label className="text-xs text-muted-foreground">Ordem</label><Input type="number" value={editingMission.ordem} onChange={(e) => setEditingMission({ ...editingMission, ordem: e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" /></div>
+                <div><label className="text-xs text-muted-foreground">Dia</label><Input type="number" value={editingMission.dia_numero} onChange={(e) => setEditingMission({ ...editingMission, dia_numero: e.target.value })} className="mt-1 bg-background border-border" /></div>
+                <div><label className="text-xs text-muted-foreground">Ordem</label><Input type="number" value={editingMission.ordem} onChange={(e) => setEditingMission({ ...editingMission, ordem: e.target.value })} className="mt-1 bg-background border-border" /></div>
               </div>
-              <div><label className="text-xs text-muted-foreground">Título</label><Input value={editingMission.titulo} onChange={(e) => setEditingMission({ ...editingMission, titulo: e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" /></div>
+              <div><label className="text-xs text-muted-foreground">Título</label><Input value={editingMission.titulo} onChange={(e) => setEditingMission({ ...editingMission, titulo: e.target.value })} className="mt-1 bg-background border-border" /></div>
               <div className="grid grid-cols-2 gap-2">
-                <div><label className="text-xs text-muted-foreground">Ícone</label><Input value={editingMission.icone} onChange={(e) => setEditingMission({ ...editingMission, icone: e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" /></div>
-                <div><label className="text-xs text-muted-foreground">XP</label><Input type="number" value={editingMission.xp_reward} onChange={(e) => setEditingMission({ ...editingMission, xp_reward: e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" /></div>
+                <div><label className="text-xs text-muted-foreground">Ícone</label><Input value={editingMission.icone} onChange={(e) => setEditingMission({ ...editingMission, icone: e.target.value })} className="mt-1 bg-background border-border" /></div>
+                <div><label className="text-xs text-muted-foreground">XP</label><Input type="number" value={editingMission.xp_reward} onChange={(e) => setEditingMission({ ...editingMission, xp_reward: e.target.value })} className="mt-1 bg-background border-border" /></div>
               </div>
-              <div><label className="text-xs text-muted-foreground">Descrição curta</label><Input value={editingMission.descricao_curta} onChange={(e) => setEditingMission({ ...editingMission, descricao_curta: e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" /></div>
-              <div><label className="text-xs text-muted-foreground">Descrição completa</label><Textarea value={editingMission.descricao_completa} onChange={(e) => setEditingMission({ ...editingMission, descricao_completa: e.target.value })} className="mt-1 min-h-[80px] bg-[#0D0D0D] border-[#2A2A2A]" /></div>
-              <div><label className="text-xs text-muted-foreground">Vídeo URL (opcional)</label><Input value={editingMission.video_url ?? ""} onChange={(e) => setEditingMission({ ...editingMission, video_url: e.target.value })} className="mt-1 bg-[#0D0D0D] border-[#2A2A2A]" /></div>
+              <div><label className="text-xs text-muted-foreground">Descrição curta</label><Input value={editingMission.descricao_curta} onChange={(e) => setEditingMission({ ...editingMission, descricao_curta: e.target.value })} className="mt-1 bg-background border-border" /></div>
+              <div><label className="text-xs text-muted-foreground">Descrição completa</label><Textarea value={editingMission.descricao_completa} onChange={(e) => setEditingMission({ ...editingMission, descricao_completa: e.target.value })} className="mt-1 min-h-[80px] bg-background border-border" /></div>
+              <div><label className="text-xs text-muted-foreground">Vídeo URL (opcional)</label><Input value={editingMission.video_url ?? ""} onChange={(e) => setEditingMission({ ...editingMission, video_url: e.target.value })} className="mt-1 bg-background border-border" /></div>
               <div className="flex items-center gap-2"><Switch checked={editingMission.ativo} onCheckedChange={(v) => setEditingMission({ ...editingMission, ativo: v })} /><span className="text-sm">Ativa</span></div>
-              <div className="flex justify-end gap-2 border-t border-[#2A2A2A] pt-3">
+              <div className="flex justify-end gap-2 border-t border-border pt-3">
                 <Button variant="ghost" onClick={() => setEditingMission(null)}>Cancelar</Button>
                 <Button onClick={() => saveMission(editingMission)} className="bg-primary text-primary-foreground">Salvar</Button>
               </div>
@@ -1327,10 +1327,10 @@ export default function Admin() {
 
       {/* ===== Broadcast modal ===== */}
       <Dialog open={broadcastOpen} onOpenChange={setBroadcastOpen}>
-        <DialogContent className="bg-[#141414] border-[#2A2A2A]">
+        <DialogContent className="bg-card border-border">
           <DialogHeader><DialogTitle className="flex items-center gap-2"><Send className="h-4 w-4 text-primary" /> Comunicado para todas as alunas</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Textarea placeholder="Mensagem que será enviada como notificação e fixada na comunidade..." value={broadcastText} onChange={(e) => setBroadcastText(e.target.value)} className="min-h-[120px] bg-[#0D0D0D] border-[#2A2A2A]" />
+            <Textarea placeholder="Mensagem que será enviada como notificação e fixada na comunidade..." value={broadcastText} onChange={(e) => setBroadcastText(e.target.value)} className="min-h-[120px] bg-background border-border" />
             {broadcastText && (
               <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
                 <p className="mb-1 text-[10px] uppercase text-primary">Pré-visualização</p>
@@ -1361,7 +1361,7 @@ export default function Admin() {
 
 function PostCard({ p, onRemove, onPin, onReviewed, compact }: { p: any; onRemove: (id: string) => void; onPin: (id: string, cur: boolean) => void; onReviewed: (id: string) => void; compact?: boolean }) {
   return (
-    <div className={`rounded-xl border p-4 ${p.reportado ? "border-destructive/50 bg-destructive/5" : p.fixado ? "border-primary/40 bg-primary/5" : "border-[#2A2A2A] bg-[#141414]"}`}>
+    <div className={`rounded-xl border p-4 ${p.reportado ? "border-destructive/50 bg-destructive/5" : p.fixado ? "border-primary/40 bg-primary/5" : "border-border bg-card"}`}>
       <div className="flex items-center gap-2.5">
         <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
           {(p.profiles?.full_name || p.profiles?.email || "?").charAt(0).toUpperCase()}
@@ -1377,7 +1377,7 @@ function PostCard({ p, onRemove, onPin, onReviewed, compact }: { p: any; onRemov
       </div>
       <p className={`mt-2 ${compact ? "text-xs" : "text-sm"}`}>{p.texto}</p>
       {!compact && p.imagem_url && <img src={p.imagem_url} alt="" className="mt-2 max-h-48 rounded-lg" />}
-      <div className="mt-3 flex flex-wrap gap-1.5 border-t border-[#2A2A2A] pt-3">
+      <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border pt-3">
         <Button size="sm" variant="ghost" onClick={() => onRemove(p.id)} className="text-destructive hover:bg-destructive/10 hover:text-destructive"><Trash2 className="mr-1 h-3 w-3" />Remover</Button>
         {p.reportado && <Button size="sm" variant="ghost" onClick={() => onReviewed(p.id)}>Marcar revisado</Button>}
         <Button size="sm" variant="ghost" onClick={() => onPin(p.id, p.fixado)}><Pin className="mr-1 h-3 w-3" />{p.fixado ? "Desafixar" : "Fixar"}</Button>

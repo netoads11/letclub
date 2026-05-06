@@ -86,7 +86,7 @@ export default function Missoes() {
       <AppShell>
         <div className="px-4 pt-10 text-center">
           <h1 className="font-display text-2xl font-bold">Desafio finalizado 💚</h1>
-          <p className="mt-3 text-sm text-[#888]">Você concluiu seus 15 dias! Que tal renovar?</p>
+          <p className="mt-3 text-sm text-muted-foreground">Você concluiu seus 15 dias! Que tal renovar?</p>
         </div>
       </AppShell>
     );
@@ -96,7 +96,7 @@ export default function Missoes() {
     return (
       <AppShell>
         <header className="flex items-center gap-3 px-4 pt-6 pb-4">
-          <button onClick={() => setShowHistory(false)} className="rounded-full bg-[#141414] p-2 border border-[#1E1E1E]">
+          <button onClick={() => setShowHistory(false)} className="rounded-full bg-card p-2 border border-border">
             <ChevronLeft className="h-5 w-5" />
           </button>
           <h1 className="font-display text-xl font-bold">Dias anteriores</h1>
@@ -111,13 +111,13 @@ export default function Missoes() {
               <div
                 key={d}
                 className={`rounded-xl border p-3 text-center ${
-                  isCurrent ? "border-primary bg-primary/10" : "border-[#1E1E1E] bg-[#141414]"
+                  isCurrent ? "border-primary bg-primary/10" : "border-border bg-card"
                 }`}
               >
-                <p className="text-[10px] text-[#888]">Dia</p>
+                <p className="text-[10px] text-muted-foreground">Dia</p>
                 <p className="font-display text-xl font-bold">{d}</p>
-                <p className="mt-1 text-[10px] text-[#888]">{c} {c === 1 ? "missão" : "missões"}</p>
-                {!isPast && !isCurrent && <Lock className="mx-auto mt-1 h-3 w-3 text-[#444]" />}
+                <p className="mt-1 text-[10px] text-muted-foreground">{c} {c === 1 ? "missão" : "missões"}</p>
+                {!isPast && !isCurrent && <Lock className="mx-auto mt-1 h-3 w-3 text-muted-foreground" />}
               </div>
             );
           })}
@@ -132,11 +132,11 @@ export default function Missoes() {
       <header className="flex items-start justify-between px-4 pt-6 pb-4">
         <div>
           <p className="text-[11px] uppercase tracking-widest text-primary">Dia {cappedDay} de 15</p>
-          <h1 className="mt-1 font-display text-[26px] font-bold text-white">Missões do dia</h1>
+          <h1 className="mt-1 font-display text-[26px] font-bold text-foreground">Missões do dia</h1>
         </div>
         <button
           onClick={() => setShowHistory(true)}
-          className="rounded-full border border-[#1E1E1E] bg-[#141414] p-2.5"
+          className="rounded-full border border-border bg-card p-2.5"
         >
           <Calendar className="h-5 w-5" />
         </button>
@@ -150,7 +150,7 @@ export default function Missoes() {
             style={{ width: `${pct}%` }}
           />
         </div>
-        <p className="mt-2 text-xs text-[#888]">
+        <p className="mt-2 text-xs text-muted-foreground">
           {doneCount} de {missions.length} concluídas
         </p>
 
@@ -178,7 +178,7 @@ export default function Missoes() {
               <div
                 key={m.id}
                 className={`rounded-2xl border p-3 transition-all ${
-                  isDone ? "border-primary/30" : "border-[#1E1E1E] bg-[#141414]"
+                  isDone ? "border-primary/30" : "border-border bg-card"
                 }`}
                 style={
                   isDone
@@ -196,10 +196,10 @@ export default function Missoes() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className={`font-display text-base font-semibold text-white ${isDone ? "opacity-60" : ""}`}>
+                    <h3 className={`font-display text-base font-semibold text-foreground ${isDone ? "opacity-60" : ""}`}>
                       {m.titulo}
                     </h3>
-                    <p className="mt-0.5 text-[13px] text-[#AAA]">{m.descricao_curta}</p>
+                    <p className="mt-0.5 text-[13px] text-muted-foreground">{m.descricao_curta}</p>
                     <span className="mt-2 inline-block rounded-full bg-[#0F1A00] px-2.5 py-0.5 text-xs font-bold text-primary">
                       +{m.xp_reward} XP
                     </span>
@@ -222,30 +222,30 @@ export default function Missoes() {
           })}
 
           {missions.length === 0 && (
-            <p className="py-10 text-center text-sm text-[#888]">Nenhuma missão para hoje.</p>
+            <p className="py-10 text-center text-sm text-muted-foreground">Nenhuma missão para hoje.</p>
           )}
         </div>
 
         {/* Future missions */}
         {futureMissions.length > 0 && (
           <div className="mt-8">
-            <p className="mb-3 text-[11px] uppercase tracking-widest text-[#444]">Próximos dias</p>
+            <p className="mb-3 text-[11px] uppercase tracking-widest text-muted-foreground">Próximos dias</p>
             <div className="space-y-2">
               {futureMissions.map((m) => (
                 <div
                   key={m.id}
-                  className="flex items-center gap-3 rounded-2xl border border-[#1E1E1E] bg-[#141414] p-3 opacity-40"
+                  className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 opacity-40"
                 >
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1E1E1E] text-lg grayscale">
                     {m.icone}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-medium text-[#888]">{m.titulo}</p>
-                    <span className="mt-0.5 inline-block rounded-md bg-[#1E1E1E] px-1.5 py-0.5 text-[12px] text-[#888]">
+                    <p className="text-[14px] font-medium text-muted-foreground">{m.titulo}</p>
+                    <span className="mt-0.5 inline-block rounded-md bg-[#1E1E1E] px-1.5 py-0.5 text-[12px] text-muted-foreground">
                       Dia {m.dia_numero}
                     </span>
                   </div>
-                  <Lock className="h-4 w-4 text-[#444]" />
+                  <Lock className="h-4 w-4 text-muted-foreground" />
                 </div>
               ))}
             </div>
