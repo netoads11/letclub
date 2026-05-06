@@ -19,6 +19,7 @@ import iconMic from "@/assets/icons/microphone.svg";
 import iconSeta from "@/assets/icons/seta.svg";
 import iconFogoSimples from "@/assets/icons/fogo-simples.svg";
 import iconFogoDuplo from "@/assets/icons/fogo-duplo.svg";
+import { Avatar } from "@/components/Avatar";
 
 const greetingFor = (d: Date) => {
   const h = d.getHours();
@@ -81,17 +82,12 @@ export default function Home() {
       {/* Header */}
       <header className="flex items-center justify-between px-5 pt-6 pb-5">
         <Link to="/perfil" className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-secondary font-display text-base font-bold text-secondary-foreground">
-            {profile?.avatar_url ? (
-              <img
-                src={profile.avatar_url}
-                className="h-full w-full object-cover"
-                alt=""
-              />
-            ) : (
-              firstName.charAt(0).toUpperCase()
-            )}
-          </div>
+          <Avatar
+            name={profile?.full_name}
+            url={profile?.avatar_url}
+            size={48}
+            shape="rounded-2xl"
+          />
           <div className="leading-tight">
             <p className="text-sm text-muted-foreground">
               {greetingFor(new Date())}
