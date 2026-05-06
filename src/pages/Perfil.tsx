@@ -23,6 +23,46 @@ import { getCurrentDay } from "@/lib/challenge";
 
 const RESTRICOES = ["vegetariana", "lactose", "gluten", "gestante"];
 
+function WeightBarChart({ data }: { data: { data: string; peso: number; meta: number }[] }) {
+  const maxVal = Math.max(...data.map((d) => Math.max(d.peso, d.meta)), 1);
+  return (
+    <div>
+      <div className="flex h-40 items-end justify-between gap-2">
+        {data.map((d, i) => {
+          const pesoH = (d.peso / maxVal) * 100;
+          const metaH = (d.meta / maxVal) * 100;
+          return (
+            <div key={i} className="relative flex h-full flex-1 items-end justify-center">
+              {/* meta (listrada/fantasma) */}
+              <div
+                className="absolute right-[18%] w-[28%] rounded-full opacity-60"
+                style={{
+                  height: `${metaH}%`,
+                  backgroundImage:
+                    "repeating-linear-gradient(0deg, hsl(var(--secondary) / 0.35) 0 3px, transparent 3px 6px)",
+                }}
+              />
+              {/* peso real */}
+              <div
+                className="absolute left-[18%] w-[28%] rounded-full bg-primary"
+                style={{ height: `${pesoH}%` }}
+              />
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-2 flex justify-between gap-2">
+        {data.map((d, i) => (
+          <div key={i} className="flex flex-1 flex-col items-center">
+            <p className="font-display text-sm font-bold text-foreground">{d.peso} kg</p>
+            <p className="text-[10px] text-muted-foreground">{d.data}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Perfil() {
   const { profile, refreshProfile, signOut, user } = useAuth();
   const nav = useNavigate();
