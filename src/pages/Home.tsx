@@ -5,19 +5,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import {
   Menu,
-  Apple,
-  MessageCircle,
-  Mic,
-  Target,
-  Flame,
   Bookmark,
   MoreHorizontal,
   Heart,
-  Zap,
-  ArrowUpRight,
-  CheckCircle2,
 } from "lucide-react";
 import { getCurrentDay } from "@/lib/challenge";
+import iconRaio from "@/assets/icons/raio.svg";
+import iconSelo from "@/assets/icons/selo.svg";
+import iconAlvo from "@/assets/icons/alvo.svg";
+import iconChatLet from "@/assets/icons/chat-let.svg";
+import iconMaca from "@/assets/icons/maca.svg";
+import iconMic from "@/assets/icons/microphone.svg";
+import iconSeta from "@/assets/icons/seta.svg";
+import iconFogoSimples from "@/assets/icons/fogo-simples.svg";
+import iconFogoDuplo from "@/assets/icons/fogo-duplo.svg";
 
 const greetingFor = (d: Date) => {
   const h = d.getHours();
@@ -69,10 +70,10 @@ export default function Home() {
     missionsToday > 0 ? Math.round((doneToday / missionsToday) * 100) : 0;
 
   const quickActions = [
-    { to: "/dieta", icon: Apple, label: "Meu Cardápio" },
-    { to: "/chat", icon: MessageCircle, label: "Fale com a Let" },
-    { to: "/missoes", icon: Mic, label: "Áudios Diários" },
-    { to: "/missoes", icon: Target, label: "Missões do dia" },
+    { to: "/dieta", icon: iconMaca, label: "Meu Cardápio" },
+    { to: "/chat", icon: iconChatLet, label: "Fale com a Let" },
+    { to: "/missoes", icon: iconMic, label: "Áudios Diários" },
+    { to: "/missoes", icon: iconAlvo, label: "Missões do dia" },
   ];
 
   return (
@@ -97,9 +98,7 @@ export default function Home() {
             </p>
             <h1 className="flex items-center gap-1.5 font-display text-[22px] font-bold text-foreground">
               Olá, {firstName}
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary">
-                <Zap className="h-3 w-3 text-primary-foreground" fill="currentColor" />
-              </span>
+              <img src={iconSelo} alt="" className="h-4 w-4" />
             </h1>
           </div>
         </Link>
@@ -118,7 +117,7 @@ export default function Home() {
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-1.5 text-xs">
-                <Zap className="h-4 w-4 text-primary" fill="currentColor" />
+                <img src={iconRaio} alt="" className="h-3.5 w-auto" />
                 <span className="opacity-90">Desafio Diário</span>
               </div>
               <p className="mt-3 font-display text-[34px] font-bold leading-none">
@@ -144,7 +143,7 @@ export default function Home() {
 
         {/* Quick actions 2x2 */}
         <div className="grid grid-cols-2 gap-3">
-          {quickActions.map(({ to, icon: Icon, label }) => (
+          {quickActions.map(({ to, icon, label }) => (
             <Link
               key={label}
               to={to}
@@ -152,9 +151,9 @@ export default function Home() {
             >
               <div className="flex items-start justify-between">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary">
-                  <Icon className="h-5 w-5 text-primary-foreground" strokeWidth={2.2} />
+                  <img src={icon} alt="" className="h-5 w-5" />
                 </div>
-                <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                <img src={iconSeta} alt="" className="h-3.5 w-3.5" />
               </div>
               <p className="mt-8 font-display text-[15px] font-semibold text-foreground">
                 {label}
@@ -167,7 +166,7 @@ export default function Home() {
         <div className="flex items-center justify-between rounded-2xl bg-primary/15 px-5 py-4">
           <div>
             <div className="flex items-center gap-1.5 text-xs text-foreground/80">
-              <Flame className="h-3.5 w-3.5 text-primary" fill="currentColor" />
+              <img src={iconFogoSimples} alt="" className="h-3.5 w-auto" />
               Sua Jornada
             </div>
             <p className="mt-1 font-display text-xl font-bold text-foreground">
@@ -175,7 +174,7 @@ export default function Home() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Flame className="h-9 w-9 text-primary" fill="currentColor" />
+            <img src={iconFogoDuplo} alt="" className="h-9 w-auto" />
             <div className="text-right">
               <p className="text-xs text-foreground/80">Pontuação</p>
               <p className="font-display text-xl font-bold text-foreground">
@@ -197,10 +196,7 @@ export default function Home() {
                   <span className="font-display text-[15px] font-bold text-foreground">
                     LETClub
                   </span>
-                  <CheckCircle2
-                    className="h-4 w-4 text-primary"
-                    fill="currentColor"
-                  />
+                  <img src={iconSelo} alt="" className="h-4 w-4" />
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
