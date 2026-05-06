@@ -81,7 +81,7 @@ export default function Home() {
   const quickActions = [
     { to: "/dieta", icon: iconMaca, label: "Meu Cardápio" },
     { to: "/chat", icon: iconChatLet, label: "Fale com a Let" },
-    { to: "/missoes", icon: iconMic, label: "Áudios Diários" },
+    { to: "/audios", icon: iconMic, label: "Áudios Diários" },
     { to: "/missoes", icon: iconAlvo, label: "Missões do dia" },
   ];
 

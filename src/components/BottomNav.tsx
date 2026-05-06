@@ -28,7 +28,7 @@ const tabs: Tab[] = [
 export const BottomNav = () => {
   const loc = useLocation();
   const nav = useNavigate();
-  const hide = /^\/(missao|receita|perfil|notificacoes|admin|onboarding|auth)/.test(loc.pathname);
+  const hide = /^\/(missao|receita|perfil|notificacoes|audios|admin|onboarding|auth)/.test(loc.pathname);
   if (hide) return null;
 
   const left = tabs.slice(0, 2);
