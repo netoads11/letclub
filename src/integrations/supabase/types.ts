@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      audios_diarios: {
+        Row: {
+          ativo: boolean
+          audio_url: string
+          capa_url: string | null
+          created_at: string
+          descricao: string
+          duracao_segundos: number | null
+          id: string
+          ordem: number
+          titulo: string
+        }
+        Insert: {
+          ativo?: boolean
+          audio_url: string
+          capa_url?: string | null
+          created_at?: string
+          descricao?: string
+          duracao_segundos?: number | null
+          id?: string
+          ordem?: number
+          titulo: string
+        }
+        Update: {
+          ativo?: boolean
+          audio_url?: string
+          capa_url?: string | null
+          created_at?: string
+          descricao?: string
+          duracao_segundos?: number | null
+          id?: string
+          ordem?: number
+          titulo?: string
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           ativo: boolean
