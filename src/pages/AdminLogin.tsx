@@ -54,14 +54,14 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#2A2A2A] bg-[#141414]">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-card">
             <Shield className="h-6 w-6 text-primary" />
           </div>
-          <h1 className="font-display text-3xl font-bold tracking-tight text-white">
-            LET&amp;PONTO
+          <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">
+            LETClub
           </h1>
           <p className="mt-1 text-[11px] uppercase tracking-[0.25em] text-primary">
             Admin Console
@@ -70,11 +70,11 @@ export default function AdminLogin() {
 
         <form
           onSubmit={onSubmit}
-          className="rounded-2xl border border-[#2A2A2A] bg-[#141414] p-6 shadow-2xl"
+          className="rounded-2xl border border-border bg-card p-6 shadow-card"
         >
           <div className="space-y-4">
             <div>
-              <Label className="text-xs text-[#AAA]">E-mail</Label>
+              <Label className="text-xs text-muted-foreground">E-mail</Label>
               <Input
                 type="email"
                 autoComplete="email"
@@ -82,11 +82,11 @@ export default function AdminLogin() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@dominio.com"
-                className="mt-1.5 border-[#2A2A2A] bg-[#0D0D0D]"
+                className="mt-1.5 border-border bg-background"
               />
             </div>
             <div>
-              <Label className="text-xs text-[#AAA]">Senha</Label>
+              <Label className="text-xs text-muted-foreground">Senha</Label>
               <Input
                 type="password"
                 autoComplete="current-password"
@@ -94,7 +94,7 @@ export default function AdminLogin() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="mt-1.5 border-[#2A2A2A] bg-[#0D0D0D]"
+                className="mt-1.5 border-border bg-background"
               />
             </div>
             <Button
@@ -114,7 +114,7 @@ export default function AdminLogin() {
         <div className="mt-6 text-center">
           <Link
             to="/auth"
-            className="text-xs text-[#888] transition-colors hover:text-primary"
+            className="text-xs text-muted-foreground transition-colors hover:text-primary"
           >
             ← Voltar ao app
           </Link>
