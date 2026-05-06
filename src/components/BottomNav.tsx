@@ -1,27 +1,28 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Home, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import iconMaca from "@/assets/icons/maca.svg";
-import iconComunidade from "@/assets/icons/comunidade.svg";
-import iconChatLet from "@/assets/icons/chat-let.svg";
+import iconHome from "@/assets/icons/nav/home.svg";
+import iconHomeActive from "@/assets/icons/nav/home_active.svg";
+import iconDieta from "@/assets/icons/nav/dieta.svg";
+import iconDietaActive from "@/assets/icons/nav/dieta_active.svg";
+import iconComunidade from "@/assets/icons/nav/comunidade.svg";
+import iconComunidadeActive from "@/assets/icons/nav/comunidade_active.svg";
+import iconChat from "@/assets/icons/nav/chat.svg";
+import iconChatActive from "@/assets/icons/nav/chat_active.svg";
 
 type Tab = {
   to: string;
   label: string;
-  render: (active: boolean) => JSX.Element;
+  icon: string;
+  iconActive: string;
   badge?: number;
 };
 
-const HomeIcon = () => <Home className="h-[22px] w-[22px] text-secondary" strokeWidth={2.2} />;
-const ImgIcon = ({ src, alt }: { src: string; alt: string }) => (
-  <img src={src} alt={alt} className="h-[22px] w-[22px] object-contain" />
-);
-
 const tabs: Tab[] = [
-  { to: "/home", label: "Início", render: () => <HomeIcon /> },
-  { to: "/dieta", label: "Cardápio", render: () => <ImgIcon src={iconMaca} alt="" /> },
-  { to: "/comunidade", label: "Comunidade", badge: 3, render: () => <ImgIcon src={iconComunidade} alt="" /> },
-  { to: "/chat", label: "Let", render: () => <ImgIcon src={iconChatLet} alt="" /> },
+  { to: "/home", label: "Início", icon: iconHome, iconActive: iconHomeActive },
+  { to: "/dieta", label: "Cardápio", icon: iconDieta, iconActive: iconDietaActive },
+  { to: "/comunidade", label: "Comunidade", icon: iconComunidade, iconActive: iconComunidadeActive, badge: 3 },
+  { to: "/chat", label: "Let", icon: iconChat, iconActive: iconChatActive },
 ];
 
 export const BottomNav = () => {
@@ -33,7 +34,7 @@ export const BottomNav = () => {
   const left = tabs.slice(0, 2);
   const right = tabs.slice(2);
 
-  const renderTab = ({ to, label, render, badge }: Tab) => (
+  const renderTab = ({ to, label, icon, iconActive, badge }: Tab) => (
     <NavLink
       key={to}
       to={to}
@@ -41,13 +42,12 @@ export const BottomNav = () => {
     >
       {({ isActive }) => (
         <>
-          <div
-            className={cn(
-              "relative flex h-12 w-12 items-center justify-center rounded-2xl transition-colors",
-              isActive ? "bg-secondary/20" : "bg-muted/60",
-            )}
-          >
-            {render(isActive)}
+          <div className="relative">
+            <img
+              src={isActive ? iconActive : icon}
+              alt=""
+              className="h-10 w-10"
+            />
             {badge ? (
               <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground ring-2 ring-card">
                 {badge}
