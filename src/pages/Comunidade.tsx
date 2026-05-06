@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
-import { Heart, Flame, Zap, Plus, Flag, X, ImagePlus } from "lucide-react";
+import { Heart, Flame, Zap, Flag, X, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -181,15 +181,6 @@ export default function Comunidade() {
           );
         })}
       </div>
-
-      {/* FAB */}
-      <button
-        onClick={() => setShow(true)}
-        className="fixed bottom-20 right-4 z-30 flex h-[52px] w-[52px] items-center justify-center rounded-full bg-primary text-primary-foreground"
-        style={{ boxShadow: "0 4px 20px rgba(205, 255, 0, 0.4)" }}
-      >
-        <Plus className="h-5 w-5" strokeWidth={2.5} />
-      </button>
 
       {/* Modal */}
       {show && (
