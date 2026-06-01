@@ -75,7 +75,7 @@ export default function PerfilScreen() {
   const xp = profile.xp_total;
 
   const uploadAvatar = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.7 });
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 });
     if (result.canceled || !result.assets[0]) return;
     setUploading(true);
     try {
