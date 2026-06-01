@@ -7,9 +7,7 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "scheme": "letclub",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "exposdk:52.0.0",
     "updates": {
       "url": "https://u.expo.dev/61e437f1-a99c-40a2-ac0f-b3aeb0f50485",
       "fallbackToCacheTimeout": 0
