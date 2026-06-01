@@ -12,9 +12,8 @@ import MissaoDetalheScreen from "@/screens/MissaoDetalheScreen";
 import ReceitaDetalheScreen from "@/screens/ReceitaDetalheScreen";
 import AudiosScreen from "@/screens/AudiosScreen";
 import NotificacoesScreen from "@/screens/NotificacoesScreen";
-
-// Placeholder screens — will be migrated later
-import PlaceholderScreen from "@/screens/PlaceholderScreen";
+import PerfilScreen from "@/screens/PerfilScreen";
+import AdminScreen from "@/screens/AdminScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -35,7 +34,7 @@ export default function RootNavigator() {
         <>
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Auth" component={AuthScreen} />
-          <Stack.Screen name="ResetPassword" component={PlaceholderScreen} />
+          <Stack.Screen name="ResetPassword" component={AuthScreen} />
         </>
       ) : !profile?.onboarding_completed ? (
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
@@ -45,10 +44,10 @@ export default function RootNavigator() {
           <Stack.Screen name="Missoes" component={MissoesScreen} />
           <Stack.Screen name="MissaoDetalhe" component={MissaoDetalheScreen} />
           <Stack.Screen name="ReceitaDetalhe" component={ReceitaDetalheScreen} />
-          <Stack.Screen name="Perfil" component={PlaceholderScreen} />
+          <Stack.Screen name="Perfil" component={PerfilScreen} />
           <Stack.Screen name="Notificacoes" component={NotificacoesScreen} />
           <Stack.Screen name="Audios" component={AudiosScreen} />
-          <Stack.Screen name="Admin" component={PlaceholderScreen} />
+          <Stack.Screen name="Admin" component={AdminScreen} />
         </>
       )}
     </Stack.Navigator>
