@@ -5,7 +5,10 @@ import type { RootStackParamList } from "./types";
 
 import SplashScreen from "@/screens/SplashScreen";
 import AuthScreen from "@/screens/AuthScreen";
+import OnboardingScreen from "@/screens/OnboardingScreen";
 import MainTabs from "./MainTabs";
+import MissoesScreen from "@/screens/MissoesScreen";
+import MissaoDetalheScreen from "@/screens/MissaoDetalheScreen";
 
 // Placeholder screens — will be migrated later
 import PlaceholderScreen from "@/screens/PlaceholderScreen";
@@ -32,12 +35,12 @@ export default function RootNavigator() {
           <Stack.Screen name="ResetPassword" component={PlaceholderScreen} />
         </>
       ) : !profile?.onboarding_completed ? (
-        <Stack.Screen name="Onboarding" component={PlaceholderScreen} />
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       ) : (
         <>
           <Stack.Screen name="Main" component={MainTabs} />
-          <Stack.Screen name="Missoes" component={PlaceholderScreen} />
-          <Stack.Screen name="MissaoDetalhe" component={PlaceholderScreen} />
+          <Stack.Screen name="Missoes" component={MissoesScreen} />
+          <Stack.Screen name="MissaoDetalhe" component={MissaoDetalheScreen} />
           <Stack.Screen name="ReceitaDetalhe" component={PlaceholderScreen} />
           <Stack.Screen name="Perfil" component={PlaceholderScreen} />
           <Stack.Screen name="Notificacoes" component={PlaceholderScreen} />
