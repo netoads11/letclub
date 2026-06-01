@@ -50,7 +50,7 @@ export default function ComunidadeScreen() {
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.7,
     });
     if (!result.canceled && result.assets[0]) {

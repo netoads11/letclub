@@ -7,16 +7,19 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "scheme": "letclub",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1E1B4B"
+    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.letclub.app"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#7C3AED",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#7C3AED"
       },
       "package": "com.letclub.app"
     },
