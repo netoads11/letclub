@@ -10,6 +10,8 @@ import MainTabs from "./MainTabs";
 import MissoesScreen from "@/screens/MissoesScreen";
 import MissaoDetalheScreen from "@/screens/MissaoDetalheScreen";
 import ReceitaDetalheScreen from "@/screens/ReceitaDetalheScreen";
+import AudiosScreen from "@/screens/AudiosScreen";
+import NotificacoesScreen from "@/screens/NotificacoesScreen";
 
 // Placeholder screens — will be migrated later
 import PlaceholderScreen from "@/screens/PlaceholderScreen";
@@ -44,8 +46,8 @@ export default function RootNavigator() {
           <Stack.Screen name="MissaoDetalhe" component={MissaoDetalheScreen} />
           <Stack.Screen name="ReceitaDetalhe" component={ReceitaDetalheScreen} />
           <Stack.Screen name="Perfil" component={PlaceholderScreen} />
-          <Stack.Screen name="Notificacoes" component={PlaceholderScreen} />
-          <Stack.Screen name="Audios" component={PlaceholderScreen} />
+          <Stack.Screen name="Notificacoes" component={NotificacoesScreen} />
+          <Stack.Screen name="Audios" component={AudiosScreen} />
           <Stack.Screen name="Admin" component={PlaceholderScreen} />
         </>
       )}
