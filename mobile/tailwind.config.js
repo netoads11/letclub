@@ -6,28 +6,30 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#7C3AED",
-          foreground: "#FFFFFF",
+          DEFAULT: "#BFDB1E",
+          foreground: "#1A1A1A",
         },
         secondary: {
-          DEFAULT: "#1E1B4B",
+          DEFAULT: "#B07664",
           foreground: "#FFFFFF",
         },
         muted: {
-          DEFAULT: "#F1F5F9",
-          foreground: "#64748B",
+          DEFAULT: "#EFEFEF",
+          foreground: "#888888",
         },
         card: {
-          DEFAULT: "#FFFFFF",
-          foreground: "#0F172A",
+          DEFAULT: "#FCFCFC",
+          foreground: "#1A1A1A",
         },
         destructive: {
           DEFAULT: "#EF4444",
           foreground: "#FFFFFF",
         },
-        border: "#E2E8F0",
-        background: "#F8FAFC",
-        foreground: "#0F172A",
+        border: "#ECECEC",
+        input: "#ECECEC",
+        ring: "#BFDB1E",
+        background: "#F8F8F8",
+        foreground: "#1A1A1A",
       },
       fontFamily: {
         display: ["Intelo-Bold"],

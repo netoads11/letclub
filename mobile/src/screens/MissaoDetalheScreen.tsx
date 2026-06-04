@@ -13,7 +13,7 @@ import { ChevronLeft, Check } from "lucide-react-native";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import type { RootStackParamList } from "@/navigation/types";
-import Toast from "react-native-toast-message";
+import { showToast } from "@/lib/toast";
 
 type Route = RouteProp<RootStackParamList, "MissaoDetalhe">;
 
@@ -38,7 +38,7 @@ export default function MissaoDetalheScreen() {
       setError(null);
       const mr = await supabase.from("missions").select("*").eq("id", id).maybeSingle();
       if (cancelled) return;
-      if (mr.error) { setError(mr.error.message); setLoading(false); return; }
+      if (mr.error) { console.log("[MISSAO_DETALHE] missions error:", mr.error.message, mr.error.code); setError(mr.error.message); setLoading(false); return; }
       if (!mr.data) { setError("Missao nao encontrada"); setLoading(false); return; }
       setM(mr.data);
       if (profile) {
@@ -49,6 +49,7 @@ export default function MissaoDetalheScreen() {
           .eq("mission_id", id)
           .maybeSingle();
         if (cancelled) return;
+        if (cr.error) console.log("[MISSAO_DETALHE] checkins select error:", cr.error.message, cr.error.code);
         if (cr.data) { setDone(cr.data); setNota(cr.data.anotacao || ""); }
       }
       setLoading(false);
@@ -60,8 +61,9 @@ export default function MissaoDetalheScreen() {
     if (!profile || !m) return;
     setBusy(true);
     if (done) {
-      await supabase.from("checkins").update({ anotacao: nota }).eq("id", done.id);
-      Toast.show({ type: "success", text1: "Anotacao salva" });
+      const { error: updErr } = await supabase.from("checkins").update({ anotacao: nota }).eq("id", done.id);
+      if (updErr) console.log("[MISSAO_DETALHE] checkins update error:", updErr.message, updErr.code);
+      showToast("success", "Anotação salva");
     } else {
       const { data, error } = await supabase
         .from("checkins")
@@ -73,9 +75,9 @@ export default function MissaoDetalheScreen() {
         })
         .select()
         .single();
-      if (error) { Toast.show({ type: "error", text1: error.message }); setBusy(false); return; }
+      if (error) { console.log("[MISSAO_DETALHE] checkins insert error:", error.message, error.code); showToast("error", error.message); setBusy(false); return; }
       setDone(data);
-      Toast.show({ type: "success", text1: `Missao concluida! +${m.xp_reward} XP` });
+      showToast("success", `Missão concluída! +${m.xp_reward} XP`);
     }
     setBusy(false);
   };
@@ -83,7 +85,7 @@ export default function MissaoDetalheScreen() {
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color="#7C3AED" />
+        <ActivityIndicator size="large" color="#BFDB1E" />
       </View>
     );
   }
@@ -104,7 +106,7 @@ export default function MissaoDetalheScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className="flex-row items-center gap-3 px-5 py-4">
           <TouchableOpacity onPress={() => nav.goBack()} className="rounded-full bg-card p-2">
-            <ChevronLeft size={20} color="#0F172A" />
+            <ChevronLeft size={20} color="#1A1A1A" />
           </TouchableOpacity>
           <Text className="text-xs uppercase tracking-wide text-muted-foreground">
             Dia {m.dia_numero}
@@ -126,7 +128,7 @@ export default function MissaoDetalheScreen() {
               value={nota}
               onChangeText={setNota}
               placeholder="Suas observacoes sobre essa missao..."
-              placeholderTextColor="#64748B"
+              placeholderTextColor="#888888"
               multiline
               maxLength={500}
               className="mt-1.5 min-h-[100px] rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground"
@@ -150,6 +152,10 @@ export default function MissaoDetalheScreen() {
               <Text className="text-sm font-semibold text-primary-foreground">Marcar como concluida</Text>
             )}
           </TouchableOpacity>
+
+          <Text className="mb-6 text-center text-xs text-muted-foreground">
+            Em breve: missões com check automático
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>

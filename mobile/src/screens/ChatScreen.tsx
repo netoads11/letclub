@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Send, ThumbsUp, ThumbsDown, RefreshCw } from "lucide-react-native";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import Toast from "react-native-toast-message";
+import { showToast } from "@/lib/toast";
 
 type Msg = {
   id?: string;
@@ -33,6 +33,7 @@ export default function ChatScreen() {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [letEmLive, setLetEmLive] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
@@ -48,11 +49,16 @@ export default function ChatScreen() {
         supabase
           .from("configuracoes_app")
           .select("chave, valor")
-          .in("chave", ["sugestoes_chat_1", "sugestoes_chat_2", "sugestoes_chat_3"]),
+          .in("chave", ["sugestoes_chat_1", "sugestoes_chat_2", "sugestoes_chat_3", "let_em_live"]),
       ]);
+      if (msgs.error) console.log("[CHAT] chat_messages error:", msgs.error.message, msgs.error.code);
+      if (cfg.error) console.log("[CHAT] configuracoes_app error:", cfg.error.message, cfg.error.code);
       setMessages((msgs.data ?? []) as Msg[]);
+      const cfgRows = cfg.data ?? [];
+      const liveRow = cfgRows.find((c) => c.chave === "let_em_live");
+      setLetEmLive(liveRow?.valor === "true");
       setSuggestions(
-        (cfg.data ?? []).sort((a, b) => a.chave.localeCompare(b.chave)).map((c) => c.valor)
+        cfgRows.filter((c) => c.chave !== "let_em_live").sort((a, b) => a.chave.localeCompare(b.chave)).map((c) => c.valor)
       );
     })();
   }, [profile]);
@@ -63,16 +69,30 @@ export default function ChatScreen() {
 
   const send = async (text: string) => {
     if (!text.trim() || !profile || streaming) return;
+    const hour = new Date().getHours();
+    if (hour < 7 || hour >= 22) {
+      showToast("error", "A Let está dormindo! Volte entre 7h e 22h");
+      return;
+    }
+    if (letEmLive) {
+      showToast("error", "A Let está em live agora! Assista e depois volte aqui");
+      return;
+    }
     const userMsg: Msg = { role: "user", content: text.trim() };
     setMessages((p) => [...p, userMsg]);
     setInput("");
     setStreaming(true);
 
-    const { data: savedUser } = await supabase
+    // Atraso inteligente: simula tempo de digitação (3-8 segundos)
+    const delay = Math.floor(Math.random() * 5000) + 3000;
+    await new Promise((resolve) => setTimeout(resolve, delay));
+
+    const { data: savedUser, error: userInsErr } = await supabase
       .from("chat_messages")
       .insert({ user_id: profile.id, role: "user", content: userMsg.content })
       .select()
       .single();
+    if (userInsErr) console.log("[CHAT] chat_messages insert (user) error:", userInsErr.message, userInsErr.code);
     if (savedUser) userMsg.id = savedUser.id;
 
     let assistantSoFar = "";
@@ -94,21 +114,23 @@ export default function ChatScreen() {
         role: m.role,
         content: m.content,
       }));
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token ?? SUPABASE_KEY;
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${SUPABASE_KEY}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ messages: history }),
       });
 
       if (!resp.ok || !resp.body) {
         if (resp.status === 429)
-          Toast.show({ type: "error", text1: "Muitas perguntas. Aguarde." });
+          showToast("error", "Muitas perguntas. Aguarde.");
         else if (resp.status === 402)
-          Toast.show({ type: "error", text1: "Creditos esgotados." });
-        else Toast.show({ type: "error", text1: "Erro ao falar com a Let" });
+          showToast("error", "Créditos esgotados.");
+        else showToast("error", "Erro ao falar com a Let");
         setStreaming(false);
         setMessages((p) => p.slice(0, -1));
         return;
@@ -145,7 +167,7 @@ export default function ChatScreen() {
       }
 
       if (assistantSoFar) {
-        const { data: saved } = await supabase
+        const { data: saved, error: assistInsErr } = await supabase
           .from("chat_messages")
           .insert({
             user_id: profile.id,
@@ -154,6 +176,7 @@ export default function ChatScreen() {
           })
           .select()
           .single();
+        if (assistInsErr) console.log("[CHAT] chat_messages insert (assistant) error:", assistInsErr.message, assistInsErr.code);
         if (saved) {
           setMessages((p) =>
             p.map((m, i) =>
@@ -163,7 +186,7 @@ export default function ChatScreen() {
         }
       }
     } catch (e: any) {
-      Toast.show({ type: "error", text1: e?.message || "Erro" });
+      showToast("error", e?.message || "Erro");
     } finally {
       setStreaming(false);
     }
@@ -172,22 +195,24 @@ export default function ChatScreen() {
   const giveFeedback = async (idx: number, fb: "positivo" | "negativo") => {
     const m = messages[idx];
     if (!m.id) return;
-    await supabase.from("chat_messages").update({ feedback: fb }).eq("id", m.id);
+    const { error: fbErr } = await supabase.from("chat_messages").update({ feedback: fb }).eq("id", m.id);
+    if (fbErr) console.log("[CHAT] chat_messages update (feedback) error:", fbErr.message, fbErr.code);
     setMessages((p) =>
       p.map((x, i) => (i === idx ? { ...x, feedback: fb } : x))
     );
-    Toast.show({ type: "success", text1: "Obrigada pelo feedback!" });
+    showToast("success", "Obrigada pelo feedback!");
   };
 
   const newConversation = async () => {
     if (!profile) return;
-    await supabase
+    const { error: sessErr } = await supabase
       .from("chat_messages")
       .update({ session_active: false })
       .eq("user_id", profile.id)
       .eq("session_active", true);
+    if (sessErr) console.log("[CHAT] chat_messages update (session) error:", sessErr.message, sessErr.code);
     setMessages([]);
-    Toast.show({ type: "success", text1: "Nova conversa iniciada" });
+    showToast("success", "Nova conversa iniciada");
   };
 
   const fmtTime = (iso?: string) => {
@@ -219,7 +244,7 @@ export default function ChatScreen() {
           onPress={newConversation}
           className="rounded-full border border-border bg-card p-2"
         >
-          <RefreshCw size={16} color="#0F172A" />
+          <RefreshCw size={16} color="#1A1A1A" />
         </TouchableOpacity>
       </View>
 
@@ -232,6 +257,8 @@ export default function ChatScreen() {
           ref={scrollRef}
           className="flex-1 px-4 py-4"
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
         >
           {messages.length === 0 && (
             <View className="items-center gap-4 py-6">
@@ -282,13 +309,13 @@ export default function ChatScreen() {
                           <TouchableOpacity onPress={() => giveFeedback(i, "positivo")}>
                             <ThumbsUp
                               size={12}
-                              color={m.feedback === "positivo" ? "#7C3AED" : "#64748B"}
+                              color={m.feedback === "positivo" ? "#BFDB1E" : "#888888"}
                             />
                           </TouchableOpacity>
                           <TouchableOpacity onPress={() => giveFeedback(i, "negativo")}>
                             <ThumbsDown
                               size={12}
-                              color={m.feedback === "negativo" ? "#EF4444" : "#64748B"}
+                              color={m.feedback === "negativo" ? "#EF4444" : "#888888"}
                             />
                           </TouchableOpacity>
                         </>
@@ -304,7 +331,7 @@ export default function ChatScreen() {
                   <Text className="text-[10px] font-bold text-primary-foreground">L</Text>
                 </View>
                 <View className="rounded-2xl bg-muted px-4 py-2.5">
-                  <Text className="text-sm text-muted-foreground">Let esta digitando...</Text>
+                  <Text className="text-sm text-muted-foreground">Let está digitando...</Text>
                 </View>
               </View>
             )}
@@ -338,7 +365,7 @@ export default function ChatScreen() {
               value={input}
               onChangeText={setInput}
               placeholder="Pergunte algo..."
-              placeholderTextColor="#64748B"
+              placeholderTextColor="#888888"
               editable={!streaming}
               onSubmitEditing={() => send(input)}
               returnKeyType="send"
@@ -355,7 +382,7 @@ export default function ChatScreen() {
             </TouchableOpacity>
           </View>
           <Text className="mt-2 text-center text-[10px] text-muted-foreground">
-            As respostas nao substituem orientacao medica.
+            As respostas não substituem orientação médica.
           </Text>
         </View>
       </KeyboardAvoidingView>

@@ -14,13 +14,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { z } from "zod";
-import Toast from "react-native-toast-message";
+import { showToast } from "@/lib/toast";
 
 const logo = require("@/assets/images/letclub-logo-dark.png");
 
 const signInSchema = z.object({
-  email: z.string().trim().email("E-mail invalido").max(255),
-  password: z.string().min(6, "Minimo 6 caracteres").max(100),
+  email: z.string().trim().email("E-mail inválido").max(255),
+  password: z.string().min(6, "Mínimo 6 caracteres").max(100),
 });
 
 const signUpSchema = signInSchema
@@ -30,7 +30,7 @@ const signUpSchema = signInSchema
   })
   .refine((d) => d.password === d.confirm, {
     path: ["confirm"],
-    message: "As senhas nao conferem",
+    message: "As senhas não conferem",
   });
 
 export default function AuthScreen() {
@@ -44,9 +44,9 @@ export default function AuthScreen() {
   const [resetMode, setResetMode] = useState(false);
 
   const showError = (msg: string) =>
-    Toast.show({ type: "error", text1: msg, position: "top" });
+    showToast("error", msg);
   const showSuccess = (msg: string) =>
-    Toast.show({ type: "success", text1: msg, position: "top" });
+    showToast("success", msg);
 
   const handleSubmit = async () => {
     setBusy(true);
@@ -56,7 +56,7 @@ export default function AuthScreen() {
           email.trim()
         );
         if (error) throw error;
-        showSuccess("E-mail de recuperacao enviado!");
+        showSuccess("E-mail de recuperação enviado!");
         setResetMode(false);
         return;
       }
@@ -98,7 +98,7 @@ export default function AuthScreen() {
       if (msg.includes("Invalid login"))
         showError("E-mail ou senha incorretos");
       else if (msg.includes("already registered"))
-        showError("Esse e-mail ja esta cadastrado");
+        showError("Esse e-mail já está cadastrado");
       else showError(msg);
     } finally {
       setBusy(false);
@@ -123,7 +123,7 @@ export default function AuthScreen() {
               resizeMode="contain"
             />
             <Text className="mt-2 text-sm text-muted-foreground">
-              {resetMode ? "Recuperar senha" : "Sua jornada comeca aqui"}
+              {resetMode ? "Recuperar senha" : "Sua jornada começa aqui"}
             </Text>
           </View>
 
@@ -176,7 +176,7 @@ export default function AuthScreen() {
                   value={fullName}
                   onChangeText={setFullName}
                   placeholder="Seu nome"
-                  placeholderTextColor="#64748B"
+                  placeholderTextColor="#888888"
                   className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground"
                   autoCapitalize="words"
                 />
@@ -191,7 +191,7 @@ export default function AuthScreen() {
                 value={email}
                 onChangeText={setEmail}
                 placeholder="voce@email.com"
-                placeholderTextColor="#64748B"
+                placeholderTextColor="#888888"
                 className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -208,7 +208,7 @@ export default function AuthScreen() {
                   value={password}
                   onChangeText={setPassword}
                   placeholder="••••••••"
-                  placeholderTextColor="#64748B"
+                  placeholderTextColor="#888888"
                   className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground"
                   secureTextEntry
                 />
@@ -224,7 +224,7 @@ export default function AuthScreen() {
                   value={confirm}
                   onChangeText={setConfirm}
                   placeholder="••••••••"
-                  placeholderTextColor="#64748B"
+                  placeholderTextColor="#888888"
                   className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground"
                   secureTextEntry
                 />

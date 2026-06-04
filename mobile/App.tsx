@@ -4,7 +4,6 @@ import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import Toast from "react-native-toast-message";
 import { AuthProvider } from "@/lib/auth";
 import RootNavigator from "@/navigation/RootNavigator";
 
@@ -21,7 +20,6 @@ export default function App() {
               <RootNavigator />
             </AuthProvider>
           </NavigationContainer>
-          <Toast />
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

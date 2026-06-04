@@ -32,11 +32,11 @@ export default function MainTabs() {
           paddingTop: 8,
           paddingBottom: 12,
           borderTopWidth: 1,
-          borderTopColor: "#E2E8F0",
+          borderTopColor: "#ECECEC",
           backgroundColor: "#FFFFFF",
         },
-        tabBarActiveTintColor: "#7C3AED",
-        tabBarInactiveTintColor: "#64748B",
+        tabBarActiveTintColor: "#BFDB1E",
+        tabBarInactiveTintColor: "#888888",
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: "500",
@@ -49,7 +49,7 @@ export default function MainTabs() {
         options={{
           tabBarLabel: "Inicio",
           tabBarIcon: ({ color, size }) => (
-            <View className="h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: color === "#7C3AED" ? "#7C3AED15" : "transparent" }}>
+            <View className="h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: color === "#BFDB1E" ? "#BFDB1E15" : "transparent" }}>
               <Text style={{ color, fontSize: 18 }}>🏠</Text>
             </View>
           ),
@@ -61,8 +61,29 @@ export default function MainTabs() {
         options={{
           tabBarLabel: "Cardapio",
           tabBarIcon: ({ color }) => (
-            <View className="h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: color === "#7C3AED" ? "#7C3AED15" : "transparent" }}>
+            <View className="h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: color === "#BFDB1E" ? "#BFDB1E15" : "transparent" }}>
               <Text style={{ fontSize: 18 }}>🍎</Text>
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Publicar"
+        component={ComunidadeScreen}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate("Comunidade", { openPost: true });
+          },
+        })}
+        options={{
+          tabBarLabel: "",
+          tabBarIcon: () => (
+            <View
+              className="items-center justify-center rounded-full bg-primary"
+              style={{ width: 52, height: 52, marginTop: -16 }}
+            >
+              <Plus size={28} color="#fff" />
             </View>
           ),
         }}
@@ -73,7 +94,7 @@ export default function MainTabs() {
         options={{
           tabBarLabel: "Comunidade",
           tabBarIcon: ({ color }) => (
-            <View className="h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: color === "#7C3AED" ? "#7C3AED15" : "transparent" }}>
+            <View className="h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: color === "#BFDB1E" ? "#BFDB1E15" : "transparent" }}>
               <Text style={{ fontSize: 18 }}>👥</Text>
             </View>
           ),
@@ -85,7 +106,7 @@ export default function MainTabs() {
         options={{
           tabBarLabel: "Let",
           tabBarIcon: ({ color }) => (
-            <View className="h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: color === "#7C3AED" ? "#7C3AED15" : "transparent" }}>
+            <View className="h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: color === "#BFDB1E" ? "#BFDB1E15" : "transparent" }}>
               <Text style={{ fontSize: 18 }}>💬</Text>
             </View>
           ),

@@ -18,12 +18,12 @@ import AdminScreen from "@/screens/AdminScreen";
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, isAdmin, loading } = useAuth();
 
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color="#7C3AED" />
+        <ActivityIndicator size="large" color="#BFDB1E" />
       </View>
     );
   }
@@ -47,7 +47,7 @@ export default function RootNavigator() {
           <Stack.Screen name="Perfil" component={PerfilScreen} />
           <Stack.Screen name="Notificacoes" component={NotificacoesScreen} />
           <Stack.Screen name="Audios" component={AudiosScreen} />
-          <Stack.Screen name="Admin" component={AdminScreen} />
+          {isAdmin && <Stack.Screen name="Admin" component={AdminScreen} />}
         </>
       )}
     </Stack.Navigator>

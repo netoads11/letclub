@@ -7,7 +7,7 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "scheme": "letclub",
-    "runtimeVersion": "exposdk:52.0.0",
+    "runtimeVersion": "exposdk:54.0.0",
     "updates": {
       "url": "https://u.expo.dev/61e437f1-a99c-40a2-ac0f-b3aeb0f50485",
       "fallbackToCacheTimeout": 0
@@ -15,7 +15,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#1E1B4B"
+      "backgroundColor": "#B07664"
     },
     "ios": {
       "supportsTablet": false,
@@ -24,7 +24,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundColor": "#7C3AED"
+        "backgroundColor": "#BFDB1E"
       },
       "package": "com.letclub.app"
     },

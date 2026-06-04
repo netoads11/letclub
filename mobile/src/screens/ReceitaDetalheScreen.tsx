@@ -13,7 +13,7 @@ import { ChevronLeft, Heart, Clock } from "lucide-react-native";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import type { RootStackParamList } from "@/navigation/types";
-import Toast from "react-native-toast-message";
+import { showToast } from "@/lib/toast";
 
 type Route = RouteProp<RootStackParamList, "ReceitaDetalhe">;
 
@@ -24,6 +24,7 @@ export default function ReceitaDetalheScreen() {
   const { id } = route.params;
 
   const [r, setR] = useState<any>(null);
+  const [notFound, setNotFound] = useState(false);
   const [fav, setFav] = useState(false);
 
   useEffect(() => {
@@ -33,6 +34,10 @@ export default function ReceitaDetalheScreen() {
         supabase.from("receitas").select("*").eq("id", id).maybeSingle(),
         supabase.from("receitas_favoritas").select("id").eq("user_id", profile.id).eq("receita_id", id).maybeSingle(),
       ]);
+      if (!rr.data) {
+        setNotFound(true);
+        return;
+      }
       setR(rr.data);
       setFav(!!fr.data);
     })();
@@ -46,14 +51,30 @@ export default function ReceitaDetalheScreen() {
     } else {
       await supabase.from("receitas_favoritas").insert({ user_id: profile.id, receita_id: id });
       setFav(true);
-      Toast.show({ type: "success", text1: "Salva nos favoritos" });
+      showToast("success", "Salva nos favoritos");
     }
   };
+
+  if (notFound) {
+    return (
+      <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+        <View className="flex-row items-center px-5 py-4">
+          <TouchableOpacity onPress={() => nav.goBack()} className="rounded-full bg-card p-2">
+            <ChevronLeft size={20} color="#1A1A1A" />
+          </TouchableOpacity>
+        </View>
+        <View className="flex-1 items-center justify-center px-6">
+          <Text className="text-lg font-bold text-foreground">Receita não encontrada</Text>
+          <Text className="mt-2 text-center text-sm text-muted-foreground">Essa receita pode ter sido removida.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (!r) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color="#7C3AED" />
+        <ActivityIndicator size="large" color="#BFDB1E" />
       </View>
     );
   }
@@ -64,10 +85,10 @@ export default function ReceitaDetalheScreen() {
         {/* Header */}
         <View className="flex-row items-center justify-between px-5 py-4">
           <TouchableOpacity onPress={() => nav.goBack()} className="rounded-full bg-card p-2">
-            <ChevronLeft size={20} color="#0F172A" />
+            <ChevronLeft size={20} color="#1A1A1A" />
           </TouchableOpacity>
           <TouchableOpacity onPress={toggleFav} className="rounded-full bg-card p-2">
-            <Heart size={20} color={fav ? "#7C3AED" : "#0F172A"} fill={fav ? "#7C3AED" : "none"} />
+            <Heart size={20} color={fav ? "#BFDB1E" : "#1A1A1A"} fill={fav ? "#BFDB1E" : "none"} />
           </TouchableOpacity>
         </View>
 
@@ -86,7 +107,7 @@ export default function ReceitaDetalheScreen() {
 
           <Text className="text-2xl font-bold text-foreground">{r.nome}</Text>
           <View className="mt-2 flex-row items-center gap-2">
-            <Clock size={16} color="#64748B" />
+            <Clock size={16} color="#888888" />
             <Text className="text-xs text-muted-foreground">{r.tempo_preparo} minutos</Text>
           </View>
 

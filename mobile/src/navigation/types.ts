@@ -10,13 +10,13 @@ export type RootStackParamList = {
   Perfil: undefined;
   Notificacoes: undefined;
   Audios: undefined;
-  AdminLogin: undefined;
   Admin: undefined;
 };
 
 export type MainTabParamList = {
   Home: undefined;
   Dieta: undefined;
-  Comunidade: undefined;
+  Publicar: undefined;
+  Comunidade: { openPost?: boolean } | undefined;
   Chat: undefined;
 };

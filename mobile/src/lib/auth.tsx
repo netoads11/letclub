@@ -48,12 +48,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", uid).eq("role", "admin").maybeSingle(),
       ]);
+      if (p.error) console.log("[AUTH] profiles error:", p.error.message, p.error.code);
+      if (r.error) console.log("[AUTH] user_roles error:", r.error.message, r.error.code);
       let prof = p.data as Profile | null;
       if (!prof) {
-        const { data: u } = await supabase.auth.getUser();
+        const { data: u, error: getUserErr } = await supabase.auth.getUser();
+        if (getUserErr) console.log("[AUTH] auth.getUser error:", getUserErr.message, getUserErr.code);
         const meta = (u.user?.user_metadata ?? {}) as Record<string, any>;
         const today = new Date().toISOString().slice(0, 10);
-        const { data: inserted } = await supabase
+        const { data: inserted, error: upsertErr } = await supabase
           .from("profiles")
           .upsert(
             {
@@ -66,6 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           )
           .select("*")
           .maybeSingle();
+        if (upsertErr) console.log("[AUTH] profiles upsert error:", upsertErr.message, upsertErr.code);
         prof = (inserted as Profile) ?? null;
       }
       setProfile(prof);
@@ -102,7 +106,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    const { error: signOutErr } = await supabase.auth.signOut();
+    if (signOutErr) console.log("[AUTH] auth.signOut error:", signOutErr.message, signOutErr.code);
     setUser(null);
     setSession(null);
     setProfile(null);

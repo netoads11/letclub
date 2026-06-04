@@ -14,15 +14,18 @@ export default function NotificacoesScreen() {
   useEffect(() => {
     if (!profile) return;
     (async () => {
-      const { data } = await supabase
+      const { data, error: selErr } = await supabase
         .from("notificacoes")
         .select("*")
         .eq("user_id", profile.id)
         .order("created_at", { ascending: false });
+      if (selErr) console.log("[NOTIFICACOES] notificacoes error:", selErr.message, selErr.code);
       setItems(data ?? []);
       const unread = (data ?? []).filter((n) => !n.lida).map((n) => n.id);
-      if (unread.length)
-        await supabase.from("notificacoes").update({ lida: true }).in("id", unread);
+      if (unread.length) {
+        const { error: updErr } = await supabase.from("notificacoes").update({ lida: true }).in("id", unread);
+        if (updErr) console.log("[NOTIFICACOES] notificações update error:", updErr.message, updErr.code);
+      }
     })();
   }, [profile]);
 
@@ -30,15 +33,15 @@ export default function NotificacoesScreen() {
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
       <View className="flex-row items-center gap-3 px-5 py-4">
         <TouchableOpacity onPress={() => nav.goBack()} className="rounded-full bg-card p-2">
-          <ChevronLeft size={20} color="#0F172A" />
+          <ChevronLeft size={20} color="#1A1A1A" />
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-foreground">Notificacoes</Text>
+        <Text className="text-xl font-bold text-foreground">Notificações</Text>
       </View>
 
       <ScrollView className="px-5" showsVerticalScrollIndicator={false}>
         {items.length === 0 && (
           <Text className="py-10 text-center text-sm text-muted-foreground">
-            Sem notificacoes ainda.
+            Sem notificações ainda.
           </Text>
         )}
         <View className="gap-2 pb-6">
@@ -50,7 +53,7 @@ export default function NotificacoesScreen() {
               }`}
             >
               <View className="flex-row items-start gap-3">
-                <Bell size={16} color="#7C3AED" style={{ marginTop: 2 }} />
+                <Bell size={16} color="#BFDB1E" style={{ marginTop: 2 }} />
                 <View className="flex-1">
                   <Text className="text-sm font-semibold text-foreground">{n.titulo}</Text>
                   <Text className="mt-1 text-xs text-muted-foreground">{n.mensagem}</Text>

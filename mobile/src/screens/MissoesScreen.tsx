@@ -14,7 +14,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentDay, getChallengePhase } from "@/lib/challenge";
 import type { RootStackParamList } from "@/navigation/types";
-import Toast from "react-native-toast-message";
+import { showToast } from "@/lib/toast";
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -53,6 +53,9 @@ export default function MissoesScreen() {
       supabase.from("checkins").select("mission_id, dia_numero").eq("user_id", profile.id),
       supabase.from("missions").select("*").gt("dia_numero", cappedDay).eq("ativo", true).order("dia_numero").order("ordem").limit(6),
     ]);
+    if (m.error) console.log("[MISSOES] missions error:", m.error.message, m.error.code);
+    if (c.error) console.log("[MISSOES] checkins error:", c.error.message, c.error.code);
+    if (fm.error) console.log("[MISSOES] missions (future) error:", fm.error.message, fm.error.code);
     setMissions((m.data ?? []) as Mission[]);
     setFutureMissions((fm.data ?? []) as Mission[]);
     const set = new Set<string>();
@@ -72,11 +75,11 @@ export default function MissoesScreen() {
       mission_id: m.id,
       dia_numero: m.dia_numero,
     });
-    if (error) return Toast.show({ type: "error", text1: error.message });
+    if (error) { console.log("[MISSOES] checkins insert error:", error.message, error.code); return showToast("error", error.message); }
     setDone(new Set([...done, m.id]));
-    Toast.show({ type: "success", text1: `+${m.xp_reward} XP! ${m.icone}` });
+    showToast("success", `+${m.xp_reward} XP! ${m.icone}`);
     if (done.size + 1 === missions.length) {
-      setTimeout(() => Toast.show({ type: "success", text1: "Dia completo! +50 XP de bonus!" }), 400);
+      setTimeout(() => showToast("success", "Dia completo! +50 XP de bonus!"), 400);
     }
   };
 
@@ -100,7 +103,7 @@ export default function MissoesScreen() {
       <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
         <View className="flex-row items-center gap-3 px-4 pb-4 pt-6">
           <TouchableOpacity onPress={() => setShowHistory(false)} className="rounded-full border border-border bg-card p-2">
-            <ChevronLeft size={20} color="#0F172A" />
+            <ChevronLeft size={20} color="#1A1A1A" />
           </TouchableOpacity>
           <Text className="text-xl font-bold text-foreground">Dias anteriores</Text>
         </View>
@@ -123,7 +126,7 @@ export default function MissoesScreen() {
                   <Text className="mt-1 text-[10px] text-muted-foreground">
                     {c} {c === 1 ? "missao" : "missoes"}
                   </Text>
-                  {!isPast && !isCurrent && <Lock size={12} color="#64748B" style={{ marginTop: 4 }} />}
+                  {!isPast && !isCurrent && <Lock size={12} color="#888888" style={{ marginTop: 4 }} />}
                 </View>
               );
             })}
@@ -140,14 +143,14 @@ export default function MissoesScreen() {
         <View className="flex-row items-start justify-between px-4 pb-4 pt-6">
           <View className="flex-row items-start gap-2">
             <TouchableOpacity onPress={() => nav.goBack()} className="-ml-1 mt-1 p-1">
-              <ChevronLeft size={24} color="#0F172A" />
+              <ChevronLeft size={24} color="#1A1A1A" />
             </TouchableOpacity>
             <View>
               <Text className="text-[11px] uppercase tracking-widest text-primary">
                 Dia {cappedDay} de 15
               </Text>
               <Text className="mt-1 text-[26px] font-bold text-foreground">
-                Missoes do dia
+                Missões do dia
               </Text>
             </View>
           </View>
@@ -155,7 +158,7 @@ export default function MissoesScreen() {
             onPress={() => setShowHistory(true)}
             className="rounded-full border border-border bg-card p-2.5"
           >
-            <Calendar size={20} color="#0F172A" />
+            <Calendar size={20} color="#1A1A1A" />
           </TouchableOpacity>
         </View>
 
@@ -212,7 +215,7 @@ export default function MissoesScreen() {
 
                   {isDone ? (
                     <View className="mt-3 h-10 flex-row items-center justify-center gap-2">
-                      <Check size={16} color="#7C3AED" strokeWidth={3} />
+                      <Check size={16} color="#BFDB1E" strokeWidth={3} />
                       <Text className="text-sm font-medium text-primary">Concluida</Text>
                     </View>
                   ) : (
@@ -258,7 +261,7 @@ export default function MissoesScreen() {
                         <Text className="text-[12px] text-muted-foreground">Dia {m.dia_numero}</Text>
                       </View>
                     </View>
-                    <Lock size={16} color="#64748B" />
+                    <Lock size={16} color="#888888" />
                   </View>
                 ))}
               </View>

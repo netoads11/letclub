@@ -23,7 +23,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { getCurrentDay } from "@/lib/challenge";
-import Toast from "react-native-toast-message";
+import { showToast } from "@/lib/toast";
 import * as ImagePicker from "expo-image-picker";
 
 const RESTRICOES = ["vegetariana", "lactose", "gluten", "gestante"];
@@ -56,6 +56,9 @@ export default function PerfilScreen() {
         supabase.from("user_badges").select("badge_id").eq("user_id", profile.id),
         supabase.from("badges").select("*").eq("ativo", true),
       ]);
+      if (p.error) console.log("[PERFIL] pesos_historico error:", p.error.message, p.error.code);
+      if (ub.error) console.log("[PERFIL] user_badges error:", ub.error.message, ub.error.code);
+      if (b.error) console.log("[PERFIL] badges error:", b.error.message, b.error.code);
       setPesos((p.data ?? []).map((x: any) => ({ data: x.registrado_em?.slice(5) ?? "", peso: Number(x.peso) })));
       setBadges((ub.data ?? []).map((x: any) => x.badge_id));
       setAllBadges(b.data ?? []);
@@ -65,7 +68,7 @@ export default function PerfilScreen() {
   if (!profile) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color="#7C3AED" />
+        <ActivityIndicator size="large" color="#BFDB1E" />
       </SafeAreaView>
     );
   }
@@ -85,14 +88,15 @@ export default function PerfilScreen() {
       const response = await fetch(uri);
       const blob = await response.blob();
       const { error: upErr } = await supabase.storage.from("avatars").upload(path, blob, { upsert: true });
-      if (upErr) throw upErr;
+      if (upErr) { console.log("[PERFIL] storage avatars upload error:", upErr.message); throw upErr; }
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
       setAvatarUrl(data.publicUrl);
-      await supabase.from("profiles").update({ avatar_url: data.publicUrl }).eq("id", profile.id);
+      const { error: avErr } = await supabase.from("profiles").update({ avatar_url: data.publicUrl }).eq("id", profile.id);
+      if (avErr) console.log("[PERFIL] profiles update (avatar) error:", avErr.message, avErr.code);
       await refreshProfile();
-      Toast.show({ type: "success", text1: "Foto atualizada" });
+      showToast("success", "Foto atualizada");
     } catch (e: any) {
-      Toast.show({ type: "error", text1: e.message ?? "Erro ao enviar foto" });
+      showToast("error", e.message ?? "Erro ao enviar foto");
     } finally {
       setUploading(false);
     }
@@ -105,27 +109,29 @@ export default function PerfilScreen() {
       notificacoes_ativas: notif,
       restricoes_alimentares: restricoes,
     }).eq("id", profile.id);
-    if (error) return Toast.show({ type: "error", text1: error.message });
+    if (error) { console.log("[PERFIL] profiles update error:", error.message, error.code); return showToast("error", error.message); }
     await refreshProfile();
-    Toast.show({ type: "success", text1: "Perfil atualizado" });
+    showToast("success", "Perfil atualizado");
   };
 
   const logPeso = async () => {
     const n = parseFloat(newPeso);
     if (!n) return;
-    await supabase.from("pesos_historico").insert({ user_id: profile.id, peso: n });
-    await supabase.from("profiles").update({ peso_atual: n }).eq("id", profile.id);
+    const { error: pesoErr } = await supabase.from("pesos_historico").insert({ user_id: profile.id, peso: n });
+    if (pesoErr) console.log("[PERFIL] pesos_historico insert error:", pesoErr.message, pesoErr.code);
+    const { error: pesoUpdErr } = await supabase.from("profiles").update({ peso_atual: n }).eq("id", profile.id);
+    if (pesoUpdErr) console.log("[PERFIL] profiles update (peso) error:", pesoUpdErr.message, pesoUpdErr.code);
     await refreshProfile();
     setNewPeso("");
-    Toast.show({ type: "success", text1: "Peso registrado" });
+    showToast("success", "Peso registrado");
   };
 
   const updatePassword = async () => {
-    if (!newPassword || newPassword.length < 6) return Toast.show({ type: "error", text1: "Minimo 6 caracteres" });
+    if (!newPassword || newPassword.length < 6) return showToast("error", "Mínimo 6 caracteres");
     const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) return Toast.show({ type: "error", text1: error.message });
+    if (error) { console.log("[PERFIL] auth.updateUser error:", error.message, error.code); return showToast("error", error.message); }
     setNewPassword("");
-    Toast.show({ type: "success", text1: "Senha atualizada" });
+    showToast("success", "Senha atualizada");
   };
 
   const handleLogout = () => {
@@ -146,7 +152,7 @@ export default function PerfilScreen() {
         <View className="flex-row items-center justify-between px-4 py-4">
           <View className="flex-row items-center gap-2">
             <TouchableOpacity onPress={() => nav.goBack()} className="-ml-1 p-1">
-              <ChevronLeft size={24} color="#0F172A" />
+              <ChevronLeft size={24} color="#1A1A1A" />
             </TouchableOpacity>
             <Text className="text-base font-bold text-foreground">{handle}</Text>
             <Text className="text-sm text-muted-foreground">Seu Perfil</Text>
@@ -155,7 +161,7 @@ export default function PerfilScreen() {
             onPress={() => setShowSettings(true)}
             className="h-9 w-9 items-center justify-center rounded-full bg-muted"
           >
-            <MoreHorizontal size={20} color="#0F172A" />
+            <MoreHorizontal size={20} color="#1A1A1A" />
           </TouchableOpacity>
         </View>
 
@@ -243,7 +249,7 @@ export default function PerfilScreen() {
                     >
                       <Text className="text-[32px]">{b.icone}</Text>
                       <Text className="mt-2 text-center text-[11px] text-foreground">{b.nome}</Text>
-                      {!u && <Lock size={12} color="#64748B" style={{ position: "absolute", top: 6, right: 6 }} />}
+                      {!u && <Lock size={12} color="#888888" style={{ position: "absolute", top: 6, right: 6 }} />}
                     </View>
                   );
                 })}
@@ -290,8 +296,8 @@ export default function PerfilScreen() {
                 <TextInput
                   value={newPassword}
                   onChangeText={setNewPassword}
-                  placeholder="Minimo 6 caracteres"
-                  placeholderTextColor="#64748B"
+                  placeholder="Mínimo 6 caracteres"
+                  placeholderTextColor="#888888"
                   secureTextEntry
                   className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground"
                 />
@@ -303,16 +309,16 @@ export default function PerfilScreen() {
               {/* Notifications */}
               <View className="mt-3 flex-row items-center justify-between rounded-2xl border border-border bg-background p-5">
                 <View>
-                  <Text className="font-bold text-foreground">Notificacoes</Text>
+                  <Text className="font-bold text-foreground">Notificações</Text>
                   <Text className="text-[11px] text-muted-foreground">Lembretes e conquistas</Text>
                 </View>
                 <Switch
                   value={notif}
                   onValueChange={(v) => {
                     setNotif(v);
-                    supabase.from("profiles").update({ notificacoes_ativas: v }).eq("id", profile.id).then(() => refreshProfile());
+                    supabase.from("profiles").update({ notificacoes_ativas: v }).eq("id", profile.id).then(({ error: notifErr }) => { if (notifErr) console.log("[PERFIL] profiles update (notificações) error:", notifErr.message, notifErr.code); refreshProfile(); });
                   }}
-                  trackColor={{ false: "#E2E8F0", true: "#7C3AED" }}
+                  trackColor={{ false: "#ECECEC", true: "#BFDB1E" }}
                 />
               </View>
 
@@ -347,7 +353,7 @@ export default function PerfilScreen() {
                     value={newPeso}
                     onChangeText={setNewPeso}
                     placeholder="Peso atual em kg"
-                    placeholderTextColor="#64748B"
+                    placeholderTextColor="#888888"
                     keyboardType="decimal-pad"
                     className="flex-1 rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground"
                   />

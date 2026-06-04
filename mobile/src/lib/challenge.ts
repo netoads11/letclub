@@ -1,6 +1,9 @@
 export function getCurrentDay(startDate: string | null): number {
   if (!startDate) return 1;
-  const start = new Date(startDate + "T00:00:00");
+  // Handle both "2026-06-04" and "2026-06-04T00:00:00+00:00" formats
+  const dateOnly = startDate.slice(0, 10);
+  const start = new Date(dateOnly + "T00:00:00");
+  if (isNaN(start.getTime())) return 1;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   start.setHours(0, 0, 0, 0);
